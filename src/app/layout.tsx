@@ -11,8 +11,8 @@ const chakra = Chakra_Petch({
 });
 
 export const metadata: Metadata = {
-  title: "OrcMine",
-  description: "OrcMine",
+  title: "GPUMINE",
+  description: "GPU NFT Mining Game",
 };
 
 export default function RootLayout({
@@ -31,7 +31,7 @@ export default function RootLayout({
           src="https://telegram.org/js/telegram-web-app.js"
           strategy="beforeInteractive"
         />
-        <link rel="icon" href="/images/worker.png" />
+        <link rel="icon" href="/images/gpu.png" />
       </head>
       <body className={chakra.className}>
         <Providers>{children}</Providers>

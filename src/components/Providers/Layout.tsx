@@ -1,12 +1,7 @@
 "use client";
-import type { PropsWithChildren } from "react";
-import { Toaster } from "react-hot-toast";
+import { PropsWithChildren } from "react";
+import Layout from "@/components/Layout";
 
-export default function Layout({ children }: PropsWithChildren) {
-  return (
-    <div className="min-h-screen bg-gradient-orc">
-      <Toaster />
-      {children}
-    </div>
-  );
+export default function ProviderLayout({ children }: PropsWithChildren) {
+  return <Layout>{children}</Layout>;
 }

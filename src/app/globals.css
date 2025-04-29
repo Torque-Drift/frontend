@@ -11,6 +11,17 @@
   display: none; /* Webkit (Chrome, Safari, etc.) */
 }
 
+/* Remove spinner/arrows from number inputs */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
 /* Adicionando efeito de CRT para o tema cyberpunk */
 .crt::before {
   content: " ";
