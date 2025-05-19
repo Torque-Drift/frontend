@@ -21,7 +21,7 @@ export default function Home() {
             in the ultimate cyberpunk mining simulation
           </p>
           <div className="flex space-x-4">
-            <button className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 rounded hover:from-cyan-600 hover:to-blue-600 font-bold transition-colors">
+            <button className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 rounded hover:from-cyan-600 hover:to-blue-600 text-black font-bold transition-colors">
               Get Started
             </button>
             <button className="px-6 py-3 border-2 border-cyan-500 rounded hover:bg-cyan-500/20 transition-colors">
@@ -43,7 +43,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Features */}
       <section id="about" className="mb-20">
         <h3 className="text-3xl font-bold mb-10 text-center">
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-600 glitch-text">
@@ -169,12 +168,12 @@ export default function Home() {
                 <div
                   className={`absolute top-2 right-2 text-xs px-2 py-1 rounded-full text-white font-bold ${
                     gpu.rarity === "Common"
-                      ? "bg-blue-500"
+                      ? "bg-gray-500"
                       : gpu.rarity === "Rare"
-                      ? "bg-purple-500"
+                      ? "bg-blue-500"
                       : gpu.rarity === "Epic"
-                      ? "bg-pink-500"
-                      : "bg-amber-500"
+                      ? "bg-purple-500"
+                      : "bg-yellow-500"
                   }`}
                 >
                   {gpu.rarity}
@@ -188,7 +187,7 @@ export default function Home() {
                 />
                 <h4 className="text-xl font-bold">{gpu.name}</h4>
                 <p className="text-cyan-300 mb-2">Mining Power: {gpu.power}</p>
-                <button className="w-full py-2 bg-gradient-to-r from-cyan-500 to-blue-500 rounded mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button className="w-full py-2 bg-gradient-to-r from-cyan-500 to-blue-500 rounded mt-2 opacity-0 group-hover:opacity-100 text-black transition-opacity">
                   View Details
                 </button>
               </div>

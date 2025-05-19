@@ -1,7 +1,11 @@
 "use client";
 import { PropsWithChildren } from "react";
-import Layout from "./Layout";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { createConfig, http, WagmiProvider } from "wagmi";
+import { polygonAmoy } from "wagmi/chains";
+import { darkTheme, RainbowKitProvider } from "@rainbow-me/rainbowkit";
+import "@rainbow-me/rainbowkit/styles.css";
+import Layout from "../Layout";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -13,10 +17,29 @@ const queryClient = new QueryClient({
   },
 });
 
+const wagmiConfig = createConfig({
+  chains: [polygonAmoy],
+  transports: {
+    [polygonAmoy.id]: http(
+      "https://polygon-amoy.g.alchemy.com/v2/UTe3D7JmoPvgh36ldqaV-7BlAeQ0oCgx"
+    ),
+  },
+  ssr: true,
+});
+
 export default function Providers({ children }: PropsWithChildren) {
   return (
-    <QueryClientProvider client={queryClient}>
-      <Layout>{children}</Layout>
-    </QueryClientProvider>
+    <WagmiProvider config={wagmiConfig}>
+      <QueryClientProvider client={queryClient}>
+        <RainbowKitProvider
+          coolMode
+          modalSize="compact"
+          showRecentTransactions
+          theme={darkTheme()}
+        >
+          <Layout>{children}</Layout>
+        </RainbowKitProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
   );
 }
