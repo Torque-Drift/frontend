@@ -9,14 +9,16 @@ import ProgressBar from "@/components/ProgressBar";
 import GridSection from "@/components/GridSection";
 import { useSale } from "@/hooks/useSale";
 import { faqItems } from "@/constants";
+import TransactionProgress from "@/components/TransactionProgress";
 
 export default function TokenSale() {
   const [amount, setAmount] = useState(1);
-  const { buyToken, totalSold } = useSale();
+  const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
+  const { buyToken, totalSold, transactionSteps } = useSale();
 
   const tokenData = {
     name: "$CCoin",
-    price: 0.001/*  0.125 */,
+    price: 0.125,
     totalSupply: 40000,
     sold: totalSold,
     minPurchase: 0,
@@ -26,6 +28,15 @@ export default function TokenSale() {
   const targetDate = new Date();
   targetDate.setDate(targetDate.getDate() + 3);
   targetDate.setHours(targetDate.getHours() + 12);
+
+  async function handleBuyToken() {
+    setIsTransactionModalOpen(true);
+    try {
+      await buyToken(amount);
+    } catch (error) {
+      console.error("Transaction failed:", error);
+    }
+  }
 
   return (
     <>
@@ -125,7 +136,7 @@ export default function TokenSale() {
               <Button
                 variant="secondary"
                 fullWidth
-                onClick={() => buyToken(amount)}
+                onClick={handleBuyToken}
               >
                 Buy Tokens
               </Button>
@@ -143,6 +154,12 @@ export default function TokenSale() {
           </motion.div>
         </div>
       </section>
+
+      <TransactionProgress
+        isOpen={isTransactionModalOpen}
+        onClose={() => setIsTransactionModalOpen(false)}
+        steps={transactionSteps}
+      />
 
       <GridSection title="Frequently Asked Questions" columns={2}>
         {faqItems.map((faq, i) => (
