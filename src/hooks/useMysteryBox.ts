@@ -62,7 +62,7 @@ export function useMysteryBox() {
         );
         await approveTx.wait();
       }
-      console.log("pinto2")
+      
       setTransactionSteps(steps => steps.map(step =>
         step.title === "Approve CCoin Spending" ? {
           ...step,
