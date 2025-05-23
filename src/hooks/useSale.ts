@@ -48,7 +48,7 @@ export function useSale() {
       const usdContract = Usd__factory.connect(usdAddress, signer);
 
       const allowance = await usdContract.allowance(signer.address, cryptoCoinSaleAddress);
-      if (Number(allowance) < to6Decimals(amount)) {
+      if (allowance < to6Decimals(amount)) {
         const approveTx = await usdContract.approve(
           cryptoCoinSaleAddress,
           to6Decimals(amount),
