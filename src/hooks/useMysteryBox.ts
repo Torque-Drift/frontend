@@ -46,21 +46,23 @@ export function useMysteryBox() {
       const signer = await provider.getSigner();
       const basePriorityFee = ethers.parseUnits('40', 'gwei');
       const baseMaxFee = ethers.parseUnits('120', 'gwei');
+      const amountToPay = amount * 400
 
       const cryptoCoinContract = CryptoCoinAbi__factory.connect(
         cryptoCoinAddress,
         signer
       );
       const allowance = await cryptoCoinContract.allowance(signer.address, gpuSaleAddress);
-      if (Number(allowance) < to6Decimals(amount)) {
+
+      if (allowance < to18Decimals(amountToPay)) {
         const approveTx = await cryptoCoinContract.approve(
           gpuSaleAddress,
-          to18Decimals(amount),
+          to18Decimals(amountToPay),
           { gasLimit: 100000 }
         );
         await approveTx.wait();
       }
-
+      console.log("pinto2")
       setTransactionSteps(steps => steps.map(step =>
         step.title === "Approve CCoin Spending" ? {
           ...step,
@@ -79,11 +81,9 @@ export function useMysteryBox() {
 
       const refCode = referralCode && referralCode.trim() !== ""
         ? referralCode
-        : ethers.ZeroAddress;
+        : '0';
 
-      console.log(amount, refCode)
-
-      const buyTx = await gpuSaleContract.buy(amount, refCode, {
+      const buyTx = await gpuSaleContract.buy(String(amount), refCode, {
         gasLimit: 500000,
         maxPriorityFeePerGas: basePriorityFee,
         maxFeePerGas: baseMaxFee,
