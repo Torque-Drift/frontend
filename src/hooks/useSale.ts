@@ -81,11 +81,6 @@ export function useSale() {
       setTransactionSteps(steps => steps.map((step, i) =>
         i === 1 ? { ...step, status: "success" } : step
       ));
-
-      setTimeout(() => {
-        setTransactionSteps(steps => steps.map(step => ({ ...step, status: "pending" })));
-      }, 2000);
-
       return { txBuy };
     } catch (error: any) {
       setTransactionSteps(steps => steps.map(step =>
@@ -109,8 +104,9 @@ export function useSale() {
       signer
     );
     const totalSold = await cryptoCoinSaleContract.tokensSold();
-    setTotalSold(Number(totalSold));
-    return totalSold;
+    const sold = Number(ethers.formatEther(totalSold))
+    setTotalSold(sold);
+    return sold;
   }
 
   return { buyToken, getTotalSold, totalSold, transactionSteps, errorMessage };

@@ -1,9 +1,9 @@
-export const cryptoCoinAddress = "0xb9D71C79CaBEfEff9aBfD2d480b031ccc248006A";
-export const gpuAddress = "0x57Ef644933BDA3dB1B8ab7a4141042Db701F2076";
+export const cryptoCoinAddress = "0x3f58a28e2Cb9588F783e6C11e24D1FC07Fea7830";
+export const gpuAddress = "0x80998D0C77B51AE7941D05D74B198728fA991926";
 export const cryptoCoinSaleAddress =
-  "0x3c09f81768B9A976dE61aaFEa0FE0FCC56d89553";
-export const gpuSaleAddress = "0xd47e3952C1D33ceC0096d2efc58E4f6847095392";
-export const rewardAddress = "0xCcA4a9a852E4794e35C626e47543b0EDfD6AEA12";
+  "0x4f7513cCBca2eEF6464827E40F2c3e2949ac6576";
+export const gpuSaleAddress = "0x20Eb960e74168b3E83Da66D5E483DE893f67B60E";
+export const rewardAddress = "0xEd1A7681f90a665B99A45d89ab119e4901f949Ce";
 export const usdAddress = "0x080457D49031fAA004a1f6242A4c77d43f1f62e6"
 
 export const boxData = {
@@ -16,8 +16,8 @@ export const boxData = {
     legendary: "5%",
   },
   contentExamples: [
-    { name: "Rule 3434", rarity: "Common", image: "/images/gpu.png" },
-    { name: "Sapphire 1690", rarity: "Rare", image: "/images/gpu.png" },
+    { name: "Rule 3434", rarity: "Common", image: "/images/common.png" },
+    { name: "Sapphire 1690", rarity: "Rare", image: "/images/rare.png" },
     { name: "Sub Zero 8000", rarity: "Epic", image: "/images/epic.png" },
     { name: "EmberGold 6969", rarity: "Legendary", image: "/images/legendary.png" },
   ],

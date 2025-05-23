@@ -9,10 +9,25 @@ import Hero from "@/components/Hero";
 import GridSection from "@/components/GridSection";
 import { useMysteryBox } from "@/hooks/useMysteryBox";
 import { boxData, latestPulls, howItWorksSteps } from "@/constants";
+import TransactionProgress from "@/components/TransactionProgress";
 
 export default function MysteryBox() {
   const [boxCount, setBoxCount] = useState(1);
-  const { getRefCode, buyMysteryBox } = useMysteryBox();
+  const [referralCode, setReferralCode] = useState("");
+  const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
+  const { buyMysteryBox, transactionSteps } = useMysteryBox();
+
+  async function handleBuyMysteryBox() {
+    setIsTransactionModalOpen(true);
+    try {
+      await buyMysteryBox(boxCount, referralCode);
+      setTimeout(() => {
+        setIsTransactionModalOpen(false);
+      }, 2500);
+    } catch (error) {
+      console.error("Mystery box purchase failed:", error);
+    }
+  }
 
   return (
     <>
@@ -60,6 +75,7 @@ export default function MysteryBox() {
                         src={item.image}
                         alt={item.name}
                         fill
+                        priority
                         style={{ objectFit: "contain" }}
                       />
                     </div>
@@ -126,8 +142,10 @@ export default function MysteryBox() {
                   <Image
                     src="/images/box.png"
                     alt="Mystery Box"
-                    fill
-                    style={{ objectFit: "contain" }}
+                    height={10000}
+                    width={10000}
+                    priority
+                    className="object-cover w-full h-full"
                   />
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="w-full h-full border-2 border-cyan-500 animate-pulse rounded-lg"></div>
@@ -142,9 +160,23 @@ export default function MysteryBox() {
               <NumberInput
                 label="Number of boxes"
                 value={boxCount}
+                max={10}
                 onChange={setBoxCount}
                 className="mb-6"
               />
+
+              <div className="mb-6">
+                <label className="block mb-2 text-sm font-medium text-gray-200">
+                  Referral Code (Optional)
+                </label>
+                <input
+                  type="text"
+                  value={referralCode}
+                  onChange={(e) => setReferralCode(e.target.value)}
+                  placeholder="Enter referral code"
+                  className="w-full bg-slate-800 border border-slate-700 rounded-md p-2.5 text-white focus:ring-cyan-500 focus:border-cyan-500"
+                />
+              </div>
 
               <Card variant="gradient" className="mb-6">
                 <div className="flex justify-between mb-2">
@@ -169,7 +201,11 @@ export default function MysteryBox() {
                 </div>
               </Card>
 
-              <Button variant="secondary" fullWidth>
+              <Button
+                variant="secondary"
+                fullWidth
+                onClick={handleBuyMysteryBox}
+              >
                 Buy Now
               </Button>
 
@@ -183,6 +219,12 @@ export default function MysteryBox() {
           </motion.div>
         </div>
       </section>
+
+      <TransactionProgress
+        isOpen={isTransactionModalOpen}
+        onClose={() => setIsTransactionModalOpen(false)}
+        steps={transactionSteps}
+      />
 
       {/* Latest Pulls Section */}
       <GridSection title="Latest Legendary Pulls" columns={4}>

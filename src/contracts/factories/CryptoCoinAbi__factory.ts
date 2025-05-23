@@ -141,6 +141,27 @@ const _abi = [
     type: "error",
   },
   {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "totalSupply",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "maxSupply",
+        type: "uint256",
+      },
+    ],
+    name: "supplyExceeded",
+    type: "error",
+  },
+  {
     anonymous: false,
     inputs: [
       {
