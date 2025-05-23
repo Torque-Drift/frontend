@@ -83,7 +83,7 @@ export function useMysteryBox() {
 
       console.log(amount, refCode)
 
-      const buyTx = await gpuSaleContract.buy(Number(amount), "0x0", {
+      const buyTx = await gpuSaleContract.buy(amount, refCode, {
         gasLimit: 500000,
         maxPriorityFeePerGas: basePriorityFee,
         maxFeePerGas: baseMaxFee,
