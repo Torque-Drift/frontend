@@ -4,22 +4,26 @@ export const cryptoCoinSaleAddress =
   "0x4f7513cCBca2eEF6464827E40F2c3e2949ac6576";
 export const gpuSaleAddress = "0x20Eb960e74168b3E83Da66D5E483DE893f67B60E";
 export const rewardAddress = "0xEd1A7681f90a665B99A45d89ab119e4901f949Ce";
-export const usdAddress = "0x080457D49031fAA004a1f6242A4c77d43f1f62e6"
+export const usdAddress = "0x080457D49031fAA004a1f6242A4c77d43f1f62e6";
 
 export const boxData = {
   price: 400,
   priceRef: 380,
   rarityChances: {
-    common: "60%",
+    common: "70%",
     rare: "25%",
-    epic: "10%",
-    legendary: "5%",
+    epic: "4.5%",
+    legendary: "0.5%",
   },
   contentExamples: [
     { name: "Rule 3434", rarity: "Common", image: "/images/common.png" },
     { name: "Sapphire 1690", rarity: "Rare", image: "/images/rare.png" },
     { name: "Sub Zero 8000", rarity: "Epic", image: "/images/epic.png" },
-    { name: "EmberGold 6969", rarity: "Legendary", image: "/images/legendary.png" },
+    {
+      name: "EmberGold 6969",
+      rarity: "Legendary",
+      image: "/images/legendary.png",
+    },
   ],
 };
 
