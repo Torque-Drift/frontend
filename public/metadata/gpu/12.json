@@ -1,0 +1,25 @@
+{
+  "name": "Sapphire 1690 #12",
+  "description": "Cut from the crystalline data fields of New Sapphira, the Sapphire 1690 delivers precision rendering with radiant clarity. Its neon-blue glow pierces even the darkest corners of abandoned servers. Every pixel rendered holds the purity of a digital gem. 💎 'Nothing cuts clearer than Sapphire.'",
+  "image": "https://gpumine.io/images/rare.png",
+  "image_site": "/images/rare.png",
+  "animation_site": "/videos/rare.mp4",
+  "animation_url": "https://gpumine.io/videos/rare.mp4",
+  "external_url": "gpumine.io",
+  "attributes": [
+    {
+      "trait_type": "Rarity",
+      "value": "Rare"
+    },
+    {
+      "trait_type": "Power",
+      "value": 57
+    },
+    {
+      "trait_type": "Token ID",
+      "value": 12
+    }
+  ],
+  "power": 57,
+  "rarity": "Rare"
+}

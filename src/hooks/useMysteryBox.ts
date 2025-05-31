@@ -82,7 +82,7 @@ export function useMysteryBox() {
       const refCode = referralCode && referralCode.trim() !== ""
         ? referralCode
         : '0';
-
+      console.log(amount, refCode);
       const buyTx = await gpuSaleContract.buy(String(amount), refCode, {
         gasLimit: 500000,
         maxPriorityFeePerGas: basePriorityFee,

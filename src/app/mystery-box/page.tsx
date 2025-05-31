@@ -62,7 +62,7 @@ export default function MysteryBox() {
                     key={index}
                     className={`border rounded-lg p-4 ${
                       item.rarity === "Common"
-                        ? "border-gray-500 bg-gray-900/30"
+                        ? "border-green-500 bg-green-900/30"
                         : item.rarity === "Rare"
                         ? "border-cyan-500 bg-cyan-900/20"
                         : item.rarity === "Epic"
@@ -83,7 +83,7 @@ export default function MysteryBox() {
                     <p
                       className={`text-sm text-center ${
                         item.rarity === "Common"
-                          ? "text-gray-500"
+                          ? "text-green-500"
                           : item.rarity === "Rare"
                           ? "text-cyan-500"
                           : item.rarity === "Epic"
@@ -101,8 +101,8 @@ export default function MysteryBox() {
                 <h3 className="text-lg font-bold mb-2">Drop Rates</h3>
                 <div className="space-y-2">
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Common</span>
-                    <span className="text-gray-500">
+                    <span className="text-green-500">Common</span>
+                    <span className="text-green-500">
                       {boxData.rarityChances.common}
                     </span>
                   </div>

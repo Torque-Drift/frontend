@@ -23,6 +23,13 @@ export const boxData = {
   ],
 };
 
+export const summaryStats = [
+  { label: "Total GPUs", value: 0 },
+  { label: "Mining GPUs", value: 0 },
+  { label: "Total Hashrate", value: 0 },
+  { label: "Total Earnings", value: 0 },
+];
+
 export const latestPulls = [
   {
     user: "CryptoMiner84",

@@ -2,135 +2,112 @@
 import { useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
+import { useInventory } from "@/hooks/useInventory";
+import TransactionProgress from "@/components/TransactionProgress";
+import Link from "next/link";
 
 export default function Inventory() {
   const [activeTab, setActiveTab] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
-  
-  // Sample GPU data for the inventory
-  const gpus = [
-    {
-      id: "1",
-      name: "CyberMiner X1",
-      rarity: "Common",
-      hashrate: 120,
-      power: 35,
-      efficiency: 3.4,
-      level: 1,
-      image: "/images/gpu.png",
-      mining: true,
-      stats: {
-        mined: 56.23,
-        hours: 48,
-        upgradeCost: 25
-      }
-    },
-    {
-      id: "2",
-      name: "NeonRig 3080",
-      rarity: "Rare",
-      hashrate: 240,
-      power: 55,
-      efficiency: 4.4,
-      level: 2,
-      image: "/images/gpu.png",
-      mining: true,
-      stats: {
-        mined: 143.56,
-        hours: 72,
-        upgradeCost: 50
-      }
-    },
-    {
-      id: "3",
-      name: "Quantum RTX",
-      rarity: "Epic",
-      hashrate: 350,
-      power: 70,
-      efficiency: 5.0,
-      level: 3,
-      image: "/images/gpu.png",
-      mining: false,
-      stats: {
-        mined: 87.32,
-        hours: 24,
-        upgradeCost: 100
-      }
-    },
-    {
-      id: "4",
-      name: "NightBlade 9000",
-      rarity: "Legendary",
-      hashrate: 500,
-      power: 90,
-      efficiency: 5.5,
-      level: 5,
-      image: "/images/gpu.png",
-      mining: false,
-      stats: {
-        mined: 230.18,
-        hours: 36,
-        upgradeCost: 200
-      }
-    },
-    {
-      id: "5",
-      name: "CyberMiner X2",
-      rarity: "Common",
-      hashrate: 130,
-      power: 38,
-      efficiency: 3.4,
-      level: 2,
-      image: "/images/gpu.png",
-      mining: true,
-      stats: {
-        mined: 76.45,
-        hours: 58,
-        upgradeCost: 25
-      }
-    },
-  ];
+  const [isCollectModalOpen, setIsCollectModalOpen] = useState(false);
+  const [isOpenBoxModalOpen, setIsOpenBoxModalOpen] = useState(false);
+  const [currentAction, setCurrentAction] = useState<{
+    type: "collect" | "openBox";
+    tokenId: number;
+  } | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const {
+    onCollect,
+    nfts,
+    openBox,
+    collectTransactionSteps,
+    openBoxTransactionSteps,
+  } = useInventory();
 
-  // Filter GPUs based on active tab and search term
-  const filteredGpus = gpus.filter(gpu => {
-    const matchesSearch = gpu.name.toLowerCase().includes(searchTerm.toLowerCase());
-    if (activeTab === "all") return matchesSearch;
-    if (activeTab === "mining") return gpu.mining && matchesSearch;
-    if (activeTab === "idle") return !gpu.mining && matchesSearch;
-    
-    // Filter by rarity
-    return gpu.rarity.toLowerCase() === activeTab.toLowerCase() && matchesSearch;
+  const sortedNfts = [...nfts].sort((a, b) => {
+    if (a.rarity === "Mystery" && b.rarity !== "Mystery") return 1;
+    if (a.rarity !== "Mystery" && b.rarity === "Mystery") return -1;
+    return a.tokenId - b.tokenId;
   });
 
-  // Card color based on rarity
   const getRarityColor = (rarity: string) => {
     switch (rarity.toLowerCase()) {
-      case "common": return "border-blue-500 bg-blue-500/10";
-      case "rare": return "border-purple-500 bg-purple-500/10";
-      case "epic": return "border-pink-500 bg-pink-500/10";
-      case "legendary": return "border-amber-500 bg-amber-500/10";
-      case "mythic": return "border-rose-500 bg-rose-500/10";
-      default: return "border-cyan-800 bg-cyan-900/10";
+      case "common":
+        return "border-green-500 bg-green-500/10";
+      case "rare":
+        return "border-cyan-500 bg-cyan-500/10";
+      case "epic":
+        return "border-purple-500 bg-purple-500/10";
+      case "legendary":
+        return "border-yellow-500 bg-yellow-500/10";
+      default:
+        return "border-cyan-800 bg-cyan-900/10";
     }
   };
 
-  // Badge color based on rarity
   const getRarityBadgeColor = (rarity: string) => {
     switch (rarity.toLowerCase()) {
-      case "common": return "bg-blue-500";
-      case "rare": return "bg-purple-500";
-      case "epic": return "bg-pink-500";
-      case "legendary": return "bg-amber-500";
-      case "mythic": return "bg-rose-500";
-      default: return "bg-cyan-800";
+      case "common":
+        return "bg-green-900/30";
+      case "rare":
+        return "bg-cyan-900/20";
+      case "epic":
+        return "bg-purple-900/20";
+      case "legendary":
+        return "bg-yellow-900/20";
     }
   };
+
+  async function handleCollectRewards(tokenId: number) {
+    if (isProcessing) return;
+    setIsProcessing(true);
+    setCurrentAction({ type: "collect", tokenId });
+    setIsCollectModalOpen(true);
+    try {
+      await onCollect(tokenId);
+      setTimeout(() => {
+        const hasSuccess = collectTransactionSteps.some(
+          (step) => step.status === "success"
+        );
+        if (hasSuccess) {
+          setIsCollectModalOpen(false);
+          setCurrentAction(null);
+          setIsProcessing(false);
+        }
+      }, 2500);
+    } catch (error) {
+      console.error("Collect rewards failed:", error);
+      setIsProcessing(false);
+    }
+  }
+
+  async function handleOpenBox(tokenId: number) {
+    if (isProcessing) return;
+    setIsProcessing(true);
+    setCurrentAction({ type: "openBox", tokenId });
+    setIsOpenBoxModalOpen(true);
+    try {
+      await openBox(tokenId);
+      setTimeout(() => {
+        const allSuccess = openBoxTransactionSteps.every(
+          (step) => step.status === "success"
+        );
+        if (allSuccess) {
+          setIsOpenBoxModalOpen(false);
+          setCurrentAction(null);
+          setIsProcessing(false);
+        }
+      }, 2500);
+    } catch (error) {
+      console.error("Open box failed:", error);
+      setIsProcessing(false);
+    }
+  }
 
   return (
     <>
-      {/* Hero section */}
       <section className="mb-8">
-        <motion.h2 
+        <motion.h2
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
@@ -148,14 +125,18 @@ export default function Inventory() {
         </motion.p>
       </section>
 
-      {/* Stats summary */}
       <section className="mb-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {[
-            { label: "Total GPUs", value: gpus.length },
-            { label: "Mining GPUs", value: gpus.filter(g => g.mining).length },
-            { label: "Total Hashrate", value: `${gpus.reduce((acc, gpu) => acc + (gpu.mining ? gpu.hashrate : 0), 0)} H/s` },
-            { label: "Total Earnings", value: `${gpus.reduce((acc, gpu) => acc + gpu.stats.mined, 0).toFixed(2)} GMINE` },
+            { label: "Total NFTs", value: nfts.length },
+            {
+              label: "Active GPUs",
+              value: nfts.filter((nft) => nft.rarity !== "Mystery").length,
+            },
+            {
+              label: "Mystery Boxes",
+              value: nfts.filter((nft) => nft.rarity === "Mystery").length,
+            },
           ].map((stat, i) => (
             <motion.div
               key={i}
@@ -176,9 +157,9 @@ export default function Inventory() {
         <div className="flex flex-col md:flex-row justify-between gap-4">
           <div className="flex space-x-2 overflow-x-auto pb-2 md:pb-0">
             {[
-              { id: "all", label: "All GPUs" },
-              { id: "mining", label: "Mining" },
-              { id: "idle", label: "Idle" },
+              { id: "all", label: "All NFTs" },
+              { id: "gpus", label: "GPUs" },
+              { id: "mystery", label: "Mystery Boxes" },
               { id: "common", label: "Common" },
               { id: "rare", label: "Rare" },
               { id: "epic", label: "Epic" },
@@ -201,7 +182,7 @@ export default function Inventory() {
           <div className="relative w-full md:w-64">
             <input
               type="text"
-              placeholder="Search GPUs..."
+              placeholder="Search NFTs..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full px-4 py-2 bg-black/60 border border-cyan-800/50 rounded outline-none focus:ring-1 focus:ring-cyan-500 text-cyan-300"
@@ -224,106 +205,187 @@ export default function Inventory() {
         </div>
       </section>
 
-      {/* GPU cards grid */}
+      {/* NFT cards grid */}
       <section className="mb-12">
-        {filteredGpus.length === 0 ? (
+        {sortedNfts.length === 0 ? (
           <div className="text-center py-12 border border-cyan-800 rounded-lg bg-black/40">
-            <p className="text-cyan-300">No GPUs found matching your criteria</p>
+            <p className="text-cyan-300">
+              No NFTs found matching your criteria
+            </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredGpus.map((gpu, index) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {sortedNfts.map((nft, index) => (
               <motion.div
-                key={gpu.id}
+                key={nft.tokenId}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                className={`border-2 rounded-lg overflow-hidden relative ${getRarityColor(gpu.rarity)}`}
+                className={`border-2 rounded-lg overflow-hidden relative ${getRarityColor(
+                  nft.rarity
+                )}`}
               >
-                {/* GPU Card header */}
                 <div className="p-4 bg-black/60">
                   <div className="flex justify-between items-start mb-2">
-                    <h3 className="text-xl font-bold">{gpu.name}</h3>
-                    <div className={`px-2 py-1 rounded-full text-xs font-bold text-white ${getRarityBadgeColor(gpu.rarity)}`}>
-                      {gpu.rarity}
+                    <h3 className="text-xl font-bold">{nft.name}</h3>
+                    <div
+                      className={`px-2 py-1 rounded-full text-xs font-bold text-white border ${getRarityColor(
+                        nft.rarity
+                      )}`}
+                    >
+                      {nft.rarity}
                     </div>
                   </div>
-                  
-                  <div className="flex items-center gap-2 mb-4">
-                    <div className={`w-2 h-2 rounded-full ${gpu.mining ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                    <span className="text-sm text-cyan-300/80">{gpu.mining ? 'Mining' : 'Idle'}</span>
-                  </div>
-                  
-                  <div className="grid grid-cols-3 gap-2 mb-4">
-                    <div>
-                      <p className="text-xs text-cyan-300/60">Hashrate</p>
-                      <p className="font-mono font-bold">{gpu.hashrate} H/s</p>
+
+                  {nft.rarity !== "Mystery" && (
+                    <>
+                      <div className="flex items-center gap-2 mb-4">
+                        <div
+                          className={`w-2 h-2 rounded-full bg-green-500`}
+                        ></div>
+                        <span className="text-sm text-cyan-300/80">Mining</span>
+                      </div>
+
+                      <div className="grid grid-cols-3 gap-2">
+                        <div>
+                          <p className="text-xs text-cyan-300/60">Power</p>
+                          <p className="font-mono font-bold">{nft.power} W</p>
+                        </div>
+                      </div>
+                    </>
+                  )}
+
+                  {nft.rarity === "Mystery" && (
+                    <div className="mb-10">
+                      <p className="text-sm text-cyan-300/80">
+                        Click to reveal your GPU!
+                      </p>
                     </div>
-                    <div>
-                      <p className="text-xs text-cyan-300/60">Power</p>
-                      <p className="font-mono font-bold">{gpu.power} W</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-cyan-300/60">Efficiency</p>
-                      <p className="font-mono font-bold">{gpu.efficiency}</p>
-                    </div>
-                  </div>
+                  )}
                 </div>
-                
-                {/* GPU Image */}
-                <div className="relative h-40 bg-gradient-to-b from-black/20 to-black/60">
+
+                <div className={`relative h-40 bg-black/60`}>
                   <Image
-                    src={gpu.image}
-                    alt={gpu.name}
-                    width={200}
-                    height={120}
-                    className="object-contain w-full h-full p-4"
+                    src={nft.image_site}
+                    alt={nft.name}
+                    width={10000}
+                    height={10000}
+                    className="object-contain w-full h-full"
                   />
-                  
-                  {/* Level indicator */}
-                  <div className="absolute bottom-2 right-2 bg-black/80 rounded-full px-2 py-1 text-xs font-bold border border-cyan-400">
-                    LVL {gpu.level}
-                  </div>
                 </div>
-                
-                {/* Stats and actions */}
+
                 <div className="p-4 bg-black/60 border-t border-cyan-800/50">
-                  <div className="grid grid-cols-2 gap-2 mb-4">
-                    <div>
-                      <p className="text-xs text-cyan-300/60">Total Mined</p>
-                      <p className="font-mono font-bold">{gpu.stats.mined.toFixed(2)} GMINE</p>
+                  {nft.rarity !== "Mystery" ? (
+                    <>
+                      <div className="grid grid-cols-2 gap-2 mb-4">
+                        <div>
+                          <p className="text-xs text-cyan-300/60">
+                            Total to Claim
+                          </p>
+                          <p className="font-mono font-bold">
+                            {nft.reward} GMINE
+                          </p>
+                        </div>
+                        {/* <div>
+                          <p className="text-xs text-cyan-300/60">
+                            Hours Active
+                          </p>
+                          <p className="font-mono font-bold">0 hrs</p>
+                        </div> */}
+                      </div>
+
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleCollectRewards(nft.tokenId)}
+                          disabled={
+                            isProcessing &&
+                            currentAction?.tokenId === nft.tokenId
+                          }
+                          className="flex-1 py-2 px-2 rounded text-sm bg-green-500/20 border border-green-500 hover:bg-green-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        >
+                          <div className="flex items-center justify-center gap-2">
+                            {isProcessing &&
+                              currentAction?.tokenId === nft.tokenId &&
+                              currentAction?.type === "collect" && (
+                                <div className="w-4 h-4 border-2 border-green-500 border-t-transparent rounded-full animate-spin"></div>
+                              )}
+                            {isProcessing &&
+                            currentAction?.tokenId === nft.tokenId &&
+                            currentAction?.type === "collect"
+                              ? "Claiming..."
+                              : "Claim Rewards"}
+                          </div>
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleOpenBox(nft.tokenId)}
+                        disabled={
+                          isProcessing && currentAction?.tokenId === nft.tokenId
+                        }
+                        className="flex-1 py-2 px-2 rounded text-sm bg-gradient-to-r from-rose-500 to-purple-600 hover:from-rose-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed font-bold transition-colors"
+                      >
+                        <div className="flex items-center justify-center gap-2">
+                          {isProcessing &&
+                            currentAction?.tokenId === nft.tokenId &&
+                            currentAction?.type === "openBox" && (
+                              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            )}
+                          {isProcessing &&
+                          currentAction?.tokenId === nft.tokenId &&
+                          currentAction?.type === "openBox"
+                            ? "Opening..."
+                            : "Open Box"}
+                        </div>
+                      </button>
                     </div>
-                    <div>
-                      <p className="text-xs text-cyan-300/60">Hours Active</p>
-                      <p className="font-mono font-bold">{gpu.stats.hours} hrs</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex gap-2">
-                    <button className={`flex-1 py-2 px-2 rounded text-sm ${gpu.mining ? 'bg-red-500/20 border border-red-500 hover:bg-red-500/30' : 'bg-green-500/20 border border-green-500 hover:bg-green-500/30'}`}>
-                      {gpu.mining ? 'Stop Mining' : 'Start Mining'}
-                    </button>
-                    <button className="flex-1 py-2 px-2 rounded text-sm bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600">
-                      Upgrade ({gpu.stats.upgradeCost} GMINE)
-                    </button>
-                  </div>
+                  )}
                 </div>
               </motion.div>
             ))}
           </div>
         )}
       </section>
-      
-      {/* Marketplace CTA */}
+
       <section>
         <div className="border border-cyan-800 rounded-lg p-8 bg-gradient-to-r from-cyan-900/30 to-purple-900/30 text-center">
           <h3 className="text-2xl font-bold mb-4">Need more mining power?</h3>
-          <p className="text-cyan-300 mb-6">Expand your GPU collection by purchasing from our marketplace</p>
-          <button className="px-6 py-3 bg-gradient-to-r from-rose-500 to-purple-600 rounded font-bold hover:from-rose-600 hover:to-purple-700 transition-colors">
-            Visit Marketplace
-          </button>
+          <p className="text-cyan-300 mb-6">
+            Expand your GPU collection by purchasing from our marketplace
+          </p>
+          <Link href="/mystery-box">
+            <button className="px-6 py-3 bg-gradient-to-r from-rose-500 to-purple-600 rounded font-bold hover:from-rose-600 hover:to-purple-700 transition-colors">
+              Visit Marketplace
+            </button>
+          </Link>
         </div>
       </section>
+
+      {isCollectModalOpen && currentAction && (
+        <TransactionProgress
+          isOpen={isCollectModalOpen}
+          onClose={() => {
+            setIsCollectModalOpen(false);
+            setCurrentAction(null);
+            setIsProcessing(false);
+          }}
+          steps={collectTransactionSteps}
+        />
+      )}
+
+      {isOpenBoxModalOpen && currentAction && (
+        <TransactionProgress
+          isOpen={isOpenBoxModalOpen}
+          onClose={() => {
+            setIsOpenBoxModalOpen(false);
+            setCurrentAction(null);
+            setIsProcessing(false);
+          }}
+          steps={openBoxTransactionSteps}
+        />
+      )}
     </>
   );
-} 
+}

@@ -1,12 +1,8 @@
 "use client";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import Link from "next/link";
 
 export default function Home() {
-  const router = useRouter();
-
   return (
     <>
       {/* Hero Section */}
@@ -21,19 +17,23 @@ export default function Home() {
             in the ultimate cyberpunk mining simulation
           </p>
           <div className="flex space-x-4">
-            <button className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 rounded hover:from-cyan-600 hover:to-blue-600 text-black font-bold transition-colors">
-              Get Started
-            </button>
-            <button className="px-6 py-3 border-2 border-cyan-500 rounded hover:bg-cyan-500/20 transition-colors">
-              Learn More
-            </button>
+            <Link href="/token-sale">
+              <button className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 rounded hover:from-cyan-600 hover:to-blue-600 text-black font-bold transition-colors">
+                Get Started
+              </button>
+            </Link>
+            <Link href="/token-sale">
+              <button className="px-6 py-3 border-2 border-cyan-500 rounded hover:bg-cyan-500/20 transition-colors">
+                Learn More
+              </button>
+            </Link>
           </div>
         </div>
         <div className="md:w-1/2 relative">
           <div className="animate-pulse-slow relative mx-auto max-w-md">
             <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-cyan-500 to-purple-600 blur-xl opacity-30 animate-pulse"></div>
             <video
-              src="/videos/gpu.mp4"
+              src="/videos/legendary.mp4"
               autoPlay
               muted
               loop
@@ -195,9 +195,11 @@ export default function Home() {
           ))}
         </div>
         <div className="text-center mt-10">
-          <button className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 rounded hover:from-purple-700 hover:to-blue-700 font-bold transition-colors">
-            Explore All GPUs
-          </button>
+          <Link href="/mystery-box">
+            <button className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 rounded hover:from-purple-700 hover:to-blue-700 font-bold transition-colors">
+              Explore All GPUs
+            </button>
+          </Link>
         </div>
       </section>
 
@@ -258,18 +260,14 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Call to Action */}
       <section className="mb-16 py-12 bg-gradient-to-r from-cyan-900/30 to-purple-900/30 rounded-xl border border-cyan-800">
         <div className="text-center">
           <h3 className="text-3xl font-bold mb-4">
             Join the Mining Revolution
           </h3>
-          <p className="text-cyan-300 mb-6 max-w-xl mx-auto">
+          <p className="text-cyan-300 max-w-xl mx-auto">
             Be among the first to experience the future of GPU NFT mining
           </p>
-          <button className="px-8 py-3 bg-gradient-to-r from-rose-500 to-purple-600 rounded hover:from-rose-600 hover:to-purple-700 font-bold transition-colors">
-            Pre-Register Now
-          </button>
         </div>
       </section>
     </>

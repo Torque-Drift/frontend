@@ -1,59 +1,316 @@
-import { gpuSaleAddress, rewardAddress } from "@/constants";
+"use client";
+import { gpuAddress, rewardAddress } from "@/constants";
 import { GpuAbi__factory, RewardAbi__factory } from "@/contracts";
 import { ethers } from "ethers";
+import { useEffect, useState } from "react";
+import { useAccount } from "wagmi";
+import boxMetadata from "../../public/metadata/box.json";
+import { INFT } from "@/interfaces";
+import axios from "axios";
+import { TransactionStep } from "@/components/TransactionProgress";
+
+const gpuMetadataCache = new Map();
 
 export function useInventory() {
+  const [nfts, setNfts] = useState<INFT[]>([]);
+  const [rewards, setRewards] = useState<Map<number, string>>(new Map());
+  const { address } = useAccount();
+  const [collectTransactionSteps, setCollectTransactionSteps] = useState<
+    TransactionStep[]
+  >([
+    {
+      title: "Claim Rewards",
+      description: "Claiming your mining rewards",
+      status: "loading",
+    },
+  ]);
+  const [openBoxTransactionSteps, setOpenBoxTransactionSteps] = useState<
+    TransactionStep[]
+  >([
+    {
+      title: "Opening Mystery Box",
+      description: "Generating your GPU NFT",
+      status: "loading",
+    },
+    {
+      title: "Minting NFT",
+      description: "Minting your new GPU NFT",
+      status: "pending",
+    },
+  ]);
+
   async function getProvider() {
     if (!window.ethereum) {
       throw new Error("Ethereum provider not found");
     }
-    const provider = new ethers.BrowserProvider(window.ethereum);
-    return provider;
+    return new ethers.BrowserProvider(window.ethereum);
   }
 
-  async function openBox(tokenId: number, uri: string, power: number) {
-    const provider = await getProvider();
-    const signer = await provider.getSigner();
-    const gpuContract = GpuAbi__factory.connect(
-      gpuSaleAddress,
-      signer
+  async function getOwnProvider() {
+    if (!window.ethereum) {
+      throw new Error("Ethereum provider not found");
+    }
+    return new ethers.JsonRpcProvider(
+      "https://polygon-amoy.g.alchemy.com/v2/UTe3D7JmoPvgh36ldqaV-7BlAeQ0oCgx"
     );
-    const box = await gpuContract.setGPUStatus(tokenId, uri, power, { gasLimit: 100000 });
-    return await box.wait();
+  }
+
+  async function openBox(tokenId: number) {
+    try {
+      setOpenBoxTransactionSteps([
+        {
+          title: "Opening Mystery Box",
+          description: "Generating your GPU NFT",
+          status: "loading",
+        },
+        {
+          title: "Minting NFT",
+          description: "Minting your new GPU NFT",
+          status: "pending",
+        },
+      ]);
+
+      const { data } = await axios.post("/api/generate", { tokenId });
+
+      setOpenBoxTransactionSteps((steps) =>
+        steps.map((step) =>
+          step.title === "Opening Mystery Box"
+            ? {
+                ...step,
+                status: "success",
+              }
+            : step
+        )
+      );
+
+      setOpenBoxTransactionSteps((steps) =>
+        steps.map((step) =>
+          step.title === "Minting NFT"
+            ? {
+                ...step,
+                status: "loading",
+              }
+            : step
+        )
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      setOpenBoxTransactionSteps((steps) =>
+        steps.map((step) =>
+          step.title === "Minting NFT"
+            ? {
+                ...step,
+                status: "success",
+              }
+            : step
+        )
+      );
+      await getBoxes();
+      return data;
+    } catch (error) {
+      setOpenBoxTransactionSteps((steps) =>
+        steps.map((step) =>
+          step.status === "loading"
+            ? {
+                ...step,
+                status: "error",
+                description: "Failed to open mystery box",
+              }
+            : step
+        )
+      );
+      console.error("Error opening box:", error);
+      throw error;
+    }
+  }
+
+  async function batchFetchGpuMetadata(tokenIds: number[]) {
+    const uncachedTokens = tokenIds.filter((id) => !gpuMetadataCache.has(id));
+
+    if (uncachedTokens.length > 0) {
+      const fetchPromises = uncachedTokens.map(async (tokenId) => {
+        try {
+          const response = await fetch(`/metadata/gpu/${tokenId}.json`);
+          if (response.ok) {
+            const metadata = await response.json();
+            gpuMetadataCache.set(tokenId, metadata);
+            return { tokenId, metadata };
+          }
+        } catch (error) {
+          console.log(`Error fetching metadata for token ${tokenId}:`, error);
+        }
+        return { tokenId, metadata: null };
+      });
+
+      await Promise.all(fetchPromises);
+    }
   }
 
   async function getBoxes() {
-    const provider = await getProvider();
-    const signer = await provider.getSigner();
-    const gpuContract = GpuAbi__factory.connect(
-      gpuSaleAddress,
-      signer
-    );
-    /*  const boxes = await gpuContract.get();
-     return boxes; */
+    try {
+      if (!address) return;
+      const provider = await getOwnProvider();
+      const gpuContract = GpuAbi__factory.connect(gpuAddress, provider);
+      const boxes = await gpuContract.userInventory(address);
+      const [tokenIds, uris] = boxes;
+      const gpuTokenIds: number[] = [];
+      tokenIds.forEach((tokenId: bigint, index: number) => {
+        const uri = uris[index] || "";
+        if (uri.includes("/metadata/gpu/")) {
+          gpuTokenIds.push(Number(tokenId));
+        }
+      });
+      if (gpuTokenIds.length > 0) await batchFetchGpuMetadata(gpuTokenIds);
+      const formattedNfts = tokenIds.map((tokenId: bigint, index: number) => {
+        const uri = uris[index] || "";
+        let metadata = null;
+        const tokenIdNum = Number(tokenId);
+
+        if (uri.includes("/metadata/gpu/")) {
+          metadata = gpuMetadataCache.get(tokenIdNum);
+        } else {
+          metadata = {
+            name: boxMetadata.name,
+            description: boxMetadata.description,
+            image: boxMetadata.image,
+            image_site: boxMetadata.image_site,
+            animation_site: boxMetadata.animation_site,
+            animation_url: boxMetadata.animation_url,
+            power: 0,
+            rarity: "Mystery",
+            attributes: boxMetadata.attributes,
+          };
+        }
+
+        return {
+          tokenId: tokenIdNum,
+          uri,
+          name: metadata?.name || `GPU #${tokenIdNum}`,
+          description: metadata?.description || "",
+          image: metadata?.image || "",
+          image_site: metadata?.image_site || "",
+          animation_site: metadata?.animation_site || "",
+          animation_url: metadata?.animation_url || "",
+          power: metadata?.power || 0,
+          rarity: metadata?.rarity || "Unknown",
+          attributes: metadata?.attributes || [],
+          reward: "0",
+          metadata,
+        };
+      });
+
+      setNfts(formattedNfts);
+      return formattedNfts;
+    } catch (error) {
+      console.log("error", error);
+      return [];
+    }
   }
+
+  async function loadRewards() {
+    try {
+      if (!nfts.length) return;
+
+      const gpuNfts = nfts.filter((nft) => nft.rarity !== "Mystery");
+      if (gpuNfts.length === 0) return;
+
+      const provider = await getProvider();
+      const signer = await provider.getSigner();
+      const rewardContract = RewardAbi__factory.connect(rewardAddress, signer);
+
+      const rewardPromises = gpuNfts.map(async (nft) => {
+        try {
+          const reward = await rewardContract.previewReward(nft.tokenId);
+          return { tokenId: nft.tokenId, reward: Number(reward).toString() };
+        } catch (error) {
+          console.log(`Error fetching reward for token ${nft.tokenId}:`, error);
+          return { tokenId: nft.tokenId, reward: "0" };
+        }
+      });
+
+      const rewardResults = await Promise.all(rewardPromises);
+      const newRewards = new Map();
+      rewardResults.forEach(({ tokenId, reward }) => {
+        const formattedReward = ethers.formatEther(reward);
+        newRewards.set(tokenId, Number(formattedReward).toFixed(4));
+      });
+
+      setRewards(newRewards);
+    } catch (error) {
+      console.log("Error loading rewards:", error);
+    }
+  }
+
+  useEffect(() => {
+    getBoxes();
+  }, [address]);
+
+  useEffect(() => {
+    if (nfts.length > 0) {
+      loadRewards();
+    }
+  }, [nfts.length]);
 
   async function previewReward(tokenId: number) {
     const provider = await getProvider();
     const signer = await provider.getSigner();
-    const rewardContract = RewardAbi__factory.connect(
-      rewardAddress,
-      signer
-    );
-    return await rewardContract.previewReward(tokenId);
+    const rewardContract = RewardAbi__factory.connect(rewardAddress, signer);
+    const reward = await rewardContract.previewReward(tokenId);
+    return Number(reward);
   }
 
   async function onCollect(tokenId: number) {
-    const provider = await getProvider();
-    const signer = await provider.getSigner();
-    const rewardContract = RewardAbi__factory.connect(
-      rewardAddress,
-      signer
-    );
-    const reward = await rewardContract.mine(tokenId, { gasLimit: 100000 });
-    return await reward.wait();
+    try {
+      setCollectTransactionSteps([
+        {
+          title: "Claim Rewards",
+          description: "Claiming your mining rewards",
+          status: "loading",
+        },
+      ]);
+
+      const provider = await getProvider();
+      const signer = await provider.getSigner();
+      const rewardContract = RewardAbi__factory.connect(rewardAddress, signer);
+      const tx = await rewardContract.mine(tokenId, { gasLimit: 100000 });
+      const result = await tx.wait();
+
+      setCollectTransactionSteps([
+        {
+          title: "Claim Rewards",
+          description: "Successfully claimed your mining rewards!",
+          status: "success",
+        },
+      ]);
+
+      await loadRewards();
+      return result;
+    } catch (error) {
+      setCollectTransactionSteps([
+        {
+          title: "Claim Rewards",
+          description: "Failed to claim rewards, please try again",
+          status: "error",
+        },
+      ]);
+      console.error("Error collecting rewards:", error);
+      throw error;
+    }
   }
 
-  return { openBox, getBoxes, previewReward, onCollect };
-}
+  const nftsWithRewards = nfts.map((nft) => ({
+    ...nft,
+    reward: rewards.get(nft.tokenId) || "0",
+  }));
 
+  return {
+    openBox,
+    getBoxes,
+    previewReward,
+    onCollect,
+    nfts: nftsWithRewards,
+    loadRewards,
+    collectTransactionSteps,
+    openBoxTransactionSteps,
+  };
+}
