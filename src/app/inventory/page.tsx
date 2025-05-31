@@ -221,11 +221,11 @@ export default function Inventory() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                className={`border-2 rounded-lg overflow-hidden relative ${getRarityColor(
+                className={`border-2 rounded-lg overflow-hidden relative flex flex-col ${getRarityColor(
                   nft.rarity
                 )}`}
               >
-                <div className="p-4 bg-black/60">
+                <div className="p-4 bg-black/60 flex-shrink-0">
                   <div className="flex justify-between items-start mb-2">
                     <h3 className="text-xl font-bold">{nft.name}</h3>
                     <div
@@ -246,7 +246,7 @@ export default function Inventory() {
                         <span className="text-sm text-cyan-300/80">Mining</span>
                       </div>
 
-                      <div className="grid grid-cols-3 gap-2">
+                      <div className="grid grid-cols-3 gap-2 min-h-[3rem]">
                         <div>
                           <p className="text-xs text-cyan-300/60">Power</p>
                           <p className="font-mono font-bold">{nft.power} W</p>
@@ -256,7 +256,7 @@ export default function Inventory() {
                   )}
 
                   {nft.rarity === "Mystery" && (
-                    <div className="mb-10">
+                    <div className="min-h-[7rem] flex justify-start items-start">
                       <p className="text-sm text-cyan-300/80">
                         Click to reveal your GPU!
                       </p>
@@ -264,7 +264,7 @@ export default function Inventory() {
                   )}
                 </div>
 
-                <div className={`relative h-40 bg-black/60`}>
+                <div className={`relative h-40 bg-black/60 flex-shrink-0`}>
                   <Image
                     src={nft.image_site}
                     alt={nft.name}
@@ -274,7 +274,7 @@ export default function Inventory() {
                   />
                 </div>
 
-                <div className="p-4 bg-black/60 border-t border-cyan-800/50">
+                <div className="p-4 bg-black/60 border-t border-cyan-800/50 flex-grow flex flex-col justify-end">
                   {nft.rarity !== "Mystery" ? (
                     <>
                       <div className="grid grid-cols-2 gap-2 mb-4">
@@ -319,7 +319,7 @@ export default function Inventory() {
                       </div>
                     </>
                   ) : (
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 mt-auto">
                       <button
                         onClick={() => handleOpenBox(nft.tokenId)}
                         disabled={
