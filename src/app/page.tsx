@@ -31,7 +31,6 @@ export default function Home() {
         </div>
         <div className="md:w-1/2 relative">
           <div className="animate-pulse-slow relative mx-auto max-w-md">
-            <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-cyan-500 to-purple-600 blur-xl opacity-30 animate-pulse"></div>
             <video
               src="/videos/legendary.mp4"
               autoPlay

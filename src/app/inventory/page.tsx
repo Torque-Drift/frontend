@@ -4,6 +4,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { useInventory } from "@/hooks/useInventory";
 import TransactionProgress from "@/components/TransactionProgress";
+import BoxOpeningModal from "@/components/BoxOpeningModal";
 import Link from "next/link";
 
 export default function Inventory() {
@@ -11,9 +12,11 @@ export default function Inventory() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isCollectModalOpen, setIsCollectModalOpen] = useState(false);
   const [isOpenBoxModalOpen, setIsOpenBoxModalOpen] = useState(false);
+  const [isBoxOpeningModalOpen, setIsBoxOpeningModalOpen] = useState(false);
   const [currentAction, setCurrentAction] = useState<{
     type: "collect" | "openBox";
     tokenId: number;
+    rarity?: string;
   } | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const {
@@ -22,6 +25,8 @@ export default function Inventory() {
     openBox,
     collectTransactionSteps,
     openBoxTransactionSteps,
+    revealedNft,
+    clearRevealedNft,
   } = useInventory();
 
   const sortedNfts = [...nfts].sort((a, b) => {
@@ -83,25 +88,33 @@ export default function Inventory() {
 
   async function handleOpenBox(tokenId: number) {
     if (isProcessing) return;
+    
+    // Encontrar o NFT para obter a raridade (ou usar "mystery" como padrão)
+    const nft = nfts.find(n => n.tokenId === tokenId);
+    const rarity = nft?.rarity === "Mystery" ? "mystery" : nft?.rarity?.toLowerCase() || "mystery";
+    
     setIsProcessing(true);
-    setCurrentAction({ type: "openBox", tokenId });
-    setIsOpenBoxModalOpen(true);
+    setCurrentAction({ type: "openBox", tokenId, rarity });
+    setIsBoxOpeningModalOpen(true);
+    
     try {
       await openBox(tokenId);
-      setTimeout(() => {
-        const allSuccess = openBoxTransactionSteps.every(
-          (step) => step.status === "success"
-        );
-        if (allSuccess) {
-          setIsOpenBoxModalOpen(false);
-          setCurrentAction(null);
-          setIsProcessing(false);
-        }
-      }, 2500);
+      
+      // Não fechar o modal automaticamente - deixar o usuário ver o resultado
+      // O modal será fechado quando o usuário clicar no botão "Continue Mining!"
     } catch (error) {
       console.error("Open box failed:", error);
       setIsProcessing(false);
+      setIsBoxOpeningModalOpen(false);
+      setCurrentAction(null);
     }
+  }
+
+  function handleCloseBoxOpeningModal() {
+    setIsBoxOpeningModalOpen(false);
+    setCurrentAction(null);
+    setIsProcessing(false);
+    clearRevealedNft();
   }
 
   return (
@@ -384,6 +397,15 @@ export default function Inventory() {
             setIsProcessing(false);
           }}
           steps={openBoxTransactionSteps}
+        />
+      )}
+
+      {isBoxOpeningModalOpen && currentAction && (
+        <BoxOpeningModal
+          isOpen={isBoxOpeningModalOpen}
+          onClose={handleCloseBoxOpeningModal}
+          rarity={currentAction.rarity || "mystery"}
+          revealedNft={revealedNft}
         />
       )}
     </>

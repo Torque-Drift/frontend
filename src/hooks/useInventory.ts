@@ -14,6 +14,7 @@ const gpuMetadataCache = new Map();
 export function useInventory() {
   const [nfts, setNfts] = useState<INFT[]>([]);
   const [rewards, setRewards] = useState<Map<number, string>>(new Map());
+  const [revealedNft, setRevealedNft] = useState<INFT | null>(null);
   const { address } = useAccount();
   const [collectTransactionSteps, setCollectTransactionSteps] = useState<
     TransactionStep[]
@@ -76,9 +77,9 @@ export function useInventory() {
         steps.map((step) =>
           step.title === "Opening Mystery Box"
             ? {
-                ...step,
-                status: "success",
-              }
+              ...step,
+              status: "success",
+            }
             : step
         )
       );
@@ -87,9 +88,9 @@ export function useInventory() {
         steps.map((step) =>
           step.title === "Minting NFT"
             ? {
-                ...step,
-                status: "loading",
-              }
+              ...step,
+              status: "loading",
+            }
             : step
         )
       );
@@ -99,23 +100,27 @@ export function useInventory() {
         steps.map((step) =>
           step.title === "Minting NFT"
             ? {
-                ...step,
-                status: "success",
-              }
+              ...step,
+              status: "success",
+            }
             : step
         )
       );
-      await getBoxes();
+      const updatedNfts = await getBoxes();
+      const revealed = updatedNfts?.find(nft =>
+        nft.tokenId === tokenId && nft.rarity !== "Mystery"
+      );
+      if (revealed) setRevealedNft(revealed);
       return data;
     } catch (error) {
       setOpenBoxTransactionSteps((steps) =>
         steps.map((step) =>
           step.status === "loading"
             ? {
-                ...step,
-                status: "error",
-                description: "Failed to open mystery box",
-              }
+              ...step,
+              status: "error",
+              description: "Failed to open mystery box",
+            }
             : step
         )
       );
@@ -149,6 +154,7 @@ export function useInventory() {
   async function getBoxes() {
     try {
       if (!address) return;
+      console.log(address)
       const provider = await getOwnProvider();
       const gpuContract = GpuAbi__factory.connect(gpuAddress, provider);
       const boxes = await gpuContract.userInventory(address);
@@ -198,7 +204,7 @@ export function useInventory() {
           metadata,
         };
       });
-
+      console.log("formattedNfts", formattedNfts);
       setNfts(formattedNfts);
       return formattedNfts;
     } catch (error) {
@@ -303,6 +309,10 @@ export function useInventory() {
     reward: rewards.get(nft.tokenId) || "0",
   }));
 
+  const clearRevealedNft = () => {
+    setRevealedNft(null);
+  };
+
   return {
     openBox,
     getBoxes,
@@ -312,5 +322,7 @@ export function useInventory() {
     loadRewards,
     collectTransactionSteps,
     openBoxTransactionSteps,
+    revealedNft,
+    clearRevealedNft,
   };
 }

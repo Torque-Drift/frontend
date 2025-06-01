@@ -13,14 +13,12 @@ export default function Layout({ children }: LayoutProps) {
 
   return (
     <div className="min-h-screen bg-black text-cyan-400 overflow-hidden relative">
-      {/* Background effects - shared across all pages */}
       <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 to-cyan-900/20 z-0"></div>
       <div className="absolute inset-0 bg-[url('/images/bg-ban.png')] bg-cover opacity-30 z-0"></div>
       <div className="absolute inset-0 z-0">
         <div className="h-full w-full bg-[radial-gradient(rgba(0,200,255,0.1)_1px,transparent_1px)] bg-[size:40px_40px]"></div>
       </div>
 
-      {/* Enhanced background effects */}
       <div className="absolute inset-0 z-0 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-conic from-purple-900 via-blue-900 to-cyan-900 opacity-60 animate-slow-rotate"></div>
         <div className="absolute inset-0 bg-black opacity-5 mix-blend-overlay"></div>
@@ -31,11 +29,9 @@ export default function Layout({ children }: LayoutProps) {
         <div className="absolute w-full h-20 bg-cyan-500/5 blur-sm animate-scan"></div>
       </div>
 
-      {/* Apply CRT effect to entire page */}
       <div className="absolute inset-0 crt pointer-events-none z-20"></div>
 
       <div className="container mx-auto px-4 py-12 relative z-10">
-        {/* Header */}
         <header className="flex justify-between items-center mb-16">
           <h1
             className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-600 glitch-text cursor-pointer"
@@ -48,9 +44,8 @@ export default function Layout({ children }: LayoutProps) {
               <li>
                 <a
                   href="/"
-                  className={`${
-                    pathname === "/" ? "text-cyan-300" : "hover:text-cyan-300"
-                  } transition-colors`}
+                  className={`${pathname === "/" ? "text-cyan-300" : "hover:text-cyan-300"
+                    } transition-colors`}
                 >
                   Home
                 </a>
@@ -58,11 +53,10 @@ export default function Layout({ children }: LayoutProps) {
               <li>
                 <a
                   href="/token-sale"
-                  className={`${
-                    pathname === "/token-sale"
-                      ? "text-cyan-300"
-                      : "hover:text-cyan-300"
-                  } transition-colors`}
+                  className={`${pathname === "/token-sale"
+                    ? "text-cyan-300"
+                    : "hover:text-cyan-300"
+                    } transition-colors`}
                 >
                   Token Sale
                 </a>
@@ -70,11 +64,10 @@ export default function Layout({ children }: LayoutProps) {
               <li>
                 <a
                   href="/mystery-box"
-                  className={`${
-                    pathname === "/mystery-box"
-                      ? "text-cyan-300"
-                      : "hover:text-cyan-300"
-                  } transition-colors`}
+                  className={`${pathname === "/mystery-box"
+                    ? "text-cyan-300"
+                    : "hover:text-cyan-300"
+                    } transition-colors`}
                 >
                   Mystery Box
                 </a>
@@ -82,11 +75,10 @@ export default function Layout({ children }: LayoutProps) {
               <li>
                 <a
                   href="/inventory"
-                  className={`${
-                    pathname === "/inventory"
-                      ? "text-cyan-300"
-                      : "hover:text-cyan-300"
-                  } transition-colors`}
+                  className={`${pathname === "/inventory"
+                    ? "text-cyan-300"
+                    : "hover:text-cyan-300"
+                    } transition-colors`}
                 >
                   Inventory
                 </a>
@@ -224,161 +216,9 @@ export default function Layout({ children }: LayoutProps) {
         </footer>
       </div>
 
-      {/* Animated glow effect */}
       <div className="pointer-events-none fixed inset-0 z-30 [mask-image:radial-gradient(transparent_30%,black)]">
         <div className="h-full bg-[radial-gradient(circle,rgba(0,200,255,0.12)_8%,transparent_40%)] bg-[size:100%_100%] bg-center"></div>
       </div>
-
-      {/* Custom styles */}
-      <style jsx>{`
-        @keyframes pulse-slow {
-          0%,
-          100% {
-            opacity: 0.8;
-          }
-          50% {
-            opacity: 1;
-          }
-        }
-        .animate-pulse-slow {
-          animation: pulse-slow 3s ease-in-out infinite;
-        }
-
-        @keyframes slow-rotate {
-          0% {
-            transform: rotate(0deg);
-          }
-          100% {
-            transform: rotate(360deg);
-          }
-        }
-        .animate-slow-rotate {
-          animation: slow-rotate 120s linear infinite;
-        }
-
-        @keyframes float-slow {
-          0%,
-          100% {
-            transform: translateY(0) scale(1);
-          }
-          50% {
-            transform: translateY(-20px) scale(1.05);
-          }
-        }
-        .animate-float-slow {
-          animation: float-slow 15s ease-in-out infinite;
-        }
-
-        @keyframes float-slow-reverse {
-          0%,
-          100% {
-            transform: translateY(0) scale(1);
-          }
-          50% {
-            transform: translateY(20px) scale(1.05);
-          }
-        }
-        .animate-float-slow-reverse {
-          animation: float-slow-reverse 18s ease-in-out infinite;
-        }
-
-        /* Glitch effect for headings */
-        .glitch-text {
-          position: relative;
-          text-shadow: 0.05em 0 0 rgba(255, 0, 0, 0.75),
-            -0.025em -0.05em 0 rgba(0, 255, 0, 0.75),
-            0.025em 0.05em 0 rgba(0, 0, 255, 0.75);
-          animation: glitch 2s infinite;
-        }
-
-        @keyframes glitch {
-          0% {
-            text-shadow: 0.05em 0 0 rgba(255, 0, 0, 0.75),
-              -0.05em -0.025em 0 rgba(0, 255, 0, 0.75),
-              0.025em 0.05em 0 rgba(0, 0, 255, 0.75);
-          }
-          14% {
-            text-shadow: 0.05em 0 0 rgba(255, 0, 0, 0.75),
-              -0.05em -0.025em 0 rgba(0, 255, 0, 0.75),
-              0.025em 0.05em 0 rgba(0, 0, 255, 0.75);
-          }
-          15% {
-            text-shadow: -0.05em -0.025em 0 rgba(255, 0, 0, 0.75),
-              0.025em 0.025em 0 rgba(0, 255, 0, 0.75),
-              -0.05em -0.05em 0 rgba(0, 0, 255, 0.75);
-          }
-          49% {
-            text-shadow: -0.05em -0.025em 0 rgba(255, 0, 0, 0.75),
-              0.025em 0.025em 0 rgba(0, 255, 0, 0.75),
-              -0.05em -0.05em 0 rgba(0, 0, 255, 0.75);
-          }
-          50% {
-            text-shadow: 0.025em 0.05em 0 rgba(255, 0, 0, 0.75),
-              0.05em 0 0 rgba(0, 255, 0, 0.75),
-              0 -0.05em 0 rgba(0, 0, 255, 0.75);
-          }
-          99% {
-            text-shadow: 0.025em 0.05em 0 rgba(255, 0, 0, 0.75),
-              0.05em 0 0 rgba(0, 255, 0, 0.75),
-              0 -0.05em 0 rgba(0, 0, 255, 0.75);
-          }
-          100% {
-            text-shadow: -0.025em 0 0 rgba(255, 0, 0, 0.75),
-              -0.025em -0.025em 0 rgba(0, 255, 0, 0.75),
-              -0.025em -0.05em 0 rgba(0, 0, 255, 0.75);
-          }
-        }
-
-        /* Add cyberpunk background color animation */
-        @keyframes bg-shift {
-          0% {
-            background-position: 0% 50%;
-          }
-          50% {
-            background-position: 100% 50%;
-          }
-          100% {
-            background-position: 0% 50%;
-          }
-        }
-
-        /* Apply scan line effect */
-        @keyframes scan {
-          0% {
-            top: -100%;
-          }
-          100% {
-            top: 100%;
-          }
-        }
-        .animate-scan {
-          animation: scan 8s linear infinite;
-        }
-
-        /* CRT effect */
-        .crt:before {
-          content: " ";
-          display: block;
-          position: absolute;
-          top: 0;
-          left: 0;
-          bottom: 0;
-          right: 0;
-          background: linear-gradient(
-              rgba(18, 16, 16, 0) 50%,
-              rgba(0, 0, 0, 0.25) 50%
-            ),
-            linear-gradient(
-              90deg,
-              rgba(255, 0, 0, 0.06),
-              rgba(0, 255, 0, 0.02),
-              rgba(0, 0, 255, 0.06)
-            );
-          z-index: 2;
-          background-size: 100% 2px, 3px 100%;
-          pointer-events: none;
-        }
-      `}</style>
     </div>
   );
 }
