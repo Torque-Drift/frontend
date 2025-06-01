@@ -150,7 +150,7 @@ export async function POST(request: NextRequest) {
       image: baseMetadata.image,
       image_site: `/images/${rarity.toLowerCase()}.png`,
       animation_site: `/videos/${rarity.toLowerCase()}.mp4`,
-      animation_url: `https://gpumine.io/videos/${rarity.toLowerCase()}.mp4`,
+      animation_url: `https://gpu-mine.com/videos/${rarity.toLowerCase()}.mp4`,
       external_url: baseMetadata.external_url,
       attributes: [
         ...baseMetadata.attributes,
@@ -174,7 +174,7 @@ export async function POST(request: NextRequest) {
 
     const outputPath = path.join(outputDir, `${tokenId}.json`);
     fs.writeFileSync(outputPath, JSON.stringify(metadata, null, 2));
-    const uri = `https://gpumine.io/metadata/gpu/${tokenId}.json`;
+    const uri = `https://gpu-mine.com/metadata/gpu/${tokenId}.json`;
 
     const provider = await getProvider();
     const wallet = new ethers.Wallet(
