@@ -176,7 +176,7 @@ export async function POST(request: NextRequest) {
     if (!savedToSupabase) {
       console.warn(`Failed to save metadata to Supabase for token ${tokenId}, using memory cache only`);
     }
-    
+
     const uri = `https://gpu-mine.com/api/metadata/${tokenId}`;
 
     const provider = await getProvider();
@@ -185,20 +185,18 @@ export async function POST(request: NextRequest) {
       provider
     );
     const gpuContract = GpuAbi__factory.connect(gpuAddress, wallet);
-    const box = await gpuContract.setGPUStatus(tokenId, uri, power, {
-      gasLimit: 100000,
-    });
+    const box = await gpuContract.setGPUStatus(tokenId, uri, power);
     await box.wait();
     /* const refresh = `https://api.opensea.io/api/v2/chain/amoy/contract/${gpuAddress}/nfts/${tokenId}/refresh`;
     await axios.post(refresh, {
       headers: { "X-API-KEY": process.env.OPENSEA_API_KEY! },
     }); */
 
-    return NextResponse.json({ 
-      success: true, 
-      metadata, 
+    return NextResponse.json({
+      success: true,
+      metadata,
       uri,
-      savedToDatabase: savedToSupabase 
+      savedToDatabase: savedToSupabase
     });
   } catch (error) {
     console.error("Error generating NFT metadata:", error);
@@ -253,9 +251,9 @@ async function simularDistribuicao(qtd: number = 10000) {
       `Hashpower ${i.toString().padStart(3, " ")}: ${quantidade
         .toString()
         .padStart(4, " ")} mints (${percentual.padStart(
-        6,
-        " "
-      )}%) - ${raridade}`
+          6,
+          " "
+        )}%) - ${raridade}`
     );
   }
 
