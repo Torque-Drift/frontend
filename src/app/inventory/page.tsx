@@ -243,7 +243,7 @@ export default function Inventory() {
       </section>
 
       <section className="mb-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
             {
               label: activeTab === "all" ? "Total NFTs" : `Filtered NFTs`,
@@ -256,6 +256,13 @@ export default function Inventory() {
             {
               label: "Mystery Boxes",
               value: nfts.filter((nft) => nft.rarity === "Mystery").length,
+            },
+            {
+              label: "Total to Claim",
+              value: `${nfts.reduce((acc, nft) => Number(acc) + Number(nft.reward), 0).toLocaleString("en-US", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 4,
+              })} $CC`,
             },
           ].map((stat, i) => (
             <motion.div
@@ -290,19 +297,17 @@ export default function Inventory() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`px-4 py-2 rounded whitespace-nowrap transition-colors ${
-                    activeTab === tab.id
-                      ? "bg-gradient-to-r from-cyan-500 to-blue-500 text-white"
-                      : "border border-cyan-800 bg-black/40 hover:bg-black/60"
-                  }`}
+                  className={`px-4 py-2 rounded whitespace-nowrap transition-colors ${activeTab === tab.id
+                    ? "bg-gradient-to-r from-cyan-500 to-blue-500 text-white"
+                    : "border border-cyan-800 bg-black/40 hover:bg-black/60"
+                    }`}
                 >
                   <span className="flex items-center gap-2">
                     {tab.label}
-                    <span className={`text-xs px-2 py-1 rounded-full ${
-                      activeTab === tab.id 
-                        ? "bg-white/20" 
-                        : "bg-cyan-500/20 text-cyan-400"
-                    }`}>
+                    <span className={`text-xs px-2 py-1 rounded-full ${activeTab === tab.id
+                      ? "bg-white/20"
+                      : "bg-cyan-500/20 text-cyan-400"
+                      }`}>
                       {count}
                     </span>
                   </span>
@@ -342,15 +347,15 @@ export default function Inventory() {
         {filteredNfts.length === 0 ? (
           <div className="text-center py-12 border border-cyan-800 rounded-lg bg-black/40">
             <p className="text-cyan-300">
-              {searchTerm ? 
-                `No NFTs found matching "${searchTerm}"` : 
-                activeTab === "all" ? 
+              {searchTerm ?
+                `No NFTs found matching "${searchTerm}"` :
+                activeTab === "all" ?
                   "No NFTs in your inventory" :
                   `No ${activeTab === "gpus" ? "GPU" : activeTab === "mystery" ? "Mystery Box" : activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} NFTs found`
               }
             </p>
             {searchTerm && (
-              <button 
+              <button
                 onClick={() => setSearchTerm("")}
                 className="mt-2 px-4 py-2 bg-cyan-500 hover:bg-cyan-600 text-white rounded transition-colors"
               >

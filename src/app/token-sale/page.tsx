@@ -4,7 +4,6 @@ import { motion } from "framer-motion";
 import Card from "@/components/Card";
 import Button from "@/components/Button";
 import NumberInput from "@/components/NumberInput";
-import Countdown from "@/components/Countdown";
 import ProgressBar from "@/components/ProgressBar";
 import GridSection from "@/components/GridSection";
 import { useSale } from "@/hooks/useSale";
@@ -42,7 +41,7 @@ export default function TokenSale() {
 
   return (
     <>
-      <section className="flex flex-col md:flex-row gap-8 mb-16">
+      <section className="flex flex-col-reverse md:flex-row gap-8 mb-16">
         <div className="md:w-1/2">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -52,7 +51,7 @@ export default function TokenSale() {
             <Card className="h-full">
               <div className="mb-6 text-center">
                 <h2 className="text-4xl font-bold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-600">
-                  {tokenData.name} ({tokenData.symbol}) Private Sale
+                  {tokenData.name} ({tokenData.symbol}) Pre-Sale
                 </h2>
                 <p className="text-cyan-300">Deflationary token powering virtual GPU mining</p>
               </div>
@@ -65,16 +64,9 @@ export default function TokenSale() {
                   </div>
 
                   <div className="flex justify-between mb-3">
-                    <span className="text-cyan-300/80">Total Supply</span>
+                    <span className="text-cyan-300/80">Sale Supply</span>
                     <span className="font-bold">
                       {tokenData.totalSupply.toLocaleString()} $CC
-                    </span>
-                  </div>
-
-                  <div className="flex justify-between mb-3">
-                    <span className="text-cyan-300/80">Max Supply</span>
-                    <span className="font-bold">
-                      {tokenData.maxSupply.toLocaleString()} $CC
                     </span>
                   </div>
                 </div>
@@ -146,7 +138,7 @@ export default function TokenSale() {
                 <div className="flex justify-between pt-2 border-t border-cyan-800/50">
                   <span className="font-bold">Total</span>
                   <span className="font-bold">
-                    {(amount * tokenData.price).toFixed(2)} USD
+                    {(amount * tokenData.price)} USD
                   </span>
                 </div>
               </Card>

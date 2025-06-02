@@ -38,7 +38,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
       </div>
       {showLabels && (
         <div className="flex justify-between mt-2 text-sm">
-          <span>{labelStart}</span>
+          <span>{value}</span>
           <span>{labelEnd || max.toLocaleString()}</span>
         </div>
       )}

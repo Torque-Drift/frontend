@@ -1,6 +1,6 @@
 import { cryptoCoinSaleAddress, usdAddress } from "@/constants";
 import { CryptoCoinSaleAbi__factory, Usd__factory } from "@/contracts";
-import { ethers, toUtf8String } from "ethers";
+import { ethers } from "ethers";
 import { useEffect, useState } from "react";
 import { TransactionStep } from "@/components/TransactionProgress";
 import { to6Decimals } from "@/utils/decimals";
@@ -46,18 +46,9 @@ export function useSale() {
 
     try {
       setErrorMessage(null);
-      setTransactionSteps([
-        {
-          title: "Approve Token Spending",
-          description: "Approve USDC spending for the token purchase",
-          status: "pending",
-        },
-        {
-          title: "Purchase Tokens",
-          description: "Complete the token purchase transaction",
-          status: "pending",
-        },
-      ]);
+      setTransactionSteps(steps => steps.map((step, i) =>
+        i === 0 ? { ...step, status: "loading" } : step
+      ));
 
       const usdContract = Usd__factory.connect(usdAddress, signer);
 

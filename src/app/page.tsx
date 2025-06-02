@@ -179,7 +179,7 @@ export default function Home() {
           </span>
         </h3>
         <div className="relative">
-          <div className="absolute left-1/2 -translate-x-1/2 h-full w-1 bg-gradient-to-b from-cyan-500 to-purple-600"></div>
+          <div className="hidden md:block absolute left-1/2 -translate-x-1/2 h-full w-1 bg-gradient-to-b from-cyan-500 to-purple-600"></div>
           {[
             {
               phase: "Phase 1",
@@ -218,7 +218,7 @@ export default function Home() {
                 }`}
             >
               <div className={`${i % 2 === 0 ? "mr-8" : "ml-8"}`}>
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-gradient-to-r from-cyan-400 to-purple-600 z-10 shadow-[0_0_8px_rgba(80,199,255,0.6)]"></div>
+                <div className="hidden md:block absolute top-0 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-gradient-to-r from-cyan-400 to-purple-600 z-10 shadow-[0_0_8px_rgba(80,199,255,0.6)]"></div>
                 <span className="text-sm text-cyan-400 font-mono">
                   {item.date}
                 </span>

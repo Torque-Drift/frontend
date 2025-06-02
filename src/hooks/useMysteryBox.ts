@@ -1,9 +1,9 @@
-import { cryptoCoinAddress, cryptoCoinSaleAddress, gpuSaleAddress } from "@/constants";
+import { cryptoCoinAddress, gpuSaleAddress } from "@/constants";
 import { CryptoCoinAbi__factory, GpuSaleAbi__factory } from "@/contracts";
 import { ethers } from "ethers";
 import { TransactionStep } from "@/components/TransactionProgress";
 import { useState } from "react";
-import { to18Decimals, to6Decimals } from "@/utils/decimals";
+import { to18Decimals } from "@/utils/decimals";
 
 export function useMysteryBox() {
   const [transactionSteps, setTransactionSteps] = useState<TransactionStep[]>([
@@ -19,6 +19,16 @@ export function useMysteryBox() {
     },
   ]);
 
+  const [referralCodeStatus, setReferralCodeStatus] = useState<{
+    isValid: boolean;
+    isChecking: boolean;
+    hasChecked: boolean;
+  }>({
+    isValid: false,
+    isChecking: false,
+    hasChecked: false,
+  });
+
   async function getProvider() {
     if (!window.ethereum) {
       throw new Error("Ethereum provider not found");
@@ -27,24 +37,76 @@ export function useMysteryBox() {
     return provider;
   }
 
+  async function checkRefCode(referralCode: string) {
+    if (!referralCode || referralCode.trim() === "") {
+      setReferralCodeStatus({
+        isValid: false,
+        isChecking: false,
+        hasChecked: false,
+      });
+      return false;
+    }
+
+    setReferralCodeStatus({
+      isValid: false,
+      isChecking: true,
+      hasChecked: false,
+    });
+
+    try {
+      const provider = await getProvider();
+      const signer = await provider.getSigner();
+      const gpuSaleContract = GpuSaleAbi__factory.connect(
+        gpuSaleAddress,
+        signer
+      );
+
+      const refCode = referralCode.trim();
+      const refCodeExists = await gpuSaleContract.getRefCode(refCode);
+      const isValid = refCodeExists !== ethers.ZeroAddress;
+
+      setReferralCodeStatus({
+        isValid,
+        isChecking: false,
+        hasChecked: true,
+      });
+
+      return isValid;
+    } catch (error) {
+      console.error("Error checking referral code:", error);
+      setReferralCodeStatus({
+        isValid: false,
+        isChecking: false,
+        hasChecked: true,
+      });
+      return false;
+    }
+  }
+
+  function calculatePrice(basePrice: number, amount: number, hasValidRefCode: boolean): number {
+    const totalPrice = basePrice * amount;
+    if (hasValidRefCode) {
+      return totalPrice * 0.95; // 5% discount
+    }
+    return totalPrice;
+  }
+
+  function calculateDiscount(basePrice: number, amount: number): number {
+    return (basePrice * amount) * 0.05; // 5% discount amount
+  }
+
   async function buyMysteryBox(amount: number, referralCode: string = "") {
     try {
-      setTransactionSteps([
-        {
-          title: "Approve CCoin Spending",
-          description: "Approve CCoin spending for the token purchase",
-          status: "loading",
-        },
-        {
-          title: "Purchase Mystery Box",
-          description: "Complete the mystery box purchase",
-          status: "pending",
-        },
-      ]);
+      setTransactionSteps(steps => steps.map((step, i) =>
+        i === 0 ? { ...step, status: "loading" } : step
+      ));
 
       const provider = await getProvider();
       const signer = await provider.getSigner();
-      const amountToPay = amount * 400
+
+      const baseAmount = amount * 400;
+      const hasValidRefCode = referralCodeStatus.isValid && referralCode.trim() !== "";
+      const finalAmount = hasValidRefCode ? baseAmount * 0.95 : baseAmount;
 
       const cryptoCoinContract = CryptoCoinAbi__factory.connect(
         cryptoCoinAddress,
@@ -52,10 +114,10 @@ export function useMysteryBox() {
       );
       const allowance = await cryptoCoinContract.allowance(signer.address, gpuSaleAddress);
 
-      if (allowance < to18Decimals(amountToPay)) {
+      if (allowance < to18Decimals(finalAmount)) {
         const approveTx = await cryptoCoinContract.approve(
           gpuSaleAddress,
-          to18Decimals(amountToPay),
+          to18Decimals(finalAmount),
         );
         await approveTx.wait();
       }
@@ -77,7 +139,7 @@ export function useMysteryBox() {
       const gpuSaleContract = GpuSaleAbi__factory.connect(gpuSaleAddress, signer);
 
       const refCode = referralCode && referralCode.trim() !== ""
-        ? referralCode
+        ? referralCode.trim()
         : '0';
 
       const buyTx = await gpuSaleContract.buy(String(amount), refCode);
@@ -104,5 +166,12 @@ export function useMysteryBox() {
     }
   }
 
-  return { buyMysteryBox, transactionSteps };
+  return {
+    buyMysteryBox,
+    transactionSteps,
+    checkRefCode,
+    referralCodeStatus,
+    calculatePrice,
+    calculateDiscount
+  };
 }

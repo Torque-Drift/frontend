@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import Card from "@/components/Card";
@@ -15,7 +15,24 @@ export default function MysteryBox() {
   const [boxCount, setBoxCount] = useState(1);
   const [referralCode, setReferralCode] = useState("");
   const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
-  const { buyMysteryBox, transactionSteps } = useMysteryBox();
+  const {
+    buyMysteryBox,
+    transactionSteps,
+    checkRefCode,
+    referralCodeStatus,
+    calculatePrice,
+    calculateDiscount
+  } = useMysteryBox();
+
+  useEffect(() => {
+    if (referralCode.trim() === "") return;
+
+    const timeoutId = setTimeout(() => {
+      checkRefCode(referralCode);
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [referralCode]);
 
   async function handleBuyMysteryBox() {
     setIsTransactionModalOpen(true);
@@ -28,6 +45,11 @@ export default function MysteryBox() {
       console.error("Mystery box purchase failed:", error);
     }
   }
+
+  const basePrice = boxData.price;
+  const baseTotalPrice = basePrice * boxCount;
+  const finalPrice = calculatePrice(basePrice, boxCount, referralCodeStatus.isValid);
+  const discountAmount = referralCodeStatus.isValid ? calculateDiscount(basePrice, boxCount) : 0;
 
   return (
     <>
@@ -165,30 +187,78 @@ export default function MysteryBox() {
                 <label className="block mb-2 text-sm font-medium text-gray-200">
                   Referral Code (Optional)
                 </label>
-                <input
-                  type="text"
-                  value={referralCode}
-                  onChange={(e) => setReferralCode(e.target.value)}
-                  placeholder="Enter referral code"
-                  className="w-full bg-slate-800 border border-slate-700 rounded-md p-2.5 text-white focus:ring-cyan-500 focus:border-cyan-500"
-                />
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={referralCode}
+                    onChange={(e) => setReferralCode(e.target.value)}
+                    placeholder="Enter referral code"
+                    className="w-full bg-slate-800 border border-slate-700 rounded-md p-2.5 text-white focus:ring-cyan-500 focus:border-cyan-500 pr-10"
+                  />
+                  {referralCodeStatus.isChecking && (
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-cyan-500"></div>
+                    </div>
+                  )}
+                  {referralCodeStatus.hasChecked && !referralCodeStatus.isChecking && (
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                      {referralCodeStatus.isValid ? (
+                        <span className="text-green-500 text-sm">✓</span>
+                      ) : (
+                        <span className="text-red-500 text-sm">✗</span>
+                      )}
+                    </div>
+                  )}
+                </div>
+                {referralCodeStatus.hasChecked && !referralCodeStatus.isChecking && (
+                  <p className={`text-xs mt-1 ${referralCodeStatus.isValid ? "text-green-500" : "text-red-500"
+                    }`}>
+                    {referralCodeStatus.isValid
+                      ? "✓ Valid referral code! 5% discount applied"
+                      : "✗ Invalid referral code"
+                    }
+                  </p>
+                )}
               </div>
 
               <Card variant="gradient" className="mb-6">
                 <div className="flex justify-between mb-2">
                   <span className="text-cyan-300/80">Price per box</span>
                   <span>
-                    {boxData.price.toLocaleString("en-US", {
+                    {basePrice.toLocaleString("en-US", {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2,
                     })}{" "}
                     $CCoin
                   </span>
                 </div>
+                <div className="flex justify-between mb-2">
+                  <span className="text-cyan-300/80">Subtotal</span>
+                  <span>
+                    {baseTotalPrice.toLocaleString("en-US", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}{" "}
+                    $CCoin
+                  </span>
+                </div>
+                {referralCodeStatus.isValid && (
+                  <div className="flex justify-between mb-2">
+                    <span className="text-green-500">Referral Discount (5%)</span>
+                    <span className="text-green-500">
+                      -{discountAmount.toLocaleString("en-US", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}{" "}
+                      $CCoin
+                    </span>
+                  </div>
+                )}
                 <div className="flex justify-between pt-2 border-t border-cyan-800/50">
                   <span className="font-bold">Total</span>
-                  <span className="font-bold">
-                    {(boxCount * boxData.price).toLocaleString("en-US", {
+                  <span className={`font-bold ${referralCodeStatus.isValid ? "text-green-400" : ""
+                    }`}>
+                    {finalPrice.toLocaleString("en-US", {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2,
                     })}{" "}
@@ -203,6 +273,11 @@ export default function MysteryBox() {
                 onClick={handleBuyMysteryBox}
               >
                 Buy Now
+                {referralCodeStatus.isValid && (
+                  <span className="ml-2 text-green-400 text-sm">
+                    (5% OFF!)
+                  </span>
+                )}
               </Button>
 
               <div className="mt-6 text-center text-cyan-300/60 text-sm">
@@ -210,6 +285,11 @@ export default function MysteryBox() {
                 <p className="mt-2">
                   You can open them anytime to reveal your GPU NFTs
                 </p>
+                {referralCodeStatus.isValid && (
+                  <p className="mt-2 text-green-400">
+                    🎉 You're saving {discountAmount.toFixed(2)} $CCoin with this referral code!
+                  </p>
+                )}
               </div>
             </Card>
           </motion.div>

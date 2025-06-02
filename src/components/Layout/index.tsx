@@ -1,7 +1,8 @@
 "use client";
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { useUser } from "@/hooks/useUser";
 
 interface LayoutProps {
   children: ReactNode;
@@ -10,6 +11,24 @@ interface LayoutProps {
 export default function Layout({ children }: LayoutProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const { balance } = useUser();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
+  };
+
+  const menuItems = [
+    { href: "/", label: "Home" },
+    { href: "https://gpumine.gitbook.io/gpumine", label: "Whitepaper", external: true },
+    { href: "/token-sale", label: "Token Sale" },
+    { href: "/mystery-box", label: "Mystery Box" },
+    { href: "/inventory", label: "Inventory" },
+  ];
 
   return (
     <div className="min-h-screen bg-black text-cyan-400 overflow-hidden relative">
@@ -31,68 +50,36 @@ export default function Layout({ children }: LayoutProps) {
 
       <div className="absolute inset-0 crt pointer-events-none z-20"></div>
 
-      <div className="container mx-auto px-4 py-12 relative z-10">
-        <header className="flex justify-between items-center mb-16">
+      <div className="container mx-auto px-4 py-6 lg:py-12 relative z-10">
+        <header className="flex justify-between items-center mb-8 lg:mb-16">
+          {/* Logo */}
           <h1
-            className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-600 glitch-text cursor-pointer"
-            onClick={() => router.push("/")}
+            className="text-2xl lg:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-600 glitch-text cursor-pointer"
+            onClick={() => {
+              router.push("/");
+              closeMobileMenu();
+            }}
           >
             GPU<span className="text-rose-500">MINE</span>
           </h1>
-          <nav>
+
+          {/* Desktop Navigation */}
+          <nav className="hidden lg:block">
             <ul className="flex space-x-6 items-center">
-              <li>
-                <a
-                  href="/"
-                  className={`${pathname === "/" ? "text-cyan-300" : "hover:text-cyan-300"
+              {menuItems.map((item) => (
+                <li key={item.href}>
+                  <a
+                    href={item.href}
+                    target={item.external ? "_blank" : undefined}
+                    rel={item.external ? "noopener noreferrer" : undefined}
+                    className={`${
+                      pathname === item.href ? "text-cyan-300" : "hover:text-cyan-300"
                     } transition-colors`}
-                >
-                  Home
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://gpumine.gitbook.io/gpumine"
-                  target="_blank"
-                  className={`${pathname === "/gitbook" ? "text-cyan-300" : "hover:text-cyan-300"
-                    } transition-colors`}
-                >
-                  Whitepaper
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/token-sale"
-                  className={`${pathname === "/token-sale"
-                    ? "text-cyan-300"
-                    : "hover:text-cyan-300"
-                    } transition-colors`}
-                >
-                  Token Sale
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/mystery-box"
-                  className={`${pathname === "/mystery-box"
-                    ? "text-cyan-300"
-                    : "hover:text-cyan-300"
-                    } transition-colors`}
-                >
-                  Mystery Box
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/inventory"
-                  className={`${pathname === "/inventory"
-                    ? "text-cyan-300"
-                    : "hover:text-cyan-300"
-                    } transition-colors`}
-                >
-                  Inventory
-                </a>
-              </li>
+                  >
+                    {item.label}
+                  </a>
+                </li>
+              ))}
               <li>
                 <ConnectButton.Custom>
                   {({
@@ -121,7 +108,7 @@ export default function Layout({ children }: LayoutProps) {
                                 onClick={openConnectModal}
                                 className="px-4 py-2 bg-gradient-to-r from-rose-500 to-purple-600 rounded hover:from-rose-600 hover:to-purple-700 transition-colors relative overflow-hidden group"
                               >
-                                <span className="relative z-10">
+                                <span className="relative z-10 text-sm lg:text-base">
                                   Connect Wallet
                                 </span>
                                 <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -134,7 +121,7 @@ export default function Layout({ children }: LayoutProps) {
                             return (
                               <button
                                 onClick={openChainModal}
-                                className="px-4 py-2 bg-gradient-to-r from-red-500 to-rose-600 rounded hover:from-red-600 hover:to-rose-700 transition-colors"
+                                className="px-4 py-2 bg-gradient-to-r from-red-500 to-rose-600 rounded hover:from-red-600 hover:to-rose-700 transition-colors text-sm lg:text-base"
                               >
                                 Wrong network
                               </button>
@@ -142,7 +129,12 @@ export default function Layout({ children }: LayoutProps) {
                           }
 
                           return (
-                            <div className="flex gap-3">
+                            <div className="flex gap-2">
+                              <button className="px-3 py-2 bg-gradient-to-r from-cyan-500/20 to-purple-600/20 rounded hover:from-cyan-500/30 hover:to-purple-600/30 transition-colors border border-cyan-500/30">
+                                <span className="relative z-10 text-sm lg:text-base">
+                                  {balance} $CC
+                                </span>
+                              </button>
                               <button
                                 onClick={openChainModal}
                                 className="px-3 py-2 bg-gradient-to-r from-cyan-500/20 to-purple-600/20 rounded hover:from-cyan-500/30 hover:to-purple-600/30 transition-colors border border-cyan-500/30"
@@ -156,16 +148,15 @@ export default function Layout({ children }: LayoutProps) {
                                         className="w-4 h-4"
                                       />
                                     )}
-                                    {chain.name}
+                                    <span className="text-sm lg:text-base">{chain.name}</span>
                                   </div>
                                 )}
                               </button>
-
                               <button
                                 onClick={openAccountModal}
                                 className="px-4 py-2 bg-gradient-to-r from-rose-500 to-purple-600 rounded hover:from-rose-600 hover:to-purple-700 transition-colors relative overflow-hidden group"
                               >
-                                <span className="relative z-10">
+                                <span className="relative z-10 text-sm lg:text-base">
                                   {account.displayName}
                                 </span>
                                 <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -181,7 +172,168 @@ export default function Layout({ children }: LayoutProps) {
               </li>
             </ul>
           </nav>
+
+          {/* Mobile Menu Button */}
+          <button
+            onClick={toggleMobileMenu}
+            className="lg:hidden z-50 relative p-2 text-cyan-400 hover:text-cyan-300 transition-colors"
+            aria-label="Toggle mobile menu"
+          >
+            <div className="w-6 h-6 relative">
+              <span
+                className={`absolute top-0 left-0 w-full h-0.5 bg-current transform transition-all duration-300 ${
+                  isMobileMenuOpen ? "rotate-45 top-2.5" : ""
+                }`}
+              />
+              <span
+                className={`absolute top-2.5 left-0 w-full h-0.5 bg-current transition-all duration-300 ${
+                  isMobileMenuOpen ? "opacity-0" : ""
+                }`}
+              />
+              <span
+                className={`absolute top-5 left-0 w-full h-0.5 bg-current transform transition-all duration-300 ${
+                  isMobileMenuOpen ? "-rotate-45 top-2.5" : ""
+                }`}
+              />
+            </div>
+          </button>
         </header>
+
+        {/* Mobile Menu Overlay */}
+        {isMobileMenuOpen && (
+          <div
+            className="lg:hidden fixed inset-0 bg-black/80 z-40"
+            onClick={closeMobileMenu}
+          />
+        )}
+
+        {/* Mobile Menu */}
+        <div
+          className={`lg:hidden fixed top-0 right-0 h-full w-80 max-w-sm bg-gradient-to-b from-black/95 to-purple-900/95 backdrop-blur-lg transform transition-transform duration-300 z-50 ${
+            isMobileMenuOpen ? "translate-x-0" : "translate-x-full"
+          }`}
+        >
+          <div className="p-6 pt-20">
+            {/* Mobile Navigation */}
+            <nav className="mb-8">
+              <ul className="space-y-4">
+                {menuItems.map((item) => (
+                  <li key={item.href}>
+                    <a
+                      href={item.href}
+                      target={item.external ? "_blank" : undefined}
+                      rel={item.external ? "noopener noreferrer" : undefined}
+                      onClick={closeMobileMenu}
+                      className={`block py-3 px-4 rounded-lg transition-all ${
+                        pathname === item.href
+                          ? "text-cyan-300 bg-cyan-500/20 border border-cyan-500/30"
+                          : "text-cyan-400 hover:text-cyan-300 hover:bg-cyan-500/10"
+                      }`}
+                    >
+                      {item.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+
+            {/* Mobile Wallet Connection */}
+            <div className="border-t border-cyan-800 pt-6">
+              <ConnectButton.Custom>
+                {({
+                  account,
+                  chain,
+                  openAccountModal,
+                  openChainModal,
+                  openConnectModal,
+                  mounted,
+                }) => {
+                  return (
+                    <div
+                      {...(!mounted && {
+                        "aria-hidden": true,
+                        style: {
+                          opacity: 0,
+                          pointerEvents: "none",
+                          userSelect: "none",
+                        },
+                      })}
+                    >
+                      {(() => {
+                        if (!mounted || !account || !chain) {
+                          return (
+                            <button
+                              onClick={() => {
+                                openConnectModal();
+                                closeMobileMenu();
+                              }}
+                              className="w-full px-4 py-3 bg-gradient-to-r from-rose-500 to-purple-600 rounded-lg hover:from-rose-600 hover:to-purple-700 transition-colors relative overflow-hidden group"
+                            >
+                              <span className="relative z-10">Connect Wallet</span>
+                              <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            </button>
+                          );
+                        }
+
+                        if (chain.unsupported) {
+                          return (
+                            <button
+                              onClick={() => {
+                                openChainModal();
+                                closeMobileMenu();
+                              }}
+                              className="w-full px-4 py-3 bg-gradient-to-r from-red-500 to-rose-600 rounded-lg hover:from-red-600 hover:to-rose-700 transition-colors"
+                            >
+                              Wrong network
+                            </button>
+                          );
+                        }
+
+                        return (
+                          <div className="space-y-3">
+                            <button className="w-full px-4 py-3 bg-gradient-to-r from-cyan-500/20 to-purple-600/20 rounded-lg border border-cyan-500/30">
+                              <span className="text-cyan-300">{balance} $CC</span>
+                            </button>
+                            <button
+                              onClick={() => {
+                                openChainModal();
+                                closeMobileMenu();
+                              }}
+                              className="w-full px-4 py-3 bg-gradient-to-r from-cyan-500/20 to-purple-600/20 rounded-lg border border-cyan-500/30"
+                            >
+                              {chain.hasIcon && (
+                                <div className="flex items-center justify-center gap-2">
+                                  {chain.iconUrl && (
+                                    <img
+                                      alt={chain.name ?? "Chain icon"}
+                                      src={chain.iconUrl}
+                                      className="w-4 h-4"
+                                    />
+                                  )}
+                                  {chain.name}
+                                </div>
+                              )}
+                            </button>
+                            <button
+                              onClick={() => {
+                                openAccountModal();
+                                closeMobileMenu();
+                              }}
+                              className="w-full px-4 py-3 bg-gradient-to-r from-rose-500 to-purple-600 rounded-lg hover:from-rose-600 hover:to-purple-700 transition-colors relative overflow-hidden group"
+                            >
+                              <span className="relative z-10">{account.displayName}</span>
+                              <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            </button>
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  );
+                }}
+              </ConnectButton.Custom>
+            </div>
+          </div>
+        </div>
 
         <main>{children}</main>
 

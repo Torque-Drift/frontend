@@ -105,7 +105,7 @@ export const faqItems = [
   },
   {
     q: "Can I use multiple GPUs?",
-    a: "Yes! You can mine with up to 10 GPUs per transaction using the mineBatch() feature. Each GPU will generate its own rewards based on its individual power level.",
+    a: "Yes! You can mine with up to 1 GPUs per transaction. Each GPU will generate its own rewards based on its individual power level.",
   },
   {
     q: "Can I sell or transfer my GPUs?",
