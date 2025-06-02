@@ -41,9 +41,18 @@ export function useSale() {
 
     try {
       setErrorMessage(null);
-      setTransactionSteps(steps => steps.map((step, i) =>
-        i === 0 ? { ...step, status: "loading" } : step
-      ));
+      setTransactionSteps([
+        {
+          title: "Approve Token Spending",
+          description: "Approve USDC spending for the token purchase",
+          status: "pending",
+        },
+        {
+          title: "Purchase Tokens",
+          description: "Complete the token purchase transaction",
+          status: "pending",
+        },
+      ]);
 
       const usdContract = Usd__factory.connect(usdAddress, signer);
 
