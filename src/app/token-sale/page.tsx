@@ -17,9 +17,11 @@ export default function TokenSale() {
   const { buyToken, totalSold, transactionSteps } = useSale();
 
   const tokenData = {
-    name: "$CCoin",
+    name: "CryptoCoin",
+    symbol: "CC",
     price: 0.125,
     totalSupply: 40000,
+    maxSupply: 27000000,
     sold: totalSold,
     minPurchase: 0,
     maxPurchase: 10000,
@@ -50,9 +52,9 @@ export default function TokenSale() {
             <Card className="h-full">
               <div className="mb-6 text-center">
                 <h2 className="text-4xl font-bold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-600">
-                  {tokenData.name} Token Sale
+                  {tokenData.name} ({tokenData.symbol}) Private Sale
                 </h2>
-                <p className="text-cyan-300">Power your mining operation</p>
+                <p className="text-cyan-300">Deflationary token powering virtual GPU mining</p>
               </div>
 
               <div className="space-y-6">
@@ -65,7 +67,14 @@ export default function TokenSale() {
                   <div className="flex justify-between mb-3">
                     <span className="text-cyan-300/80">Total Supply</span>
                     <span className="font-bold">
-                      {tokenData.totalSupply.toLocaleString()}
+                      {tokenData.totalSupply.toLocaleString()} $CC
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between mb-3">
+                    <span className="text-cyan-300/80">Max Supply</span>
+                    <span className="font-bold">
+                      {tokenData.maxSupply.toLocaleString()} $CC
                     </span>
                   </div>
 
@@ -82,12 +91,26 @@ export default function TokenSale() {
                 />
 
                 <Card variant="gradient">
-                  <h3 className="text-lg font-bold mb-2">Token Utility</h3>
+                  <h3 className="text-lg font-bold mb-2">CryptoCoin Utility</h3>
                   <ul className="list-disc list-inside space-y-1 text-cyan-300/80">
-                    <li>Power up mining operations</li>
-                    <li>Upgrade GPU cards</li>
-                    <li>Access premium features</li>
-                    <li>Participate in governance</li>
+                    <li>Purchase virtual GPUs for mining</li>
+                    <li>Open Mystery Boxes with random GPU drops</li>
+                    <li>Earn mining rewards automatically</li>
+                    <li>Trade GPUs as NFTs on marketplaces</li>
+                    <li>Bitcoin-inspired deflationary mechanics</li>
+                    <li>Halving events reduce supply over time</li>
+                  </ul>
+                </Card>
+
+                <Card variant="gradient" className="mt-4">
+                  <h3 className="text-lg font-bold mb-2">Mining Mechanics</h3>
+                  <ul className="list-disc list-inside space-y-1 text-cyan-300/80">
+                    <li>GPU hash power ranges from 10-100</li>
+                    <li>Rewards based on time and GPU power</li>
+                    <li>Global mining rate halves at milestones</li>
+                    <li>First halving at 13.5M CC in circulation</li>
+                    <li>Mine with up to 10 GPUs simultaneously</li>
+                    <li>100% on-chain transparency</li>
                   </ul>
                 </Card>
               </div>
@@ -122,7 +145,7 @@ export default function TokenSale() {
                 <div className="flex justify-between mb-2">
                   <span className="text-cyan-300/80">Amount</span>
                   <span>
-                    {amount} {tokenData.name}
+                    {amount} {tokenData.symbol}
                   </span>
                 </div>
                 <div className="flex justify-between pt-2 border-t border-cyan-800/50">
@@ -138,11 +161,14 @@ export default function TokenSale() {
                 fullWidth
                 onClick={handleBuyToken}
               >
-                Buy Tokens
+                Buy {tokenData.symbol} Tokens
               </Button>
 
               <div className="mt-6 text-center text-cyan-300/60 text-sm">
                 <p>Tokens will be sent to your connected wallet address</p>
+                <p className="mt-2">
+                  Use your {tokenData.symbol} tokens to purchase GPUs or Mystery Boxes
+                </p>
                 <p className="mt-2">
                   By purchasing, you agree to our{" "}
                   <a href="#" className="text-cyan-300 underline">
@@ -160,6 +186,61 @@ export default function TokenSale() {
         onClose={() => setIsTransactionModalOpen(false)}
         steps={transactionSteps}
       />
+
+      {/* GPU Rarities Section */}
+      <section className="mb-16">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="text-center mb-8"
+        >
+          <h2 className="text-3xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-600">
+            Mystery Box GPU Rarities
+          </h2>
+          <p className="text-cyan-300 max-w-2xl mx-auto">
+            Each Mystery Box contains a random GPU with different rarities and hash power levels
+          </p>
+        </motion.div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[
+            { name: "Rule 3434", rarity: "Common", chance: "70%", colorClass: "border-green-500/30 bg-green-900/10", iconClass: "bg-gradient-to-r from-green-500 to-green-700", badgeClass: "bg-green-500/20 text-green-400", hashPower: "10-25" },
+            { name: "Sapphire 1690", rarity: "Rare", chance: "25%", colorClass: "border-cyan-500/30 bg-cyan-900/10", iconClass: "bg-gradient-to-r from-cyan-500 to-cyan-700", badgeClass: "bg-cyan-500/20 text-cyan-400", hashPower: "26-50" },
+            { name: "Subzero 8000", rarity: "Epic", chance: "4.5%", colorClass: "border-purple-500/30 bg-purple-900/10", iconClass: "bg-gradient-to-r from-purple-500 to-purple-700", badgeClass: "bg-purple-500/20 text-purple-400", hashPower: "51-75" },
+            { name: "EmberGold6969", rarity: "Legendary", chance: "0.5%", colorClass: "border-yellow-500/30 bg-yellow-900/10", iconClass: "bg-gradient-to-r from-yellow-500 to-yellow-700", badgeClass: "bg-yellow-500/20 text-yellow-400", hashPower: "76-100" },
+          ].map((gpu, index) => (
+            <motion.div
+              key={gpu.name}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+            >
+              <Card className={gpu.colorClass}>
+                <div className="text-center">
+                  <div className={`w-16 h-16 mx-auto mb-4 rounded-full ${gpu.iconClass} flex items-center justify-center`}>
+                    <span className="text-2xl">⚡</span>
+                  </div>
+                  <h3 className="text-xl font-bold mb-2">{gpu.name}</h3>
+                  <div className={`inline-block px-3 py-1 rounded-full text-sm font-bold ${gpu.badgeClass} mb-3`}>
+                    {gpu.rarity}
+                  </div>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-cyan-300/70">Drop Chance:</span>
+                      <span className="font-bold">{gpu.chance}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-cyan-300/70">Hash Power:</span>
+                      <span className="font-bold">{gpu.hashPower}</span>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            </motion.div>
+          ))}
+        </div>
+      </section>
 
       <GridSection title="Frequently Asked Questions" columns={2}>
         {faqItems.map((faq, i) => (

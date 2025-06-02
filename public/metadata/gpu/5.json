@@ -1,0 +1,25 @@
+{
+  "name": "Rule 3434 #5",
+  "description": "Forged deep within the underground networks of CyberBlock 34, Rule 3434 is the go-to unit for digital survivors. Compact, reliable, and synced with ancient protocols — it doesn’t dazzle, but it never fails. ⚙️ 'Rule number one: if it works, don’t question it.'",
+  "image": "https://gpu-mine.com/images/common.png",
+  "image_site": "/images/common.png",
+  "animation_site": "/videos/common.mp4",
+  "animation_url": "https://gpu-mine.com/videos/common.mp4",
+  "external_url": "gpumine.io",
+  "attributes": [
+    {
+      "trait_type": "Rarity",
+      "value": "Common"
+    },
+    {
+      "trait_type": "Power",
+      "value": 21
+    },
+    {
+      "trait_type": "Token ID",
+      "value": 5
+    }
+  ],
+  "power": 21,
+  "rarity": "Common"
+}

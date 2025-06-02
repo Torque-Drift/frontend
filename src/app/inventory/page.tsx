@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { useInventory } from "@/hooks/useInventory";
@@ -19,6 +19,7 @@ export default function Inventory() {
     rarity?: string;
   } | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [waitingForReveal, setWaitingForReveal] = useState(false);
   const {
     onCollect,
     nfts,
@@ -28,6 +29,44 @@ export default function Inventory() {
     revealedNft,
     clearRevealedNft,
   } = useInventory();
+
+  useEffect(() => {
+    if (waitingForReveal && revealedNft && currentAction) {
+      console.log("NFT revelado detectado:", revealedNft);
+      
+      setIsOpenBoxModalOpen(false);
+      setWaitingForReveal(false);
+      
+      const finalRarity = revealedNft.rarity.toLowerCase();
+      console.log("Abrindo vídeo com raridade:", finalRarity);
+      
+      setCurrentAction({ 
+        type: "openBox", 
+        tokenId: currentAction.tokenId, 
+        rarity: finalRarity
+      });
+      
+      setIsBoxOpeningModalOpen(true);
+    }
+  }, [revealedNft, waitingForReveal, currentAction]);
+
+  useEffect(() => {
+    let timeout: NodeJS.Timeout;
+    
+    if (waitingForReveal) {
+      timeout = setTimeout(() => {
+        console.log("Timeout aguardando revelação, resetando...");
+        setWaitingForReveal(false);
+        setIsProcessing(false);
+        setIsOpenBoxModalOpen(false);
+        setCurrentAction(null);
+      }, 30000); // 30 segundos timeout
+    }
+    
+    return () => {
+      if (timeout) clearTimeout(timeout);
+    };
+  }, [waitingForReveal]);
 
   const sortedNfts = [...nfts].sort((a, b) => {
     if (a.rarity === "Mystery" && b.rarity !== "Mystery") return 1;
@@ -89,31 +128,30 @@ export default function Inventory() {
   async function handleOpenBox(tokenId: number) {
     if (isProcessing) return;
     
-    // Encontrar o NFT para obter a raridade (ou usar "mystery" como padrão)
-    const nft = nfts.find(n => n.tokenId === tokenId);
-    const rarity = nft?.rarity === "Mystery" ? "mystery" : nft?.rarity?.toLowerCase() || "mystery";
-    
     setIsProcessing(true);
-    setCurrentAction({ type: "openBox", tokenId, rarity });
-    setIsBoxOpeningModalOpen(true);
+    setCurrentAction({ type: "openBox", tokenId });
+    setIsOpenBoxModalOpen(true);
+    setWaitingForReveal(true);
     
     try {
+      console.log("Chamando openBox para token:", tokenId);
       await openBox(tokenId);
       
-      // Não fechar o modal automaticamente - deixar o usuário ver o resultado
-      // O modal será fechado quando o usuário clicar no botão "Continue Mining!"
     } catch (error) {
       console.error("Open box failed:", error);
       setIsProcessing(false);
-      setIsBoxOpeningModalOpen(false);
+      setIsOpenBoxModalOpen(false);
       setCurrentAction(null);
+      setWaitingForReveal(false);
     }
   }
 
   function handleCloseBoxOpeningModal() {
     setIsBoxOpeningModalOpen(false);
+    setIsOpenBoxModalOpen(false);
     setCurrentAction(null);
     setIsProcessing(false);
+    setWaitingForReveal(false);
     clearRevealedNft();
   }
 
@@ -181,11 +219,10 @@ export default function Inventory() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`px-4 py-2 rounded whitespace-nowrap ${
-                  activeTab === tab.id
+                className={`px-4 py-2 rounded whitespace-nowrap ${activeTab === tab.id
                     ? "bg-gradient-to-r from-cyan-500 to-blue-500 text-white"
                     : "border border-cyan-800 bg-black/40 hover:bg-black/60"
-                }`}
+                  }`}
               >
                 {tab.label}
               </button>
@@ -323,8 +360,8 @@ export default function Inventory() {
                                 <div className="w-4 h-4 border-2 border-green-500 border-t-transparent rounded-full animate-spin"></div>
                               )}
                             {isProcessing &&
-                            currentAction?.tokenId === nft.tokenId &&
-                            currentAction?.type === "collect"
+                              currentAction?.tokenId === nft.tokenId &&
+                              currentAction?.type === "collect"
                               ? "Claiming..."
                               : "Claim Rewards"}
                           </div>
@@ -347,8 +384,8 @@ export default function Inventory() {
                               <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                             )}
                           {isProcessing &&
-                          currentAction?.tokenId === nft.tokenId &&
-                          currentAction?.type === "openBox"
+                            currentAction?.tokenId === nft.tokenId &&
+                            currentAction?.type === "openBox"
                             ? "Opening..."
                             : "Open Box"}
                         </div>
@@ -395,6 +432,8 @@ export default function Inventory() {
             setIsOpenBoxModalOpen(false);
             setCurrentAction(null);
             setIsProcessing(false);
+            setWaitingForReveal(false);
+            clearRevealedNft();
           }}
           steps={openBoxTransactionSteps}
         />
@@ -405,7 +444,6 @@ export default function Inventory() {
           isOpen={isBoxOpeningModalOpen}
           onClose={handleCloseBoxOpeningModal}
           rarity={currentAction.rarity || "mystery"}
-          revealedNft={revealedNft}
         />
       )}
     </>

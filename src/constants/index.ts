@@ -84,19 +84,35 @@ export const howItWorksSteps = [
 
 export const faqItems = [
   {
-    q: "What is $CCoin?",
-    a: "$CCoin is the utility token of the $CCoin ecosystem. It's used for purchasing GPUs, upgrading hardware, and participating in the platform's governance.",
+    q: "What is CryptoCoin (CC)?",
+    a: "CryptoCoin is a deflationary ERC-20 token with a maximum supply of 27 million, mined using virtual GPUs within a gamified ecosystem. Its mechanics are inspired by Bitcoin's original supply and halving model.",
   },
   {
-    q: "How can I use $CCoin?",
-    a: "$CCoin can be used to purchase GPUs, upgrading hardware, and participating in the platform's governance.",
+    q: "How do I start mining?",
+    a: "1) Acquire CC tokens via the private sale or Uniswap. 2) Use CC to buy a GPU directly or open a Mystery Box. 3) Once you own a GPU, it will start mining automatically. 4) You can claim your mined CC at any time.",
   },
   {
-    q: "When will trading begin?",
-    a: "Trading will begin immediately after the token sale concludes. We plan to list on multiple exchanges shortly after.",
+    q: "What is a Mystery Box?",
+    a: "A Mystery Box is a loot-box-style item that contains a random GPU. There are 4 rarities: Common (Rule 3434) 70%, Rare (Sapphire 1690) 25%, Epic (Subzero 8000) 4.5%, and Legendary (EmberGold6969) 0.5%.",
   },
   {
-    q: "Is there a vesting period?",
-    a: "Yes, tokens purchased during the sale will have a 3-month vesting period with 25% unlocked immediately and the rest unlocked monthly.",
+    q: "How are mining rewards calculated?",
+    a: "Mining rewards depend on your GPU's hash power (10-100), time elapsed since last claim, and the global mining rate, which halves as more tokens are mined. More powerful GPUs and longer wait times earn more.",
+  },
+  {
+    q: "What is halving in GPUmine?",
+    a: "Halving is a mechanism where mining rewards are reduced by half after key milestones. The first halving happens at 13.5 million CC in circulation, following Bitcoin's pattern to ensure increasing scarcity over time.",
+  },
+  {
+    q: "Can I use multiple GPUs?",
+    a: "Yes! You can mine with up to 10 GPUs per transaction using the mineBatch() feature. Each GPU will generate its own rewards based on its individual power level.",
+  },
+  {
+    q: "Can I sell or transfer my GPUs?",
+    a: "Absolutely! GPUs are NFTs and can be transferred, sold, or traded on any compatible NFT marketplace, giving you full ownership and control.",
+  },
+  {
+    q: "Is the mining really on-chain?",
+    a: "Yes! All mining logic, reward distribution, halvings, and GPU ownership are handled 100% on-chain, ensuring complete transparency and decentralization.",
   },
 ];
