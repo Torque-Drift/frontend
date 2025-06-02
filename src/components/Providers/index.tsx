@@ -2,7 +2,7 @@
 import { PropsWithChildren } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createConfig, http, WagmiProvider } from "wagmi";
-import { polygon } from "wagmi/chains";
+import { polygonAmoy } from "wagmi/chains";
 import { darkTheme, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import "@rainbow-me/rainbowkit/styles.css";
 import Layout from "../Layout";
@@ -18,8 +18,8 @@ const queryClient = new QueryClient({
 });
 
 const wagmiConfig = createConfig({
-  chains: [polygon],
-  transports: { [polygon.id]: http() },
+  chains: [polygonAmoy],
+  transports: { [polygonAmoy.id]: http() },
   ssr: true,
 });
 
