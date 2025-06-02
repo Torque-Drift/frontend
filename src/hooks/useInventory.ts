@@ -106,12 +106,17 @@ export function useInventory() {
             : step
         )
       );
+
+      // Refresh metadata for the opened token and get updated NFTs list
+      const refreshedMetadata = await refreshTokenMetadata(tokenId);
       const updatedNfts = await getBoxes();
+
       const revealed = updatedNfts?.find(nft =>
         nft.tokenId === tokenId && nft.rarity !== "Mystery"
       );
       if (revealed) setRevealedNft(revealed);
-      return data;
+
+      return { ...data, metadata: refreshedMetadata };
     } catch (error) {
       setOpenBoxTransactionSteps((steps) =>
         steps.map((step) =>
@@ -135,14 +140,17 @@ export function useInventory() {
     if (uncachedTokens.length > 0) {
       const fetchPromises = uncachedTokens.map(async (tokenId) => {
         try {
-          const response = await fetch(`/metadata/gpu/${tokenId}.json`);
+          const response = await fetch(`/api/metadata/${tokenId}`);
           if (response.ok) {
             const metadata = await response.json();
             gpuMetadataCache.set(tokenId, metadata);
+            console.log(`Metadata fetched for token ${tokenId}:`, metadata.rarity);
             return { tokenId, metadata };
+          } else {
+            console.warn(`Failed to fetch metadata for token ${tokenId}: ${response.status}`);
           }
         } catch (error) {
-          console.log(`Error fetching metadata for token ${tokenId}:`, error);
+          console.error(`Error fetching metadata for token ${tokenId}:`, error);
         }
         return { tokenId, metadata: null };
       });
@@ -158,22 +166,57 @@ export function useInventory() {
       const gpuContract = GpuAbi__factory.connect(gpuAddress, provider);
       const boxes = await gpuContract.userInventory(address);
       const [tokenIds, uris] = boxes;
+
+      // Separate GPU tokens from mystery boxes
       const gpuTokenIds: number[] = [];
       tokenIds.forEach((tokenId: bigint, index: number) => {
         const uri = uris[index] || "";
-        if (uri.includes("/metadata/gpu/")) {
+        // Check if this is a revealed GPU (has metadata URI)
+        const isRevealedGpu = uri.includes("/api/metadata/") ||
+          uri.includes("/metadata/gpu/") ||
+          uri.includes("gpu-mine.com/api/metadata/");
+
+        if (isRevealedGpu) {
           gpuTokenIds.push(Number(tokenId));
         }
       });
-      if (gpuTokenIds.length > 0) await batchFetchGpuMetadata(gpuTokenIds);
+
+      // Fetch metadata for GPU tokens
+      if (gpuTokenIds.length > 0) {
+        console.log(`Fetching metadata for ${gpuTokenIds.length} GPU tokens:`, gpuTokenIds);
+        await batchFetchGpuMetadata(gpuTokenIds);
+      }
+
       const formattedNfts = tokenIds.map((tokenId: bigint, index: number) => {
         const uri = uris[index] || "";
         let metadata = null;
         const tokenIdNum = Number(tokenId);
 
-        if (uri.includes("/metadata/gpu/")) {
+        const isRevealedGpu = uri.includes("/api/metadata/") ||
+          uri.includes("/metadata/gpu/") ||
+          uri.includes("gpu-mine.com/api/metadata/");
+
+        if (isRevealedGpu) {
           metadata = gpuMetadataCache.get(tokenIdNum);
+          if (!metadata) {
+            console.warn(`No cached metadata found for GPU token ${tokenIdNum}`);
+            metadata = {
+              name: `GPU Miner #${tokenIdNum}`,
+              description: "A powerful GPU NFT for mining operations",
+              image: "https://gpu-mine.com/images/common.png",
+              image_site: "/images/common.png",
+              animation_site: "/videos/common.mp4",
+              animation_url: "https://gpu-mine.com/videos/common.mp4",
+              power: 0,
+              rarity: "Loading...",
+              attributes: [
+                { trait_type: "Token ID", value: tokenIdNum },
+                { trait_type: "Status", value: "Loading..." }
+              ],
+            };
+          }
         } else {
+          // This is still a mystery box
           metadata = {
             name: boxMetadata.name,
             description: boxMetadata.description,
@@ -203,12 +246,33 @@ export function useInventory() {
           metadata,
         };
       });
+
       setNfts(formattedNfts);
+      console.log(`Loaded ${formattedNfts.length} NFTs (${gpuTokenIds.length} GPUs, ${formattedNfts.length - gpuTokenIds.length} Mystery Boxes)`);
       return formattedNfts;
     } catch (error) {
-      console.log("error", error);
+      console.error("Error in getBoxes:", error);
       return [];
     }
+  }
+
+  async function refreshTokenMetadata(tokenId: number) {
+    try {
+      gpuMetadataCache.delete(tokenId);
+
+      const response = await fetch(`/api/metadata/${tokenId}`);
+      if (response.ok) {
+        const metadata = await response.json();
+        gpuMetadataCache.set(tokenId, metadata);
+        console.log(`Refreshed metadata for token ${tokenId}`);
+
+        await getBoxes();
+        return metadata;
+      }
+    } catch (error) {
+      console.error(`Error refreshing metadata for token ${tokenId}:`, error);
+    }
+    return null;
   }
 
   async function loadRewards() {
@@ -311,6 +375,30 @@ export function useInventory() {
     setRevealedNft(null);
   };
 
+  // Force refresh all NFTs metadata and inventory
+  async function refreshInventory() {
+    try {
+      console.log("Refreshing complete inventory...");
+
+      // Clear all cached metadata to force fresh fetch
+      gpuMetadataCache.clear();
+
+      // Fetch fresh inventory
+      const updatedNfts = await getBoxes();
+
+      // Reload rewards for all GPUs
+      if (updatedNfts && updatedNfts.length > 0) {
+        await loadRewards();
+      }
+
+      console.log("Inventory refreshed successfully");
+      return updatedNfts;
+    } catch (error) {
+      console.error("Error refreshing inventory:", error);
+      throw error;
+    }
+  }
+
   return {
     openBox,
     getBoxes,
@@ -322,5 +410,7 @@ export function useInventory() {
     openBoxTransactionSteps,
     revealedNft,
     clearRevealedNft,
+    refreshTokenMetadata,
+    refreshInventory,
   };
 }

@@ -4,6 +4,7 @@ import path from "path";
 import { ethers } from "ethers";
 import { GpuAbi__factory } from "@/contracts";
 import { gpuAddress } from "@/constants";
+import { MetadataService } from "@/lib/supabase";
 
 interface NFTMetadata {
   name: string;
@@ -50,6 +51,9 @@ let distribuicaoCache: Array<{
   hashpower: number;
   probabilidade: number;
 }> | null = null;
+
+// Keep in-memory cache as fallback
+const metadataCache = new Map<string, NFTMetadata>();
 
 function gerarDistribuicao() {
   if (distribuicaoCache) return distribuicaoCache;
@@ -167,14 +171,13 @@ export async function POST(request: NextRequest) {
       rarity,
     };
 
-    const outputDir = path.join(process.cwd(), "public", "metadata", "gpu");
-    if (!fs.existsSync(outputDir)) {
-      fs.mkdirSync(outputDir, { recursive: true });
+    metadataCache.set(tokenId, metadata);
+    const savedToSupabase = await MetadataService.saveMetadata(tokenId, metadata);
+    if (!savedToSupabase) {
+      console.warn(`Failed to save metadata to Supabase for token ${tokenId}, using memory cache only`);
     }
-
-    const outputPath = path.join(outputDir, `${tokenId}.json`);
-    fs.writeFileSync(outputPath, JSON.stringify(metadata, null, 2));
-    const uri = `https://gpu-mine.com/metadata/gpu/${tokenId}.json`;
+    
+    const uri = `https://gpu-mine.com/api/metadata/${tokenId}`;
 
     const provider = await getProvider();
     const wallet = new ethers.Wallet(
@@ -191,7 +194,12 @@ export async function POST(request: NextRequest) {
       headers: { "X-API-KEY": process.env.OPENSEA_API_KEY! },
     }); */
 
-    return NextResponse.json({ success: true, metadata, uri });
+    return NextResponse.json({ 
+      success: true, 
+      metadata, 
+      uri,
+      savedToDatabase: savedToSupabase 
+    });
   } catch (error) {
     console.error("Error generating NFT metadata:", error);
     return NextResponse.json(
@@ -200,6 +208,9 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+// Export metadata cache for use in metadata route
+export { metadataCache };
 
 async function simularDistribuicao(qtd: number = 10000) {
   const contagemRaridade = {
