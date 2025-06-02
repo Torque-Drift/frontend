@@ -19,11 +19,11 @@ const Hero: React.FC<HeroProps> = ({
   backgroundImage = "/images/mystery-box-bg.jpg",
   ctaText,
   onCtaClick,
-  height = "h-96",
+  height = "h-60",
   className = "",
 }) => {
   return (
-    <section className={`mb-16 relative overflow-hidden ${className}`}>
+    <section className={`relative overflow-hidden ${className}`}>
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

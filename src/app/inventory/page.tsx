@@ -33,26 +33,26 @@ export default function Inventory() {
   useEffect(() => {
     if (waitingForReveal && revealedNft && currentAction) {
       console.log("NFT revelado detectado:", revealedNft);
-      
+
       setIsOpenBoxModalOpen(false);
       setWaitingForReveal(false);
-      
+
       const finalRarity = revealedNft.rarity.toLowerCase();
       console.log("Abrindo vídeo com raridade:", finalRarity);
-      
-      setCurrentAction({ 
-        type: "openBox", 
-        tokenId: currentAction.tokenId, 
+
+      setCurrentAction({
+        type: "openBox",
+        tokenId: currentAction.tokenId,
         rarity: finalRarity
       });
-      
+
       setIsBoxOpeningModalOpen(true);
     }
   }, [revealedNft, waitingForReveal, currentAction]);
 
   useEffect(() => {
     let timeout: NodeJS.Timeout;
-    
+
     if (waitingForReveal) {
       timeout = setTimeout(() => {
         console.log("Timeout aguardando revelação, resetando...");
@@ -62,7 +62,7 @@ export default function Inventory() {
         setCurrentAction(null);
       }, 30000); // 30 segundos timeout
     }
-    
+
     return () => {
       if (timeout) clearTimeout(timeout);
     };
@@ -73,6 +73,72 @@ export default function Inventory() {
     if (a.rarity !== "Mystery" && b.rarity === "Mystery") return -1;
     return a.tokenId - b.tokenId;
   });
+
+  // Função para filtrar NFTs baseada na aba ativa e termo de busca
+  const getFilteredNfts = () => {
+    let filtered = [...sortedNfts];
+
+    // Filtro por categoria/aba
+    switch (activeTab) {
+      case "all":
+        // Mostra todos
+        break;
+      case "gpus":
+        filtered = filtered.filter(nft => nft.rarity !== "Mystery");
+        break;
+      case "mystery":
+        filtered = filtered.filter(nft => nft.rarity === "Mystery");
+        break;
+      case "common":
+        filtered = filtered.filter(nft => nft.rarity.toLowerCase() === "common");
+        break;
+      case "rare":
+        filtered = filtered.filter(nft => nft.rarity.toLowerCase() === "rare");
+        break;
+      case "epic":
+        filtered = filtered.filter(nft => nft.rarity.toLowerCase() === "epic");
+        break;
+      case "legendary":
+        filtered = filtered.filter(nft => nft.rarity.toLowerCase() === "legendary");
+        break;
+    }
+
+    // Filtro por termo de busca
+    if (searchTerm.trim()) {
+      const term = searchTerm.toLowerCase().trim();
+      filtered = filtered.filter(nft =>
+        nft.name.toLowerCase().includes(term) ||
+        nft.rarity.toLowerCase().includes(term) ||
+        nft.tokenId.toString().includes(term)
+      );
+    }
+
+    return filtered;
+  };
+
+  // Função para obter contadores por categoria
+  const getCategoryCount = (tabId: string) => {
+    switch (tabId) {
+      case "all":
+        return nfts.length;
+      case "gpus":
+        return nfts.filter(nft => nft.rarity !== "Mystery").length;
+      case "mystery":
+        return nfts.filter(nft => nft.rarity === "Mystery").length;
+      case "common":
+        return nfts.filter(nft => nft.rarity.toLowerCase() === "common").length;
+      case "rare":
+        return nfts.filter(nft => nft.rarity.toLowerCase() === "rare").length;
+      case "epic":
+        return nfts.filter(nft => nft.rarity.toLowerCase() === "epic").length;
+      case "legendary":
+        return nfts.filter(nft => nft.rarity.toLowerCase() === "legendary").length;
+      default:
+        return 0;
+    }
+  };
+
+  const filteredNfts = getFilteredNfts();
 
   const getRarityColor = (rarity: string) => {
     switch (rarity.toLowerCase()) {
@@ -127,16 +193,16 @@ export default function Inventory() {
 
   async function handleOpenBox(tokenId: number) {
     if (isProcessing) return;
-    
+
     setIsProcessing(true);
     setCurrentAction({ type: "openBox", tokenId });
     setIsOpenBoxModalOpen(true);
     setWaitingForReveal(true);
-    
+
     try {
       console.log("Chamando openBox para token:", tokenId);
       await openBox(tokenId);
-      
+
     } catch (error) {
       console.error("Open box failed:", error);
       setIsProcessing(false);
@@ -179,7 +245,10 @@ export default function Inventory() {
       <section className="mb-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {[
-            { label: "Total NFTs", value: nfts.length },
+            {
+              label: activeTab === "all" ? "Total NFTs" : `Filtered NFTs`,
+              value: activeTab === "all" ? nfts.length : filteredNfts.length
+            },
             {
               label: "Active GPUs",
               value: nfts.filter((nft) => nft.rarity !== "Mystery").length,
@@ -215,18 +284,31 @@ export default function Inventory() {
               { id: "rare", label: "Rare" },
               { id: "epic", label: "Epic" },
               { id: "legendary", label: "Legendary" },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`px-4 py-2 rounded whitespace-nowrap ${activeTab === tab.id
-                    ? "bg-gradient-to-r from-cyan-500 to-blue-500 text-white"
-                    : "border border-cyan-800 bg-black/40 hover:bg-black/60"
+            ].map((tab) => {
+              const count = getCategoryCount(tab.id);
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`px-4 py-2 rounded whitespace-nowrap transition-colors ${
+                    activeTab === tab.id
+                      ? "bg-gradient-to-r from-cyan-500 to-blue-500 text-white"
+                      : "border border-cyan-800 bg-black/40 hover:bg-black/60"
                   }`}
-              >
-                {tab.label}
-              </button>
-            ))}
+                >
+                  <span className="flex items-center gap-2">
+                    {tab.label}
+                    <span className={`text-xs px-2 py-1 rounded-full ${
+                      activeTab === tab.id 
+                        ? "bg-white/20" 
+                        : "bg-cyan-500/20 text-cyan-400"
+                    }`}>
+                      {count}
+                    </span>
+                  </span>
+                </button>
+              );
+            })}
           </div>
 
           <div className="relative w-full md:w-64">
@@ -257,15 +339,28 @@ export default function Inventory() {
 
       {/* NFT cards grid */}
       <section className="mb-12">
-        {sortedNfts.length === 0 ? (
+        {filteredNfts.length === 0 ? (
           <div className="text-center py-12 border border-cyan-800 rounded-lg bg-black/40">
             <p className="text-cyan-300">
-              No NFTs found matching your criteria
+              {searchTerm ? 
+                `No NFTs found matching "${searchTerm}"` : 
+                activeTab === "all" ? 
+                  "No NFTs in your inventory" :
+                  `No ${activeTab === "gpus" ? "GPU" : activeTab === "mystery" ? "Mystery Box" : activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} NFTs found`
+              }
             </p>
+            {searchTerm && (
+              <button 
+                onClick={() => setSearchTerm("")}
+                className="mt-2 px-4 py-2 bg-cyan-500 hover:bg-cyan-600 text-white rounded transition-colors"
+              >
+                Clear Search
+              </button>
+            )}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {sortedNfts.map((nft, index) => (
+            {filteredNfts.map((nft, index) => (
               <motion.div
                 key={nft.tokenId}
                 initial={{ opacity: 0, y: 20 }}

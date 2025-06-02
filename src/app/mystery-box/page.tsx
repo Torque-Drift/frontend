@@ -35,7 +35,6 @@ export default function MysteryBox() {
       <Hero
         title="Mystery GPU Boxes"
         subtitle="Unlock rare and powerful GPU NFTs to supercharge your mining operation"
-        ctaText="Buy Mystery Box"
         backgroundImage="/images/mystery-box-bg.jpg"
       />
 
