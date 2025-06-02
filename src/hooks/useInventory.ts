@@ -331,7 +331,7 @@ export function useInventory() {
       const provider = await getProvider();
       const signer = await provider.getSigner();
       const rewardContract = RewardAbi__factory.connect(rewardAddress, signer);
-      const tx = await rewardContract.mine(tokenId, { gasLimit: 100000 });
+      const tx = await rewardContract.mine(tokenId);
       const result = await tx.wait();
 
       setCollectTransactionSteps([
