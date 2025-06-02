@@ -51,9 +51,7 @@ export function useInventory() {
     if (!window.ethereum) {
       throw new Error("Ethereum provider not found");
     }
-    return new ethers.JsonRpcProvider(
-      "https://polygon-amoy.g.alchemy.com/v2/UTe3D7JmoPvgh36ldqaV-7BlAeQ0oCgx"
-    );
+    return new ethers.JsonRpcProvider("https://1rpc.io/matic");
   }
 
   async function openBox(tokenId: number) {
@@ -166,12 +164,9 @@ export function useInventory() {
       const gpuContract = GpuAbi__factory.connect(gpuAddress, provider);
       const boxes = await gpuContract.userInventory(address);
       const [tokenIds, uris] = boxes;
-
-      // Separate GPU tokens from mystery boxes
       const gpuTokenIds: number[] = [];
       tokenIds.forEach((tokenId: bigint, index: number) => {
         const uri = uris[index] || "";
-        // Check if this is a revealed GPU (has metadata URI)
         const isRevealedGpu = uri.includes("/api/metadata/") ||
           uri.includes("/metadata/gpu/") ||
           uri.includes("gpu-mine.com/api/metadata/");
@@ -216,7 +211,6 @@ export function useInventory() {
             };
           }
         } else {
-          // This is still a mystery box
           metadata = {
             name: boxMetadata.name,
             description: boxMetadata.description,

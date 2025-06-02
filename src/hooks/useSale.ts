@@ -25,6 +25,13 @@ export function useSale() {
     getTotalSold();
   }, []);
 
+  async function getOwnProvider() {
+    if (!window.ethereum) {
+      throw new Error("Ethereum provider not found");
+    }
+    return new ethers.JsonRpcProvider("https://1rpc.io/matic");
+  }
+
   async function getProvider() {
     if (!window.ethereum) {
       throw new Error("Ethereum provider not found");
@@ -36,8 +43,6 @@ export function useSale() {
   async function buyToken(amount: number) {
     const provider = await getProvider();
     const signer = await provider.getSigner();
-    const basePriorityFee = ethers.parseUnits('40', 'gwei');
-    const baseMaxFee = ethers.parseUnits('120', 'gwei');
 
     try {
       setErrorMessage(null);
@@ -60,12 +65,7 @@ export function useSale() {
       if (allowance < to6Decimals(amount)) {
         const approveTx = await usdContract.approve(
           cryptoCoinSaleAddress,
-          to6Decimals(amount),
-          {
-            gasLimit: 100000,
-            maxPriorityFeePerGas: basePriorityFee,
-            maxFeePerGas: baseMaxFee,
-          }
+          to6Decimals(amount)
         );
         await approveTx.wait();
       }
@@ -81,11 +81,7 @@ export function useSale() {
         cryptoCoinSaleAddress,
         signer
       );
-      const buyTx = await cryptoCoinSaleContract.buyTokens(amount, {
-        gasLimit: 100000,
-        maxPriorityFeePerGas: basePriorityFee,
-        maxFeePerGas: baseMaxFee,
-      });
+      const buyTx = await cryptoCoinSaleContract.buyTokens(amount);
       const txBuy = await buyTx.wait();
       setTransactionSteps(steps => steps.map((step, i) =>
         i === 1 ? { ...step, status: "success" } : step
@@ -105,12 +101,10 @@ export function useSale() {
   }
 
   async function getTotalSold() {
-    const provider = await getProvider();
-    const signer = await provider.getSigner();
-
+    const provider = await getOwnProvider();
     const cryptoCoinSaleContract = CryptoCoinSaleAbi__factory.connect(
       cryptoCoinSaleAddress,
-      signer
+      provider
     );
     const totalSold = await cryptoCoinSaleContract.tokensSold();
     const sold = Number(ethers.formatEther(totalSold))
