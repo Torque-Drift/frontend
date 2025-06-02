@@ -8,7 +8,7 @@ import NumberInput from "@/components/NumberInput";
 import Hero from "@/components/Hero";
 import GridSection from "@/components/GridSection";
 import { useMysteryBox } from "@/hooks/useMysteryBox";
-import { boxData, latestPulls, howItWorksSteps } from "@/constants";
+import { boxData, howItWorksSteps } from "@/constants";
 import TransactionProgress from "@/components/TransactionProgress";
 
 export default function MysteryBox() {
@@ -31,7 +31,6 @@ export default function MysteryBox() {
 
   return (
     <>
-      {/* Mystery Box Hero Section */}
       <Hero
         title="Mystery GPU Boxes"
         subtitle="Unlock rare and powerful GPU NFTs to supercharge your mining operation"
@@ -60,12 +59,12 @@ export default function MysteryBox() {
                   <div
                     key={index}
                     className={`border rounded-lg p-4 ${item.rarity === "Common"
-                        ? "border-green-500 bg-green-900/30"
-                        : item.rarity === "Rare"
-                          ? "border-cyan-500 bg-cyan-900/20"
-                          : item.rarity === "Epic"
-                            ? "border-purple-500 bg-purple-900/20"
-                            : "border-yellow-500 bg-yellow-900/20"
+                      ? "border-green-500 bg-green-900/30"
+                      : item.rarity === "Rare"
+                        ? "border-cyan-500 bg-cyan-900/20"
+                        : item.rarity === "Epic"
+                          ? "border-purple-500 bg-purple-900/20"
+                          : "border-yellow-500 bg-yellow-900/20"
                       }`}
                   >
                     <div className="relative h-36 mb-3">
@@ -80,12 +79,12 @@ export default function MysteryBox() {
                     <h4 className="font-bold text-center">{item.name}</h4>
                     <p
                       className={`text-sm text-center ${item.rarity === "Common"
-                          ? "text-green-500"
-                          : item.rarity === "Rare"
-                            ? "text-cyan-500"
-                            : item.rarity === "Epic"
-                              ? "text-purple-500"
-                              : "text-yellow-500"
+                        ? "text-green-500"
+                        : item.rarity === "Rare"
+                          ? "text-cyan-500"
+                          : item.rarity === "Epic"
+                            ? "text-purple-500"
+                            : "text-yellow-500"
                         }`}
                     >
                       {item.rarity}

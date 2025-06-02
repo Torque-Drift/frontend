@@ -77,11 +77,6 @@ export default function TokenSale() {
                       {tokenData.maxSupply.toLocaleString()} $CC
                     </span>
                   </div>
-
-                  <div className="flex justify-between mb-6">
-                    <span className="text-cyan-300/80">Sale Ends In</span>
-                    <Countdown targetDate={targetDate} alwaysShow />
-                  </div>
                 </div>
 
                 <ProgressBar

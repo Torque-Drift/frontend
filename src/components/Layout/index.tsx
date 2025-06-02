@@ -53,7 +53,8 @@ export default function Layout({ children }: LayoutProps) {
               <li>
                 <a
                   href="https://gpumine.gitbook.io/gpumine"
-                  className={`${pathname === "/" ? "text-cyan-300" : "hover:text-cyan-300"
+                  target="_blank"
+                  className={`${pathname === "/gitbook" ? "text-cyan-300" : "hover:text-cyan-300"
                     } transition-colors`}
                 >
                   Whitepaper
