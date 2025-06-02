@@ -185,7 +185,7 @@ export async function POST(request: NextRequest) {
     );
     const gpuContract = GpuAbi__factory.connect(gpuAddress, wallet);
     const box = await gpuContract.setGPUStatus(tokenId, uri, power, {
-      gasLimit: 1000000,
+      gasLimit: 2000000,
     });
     console.log(box);
     await box.wait();

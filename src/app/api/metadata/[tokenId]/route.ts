@@ -31,64 +31,26 @@ interface BaseMetadata {
   }[];
 }
 
-const raridades = {
-  comum: { min: 10, max: 25 },
-  rara: { min: 26, max: 50 },
-  epica: { min: 51, max: 75 },
-  lendaria: { min: 76, max: 100 },
-};
-
-function classificarRaridade(hashpower: number) {
-  for (const [raridade, faixa] of Object.entries(raridades)) {
-    if (hashpower >= faixa.min && hashpower <= faixa.max) {
-      return raridade;
-    }
-  }
-  return "desconhecida";
-}
-
-function obterDadosRaridade(raridade: string) {
-  const mapeamento = {
-    comum: { file: "common.json", name: "Common" },
-    rara: { file: "rare.json", name: "Rare" },
-    epica: { file: "epic.json", name: "Epic" },
-    lendaria: { file: "legendary.json", name: "Legendary" },
-  };
-
-  return (
-    mapeamento[raridade as keyof typeof mapeamento] || {
-      file: "common.json",
-      name: "Common",
-    }
-  );
-}
-
 export async function GET(
   request: NextRequest,
   { params }: { params: { tokenId: string } }
 ) {
   try {
     const { tokenId } = params;
-
-    // First, try to get from Supabase
     const supabaseMetadata = await MetadataService.getMetadata(tokenId);
     if (supabaseMetadata) {
-      // Cache it in memory for faster future access
       metadataCache.set(tokenId, supabaseMetadata);
       return NextResponse.json(supabaseMetadata);
     }
 
-    // Second, check in-memory cache
     const cachedMetadata = metadataCache.get(tokenId);
     if (cachedMetadata) {
-      // Try to save to Supabase for future requests
       MetadataService.saveMetadata(tokenId, cachedMetadata).catch(err => 
         console.warn(`Failed to backup metadata to Supabase for token ${tokenId}:`, err)
       );
       return NextResponse.json(cachedMetadata);
     }
 
-    // Third, check if metadata file exists in public folder (legacy support)
     const metadataPath = path.join(
       process.cwd(),
       "public",
@@ -99,7 +61,6 @@ export async function GET(
 
     if (fs.existsSync(metadataPath)) {
       const metadata = JSON.parse(fs.readFileSync(metadataPath, "utf8"));
-      // Cache it in memory and save to Supabase
       metadataCache.set(tokenId, metadata);
       MetadataService.saveMetadata(tokenId, metadata).catch(err => 
         console.warn(`Failed to migrate metadata to Supabase for token ${tokenId}:`, err)
@@ -107,7 +68,6 @@ export async function GET(
       return NextResponse.json(metadata);
     }
 
-    // If not found anywhere, generate placeholder metadata
     const baseMetadataPath = path.join(
       process.cwd(),
       "public",
@@ -116,7 +76,6 @@ export async function GET(
     );
     
     if (!fs.existsSync(baseMetadataPath)) {
-      // Return minimal placeholder if base metadata doesn't exist
       const minimalMetadata: NFTMetadata = {
         name: `GPU Miner #${tokenId}`,
         description: "A powerful GPU NFT for mining operations",
@@ -184,8 +143,6 @@ export async function GET(
     return NextResponse.json(placeholderMetadata);
   } catch (error) {
     console.error("Error serving NFT metadata:", error);
-    
-    // Return minimal fallback metadata even if there's an error
     const fallbackMetadata: NFTMetadata = {
       name: `GPU Miner #${params.tokenId}`,
       description: "A powerful GPU NFT for mining operations",

@@ -70,7 +70,7 @@ export function useInventory() {
       ]);
 
       const { data } = await axios.post("/api/generate", { tokenId });
-
+      console.log(data);
       setOpenBoxTransactionSteps((steps) =>
         steps.map((step) =>
           step.title === "Opening Mystery Box"
@@ -106,7 +106,9 @@ export function useInventory() {
       );
 
       const refreshedMetadata = await refreshTokenMetadata(tokenId);
+      console.log("refreshedMetadata", refreshedMetadata);
       const updatedNfts = await getBoxes();
+      console.log("updatedNfts", updatedNfts);
 
       const revealed = updatedNfts?.find(nft =>
         nft.tokenId === tokenId && nft.rarity !== "Mystery"
@@ -252,12 +254,12 @@ export function useInventory() {
       gpuMetadataCache.delete(tokenId);
 
       const response = await fetch(`/api/metadata/${tokenId}`);
+      console.log("response", response);
       if (response.ok) {
         const metadata = await response.json();
+        console.log("metadata", metadata);
         gpuMetadataCache.set(tokenId, metadata);
         console.log(`Refreshed metadata for token ${tokenId}`);
-
-        await getBoxes();
         return metadata;
       }
     } catch (error) {
