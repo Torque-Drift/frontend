@@ -52,7 +52,6 @@ let distribuicaoCache: Array<{
   probabilidade: number;
 }> | null = null;
 
-// Keep in-memory cache as fallback
 const metadataCache = new Map<string, NFTMetadata>();
 
 function gerarDistribuicao() {
@@ -185,7 +184,10 @@ export async function POST(request: NextRequest) {
       provider
     );
     const gpuContract = GpuAbi__factory.connect(gpuAddress, wallet);
-    const box = await gpuContract.setGPUStatus(tokenId, uri, power);
+    const box = await gpuContract.setGPUStatus(tokenId, uri, power, {
+      gasLimit: 1000000,
+    });
+    console.log(box);
     await box.wait();
     /* const refresh = `https://api.opensea.io/api/v2/chain/amoy/contract/${gpuAddress}/nfts/${tokenId}/refresh`;
     await axios.post(refresh, {
@@ -207,58 +209,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Export metadata cache for use in metadata route
 export { metadataCache };
-
-async function simularDistribuicao(qtd: number = 10000) {
-  const contagemRaridade = {
-    comum: 0,
-    rara: 0,
-    epica: 0,
-    lendaria: 0,
-  };
-
-  const contagemHashpower: Record<number, number> = {};
-  for (let i = 10; i <= 100; i++) contagemHashpower[i] = 0;
-
-  console.log(
-    `🧪 Iniciando simulação com ${qtd} mints usando distribuição cached...`
-  );
-
-  for (let i = 0; i < qtd; i++) {
-    const hash = sortearHashpowerCached();
-    const raridade = classificarRaridade(hash);
-    contagemRaridade[raridade as keyof typeof contagemRaridade]++;
-    contagemHashpower[hash]++;
-  }
-
-  console.log(`\n📊 SIMULAÇÃO DE DISTRIBUIÇÃO (${qtd} mints):\n`);
-
-  // Relatório por raridade
-  console.log("🎯 DISTRIBUIÇÃO POR RARIDADE:");
-  for (const [raridade, quantidade] of Object.entries(contagemRaridade)) {
-    const percentual = ((quantidade / qtd) * 100).toFixed(2);
-    console.log(`${raridade.padEnd(10)}: ${quantidade} mints (${percentual}%)`);
-  }
-
-  // Relatório detalhado por hashpower
-  console.log(`\n⚡ DISTRIBUIÇÃO POR HASHPOWER INDIVIDUAL:`);
-  for (let i = 10; i <= 100; i++) {
-    const quantidade = contagemHashpower[i];
-    const percentual = ((quantidade / qtd) * 100).toFixed(3);
-    const raridade = classificarRaridade(i);
-    console.log(
-      `Hashpower ${i.toString().padStart(3, " ")}: ${quantidade
-        .toString()
-        .padStart(4, " ")} mints (${percentual.padStart(
-          6,
-          " "
-        )}%) - ${raridade}`
-    );
-  }
-
-  return { contagemRaridade, contagemHashpower };
-}
 
 export async function GET() {
   return NextResponse.json({

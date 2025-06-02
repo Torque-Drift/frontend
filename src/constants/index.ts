@@ -1,9 +1,9 @@
-export const cryptoCoinAddress = "0xBE13B48D26FA1aC617b3E8C26044C7b8c8f77938";
-export const gpuAddress = "0x66DCbF647657a42e392bD0eDccdBF9aD9003d054";
+export const cryptoCoinAddress = "0x861707aabAc7FEdd39bcB9085F7A659a37759BC6";
+export const gpuAddress = "0x822c2538d5F8884ab7Dbfb290F91536013Fdb7a5";
 export const cryptoCoinSaleAddress =
-  "0x87737Aef9578b5606Ee6385439A47e16920792f5";
-export const gpuSaleAddress = "0xf31eB58d3342C8aE13714Db7FC52005918284e18";
-export const rewardAddress = "0x05E3e2c6550790B84D4a58ba5918Eef9dB10F25F";
+  "0x4BEe585595a5Db47797D6C3e70CFbd394eccAcd5";
+export const gpuSaleAddress = "0xc32c7fA176a0B498E6Da09bc3E7eeda89cfD67ad";
+export const rewardAddress = "0x552BAc7a6c1D1bDc08Ea40CF59152Cf3682cCfA9";
 export const usdAddress = "0xa53d1c9E8eE61cD801eF7029B5C7c9b74d63A9bA";
 
 export const boxData = {

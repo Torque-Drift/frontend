@@ -105,7 +105,6 @@ export function useInventory() {
         )
       );
 
-      // Refresh metadata for the opened token and get updated NFTs list
       const refreshedMetadata = await refreshTokenMetadata(tokenId);
       const updatedNfts = await getBoxes();
 
@@ -176,7 +175,6 @@ export function useInventory() {
         }
       });
 
-      // Fetch metadata for GPU tokens
       if (gpuTokenIds.length > 0) {
         console.log(`Fetching metadata for ${gpuTokenIds.length} GPU tokens:`, gpuTokenIds);
         await batchFetchGpuMetadata(gpuTokenIds);
@@ -242,7 +240,6 @@ export function useInventory() {
       });
 
       setNfts(formattedNfts);
-      console.log(`Loaded ${formattedNfts.length} NFTs (${gpuTokenIds.length} GPUs, ${formattedNfts.length - gpuTokenIds.length} Mystery Boxes)`);
       return formattedNfts;
     } catch (error) {
       console.error("Error in getBoxes:", error);
