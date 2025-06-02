@@ -154,7 +154,6 @@ export function useInventory() {
   async function getBoxes() {
     try {
       if (!address) return;
-      console.log(address)
       const provider = await getOwnProvider();
       const gpuContract = GpuAbi__factory.connect(gpuAddress, provider);
       const boxes = await gpuContract.userInventory(address);
@@ -204,7 +203,6 @@ export function useInventory() {
           metadata,
         };
       });
-      console.log("formattedNfts", formattedNfts);
       setNfts(formattedNfts);
       return formattedNfts;
     } catch (error) {

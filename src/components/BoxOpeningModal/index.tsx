@@ -20,18 +20,13 @@ export default function BoxOpeningModal({
 
   const getVideoPath = (rarity: string) => {
     let path = `/videos/open_box_${rarity.toLowerCase()}.mp4`;
-    
-    // Fallback para mystery usar o vídeo rare
     if (rarity.toLowerCase() === "mystery") {
       path = `/videos/open_box_rare.mp4`;
     }
-    
-    console.log("Carregando vídeo:", path);
     return path;
   };
 
   const handleVideoEnd = () => {
-    console.log("Vídeo terminou, fechando modal");
     onClose();
   };
 
@@ -42,13 +37,11 @@ export default function BoxOpeningModal({
   };
 
   const handleVideoLoad = () => {
-    console.log("Vídeo carregado com sucesso");
     setIsVideoLoading(false);
     setVideoError(false);
   };
 
   const handleCanPlay = () => {
-    console.log("Vídeo pode ser reproduzido");
     setIsVideoLoading(false);
   };
 
@@ -56,7 +49,6 @@ export default function BoxOpeningModal({
     <AnimatePresence>
       {isOpen && (
         <Dialog open={isOpen} onClose={onClose} className="relative z-50">
-          {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
