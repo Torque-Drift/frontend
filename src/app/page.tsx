@@ -6,7 +6,6 @@ import Link from "next/link";
 export default function Home() {
   return (
     <>
-      {/* Hero Section */}
       <section className="flex flex-col md:flex-row items-center mb-20">
         <div className="md:w-1/2 mb-8 md:mb-0">
           <h2 className="text-5xl font-bold mb-6 leading-tight glitch-text">
