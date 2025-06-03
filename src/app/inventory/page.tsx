@@ -219,7 +219,7 @@ export default function Inventory() {
       </section>
 
       <section className="mb-8">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           {[
             {
               label: activeTab === "all" ? "Total NFTs" : `Filtered NFTs`,
@@ -239,6 +239,10 @@ export default function Inventory() {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 4,
               })} $CC`,
+            },
+            {
+              label: "Total Power",
+              value: `${nfts.reduce((acc, nft) => Number(acc) + Number(nft.power), 0)} W`,
             },
           ].map((stat, i) => (
             <motion.div
