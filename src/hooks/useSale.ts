@@ -20,6 +20,7 @@ export function useSale() {
     },
   ]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     getTotalSold();
@@ -40,32 +41,58 @@ export function useSale() {
     return provider;
   }
 
-  async function buyToken(amount: number) {
-    const provider = await getProvider();
-    const signer = await provider.getSigner();
-
+  async function buyToken(amount: number, onBalanceUpdate?: () => void) {
     try {
+      setIsLoading(true);
       setErrorMessage(null);
-      setTransactionSteps(steps => steps.map((step, i) =>
-        i === 0 ? { ...step, status: "loading" } : step
-      ));
+      setTransactionSteps([
+        {
+          title: "Approve Token Spending",
+          description: "Approve USDC spending for the token purchase",
+          status: "loading",
+        },
+        {
+          title: "Purchase Tokens",
+          description: "Complete the token purchase transaction",
+          status: "pending",
+        },
+      ]);
 
+      const provider = await getProvider();
+      const signer = await provider.getSigner();
       const usdContract = Usd__factory.connect(usdAddress, signer);
 
+      // Check USDC balance first
+      const userBalance = await usdContract.balanceOf(signer.address);
+      const requiredAmount = to6Decimals(amount);
+      
+      if (userBalance < requiredAmount) {
+        throw new Error(`Insufficient USDC balance. You need ${amount.toFixed(2)} USDC but only have ${Number(ethers.formatUnits(userBalance, 6)).toFixed(2)} USDC.`);
+      }
+
       const allowance = await usdContract.allowance(signer.address, cryptoCoinSaleAddress);
-      if (allowance < to6Decimals(amount)) {
+      if (allowance < requiredAmount) {
         const approveTx = await usdContract.approve(
           cryptoCoinSaleAddress,
-          to6Decimals(amount)
+          requiredAmount
         );
         await approveTx.wait();
       }
+      
       setTransactionSteps(steps => steps.map((step, i) =>
-        i === 0 ? { ...step, status: "success" } : step
+        i === 0 ? { 
+          ...step, 
+          status: "success",
+          description: "USDC spending approved successfully"
+        } : step
       ));
 
       setTransactionSteps(steps => steps.map((step, i) =>
-        i === 1 ? { ...step, status: "loading" } : step
+        i === 1 ? { 
+          ...step, 
+          status: "loading",
+          description: "Processing token purchase..."
+        } : step
       ));
 
       const cryptoCoinSaleContract = CryptoCoinSaleAbi__factory.connect(
@@ -74,34 +101,89 @@ export function useSale() {
       );
       const buyTx = await cryptoCoinSaleContract.buyTokens(amount);
       const txBuy = await buyTx.wait();
+      
       setTransactionSteps(steps => steps.map((step, i) =>
-        i === 1 ? { ...step, status: "success" } : step
+        i === 1 ? { 
+          ...step, 
+          status: "success",
+          description: `Successfully purchased ${amount} CCoin tokens!`
+        } : step
       ));
+
+      // Update user balance after successful purchase
+      if (onBalanceUpdate) {
+        try {
+          await onBalanceUpdate();
+        } catch (error) {
+          console.warn("Failed to update balance after purchase:", error);
+        }
+      }
+
+      // Refresh total sold amount
+      await getTotalSold();
+
       return { txBuy };
     } catch (error: any) {
+      console.error("Token purchase failed:", error);
+      
+      let errorMessage = "Transaction failed. Please try again later.";
+      let errorDescription = "An unexpected error occurred during the purchase.";
+
+      if (error.message?.includes("insufficient funds") || error.message?.includes("Insufficient USDC")) {
+        errorMessage = "Insufficient Balance";
+        errorDescription = error.message.includes("Insufficient USDC") 
+          ? error.message 
+          : "You don't have enough USDC to complete this purchase.";
+      } else if (error.message?.includes("user rejected")) {
+        errorMessage = "Transaction Cancelled";
+        errorDescription = "You cancelled the transaction.";
+      } else if (error.message?.includes("network")) {
+        errorMessage = "Network Error";
+        errorDescription = "Please check your internet connection and try again.";
+      } else if (error.message?.includes("gas")) {
+        errorMessage = "Transaction Failed";
+        errorDescription = "Transaction failed due to gas estimation. Please try again with a higher gas limit.";
+      }
+
       setTransactionSteps(steps => steps.map(step =>
         step.status === "loading" ? {
           ...step,
           status: "error",
-          description: "Transaction failed, check on Explorer"
+          description: errorDescription
         } : step
       ));
-      console.error("Transaction failed:", error.message);
-      throw new Error(error.message);
+      
+      setErrorMessage(errorMessage);
+      throw new Error(errorMessage);
+    } finally {
+      setIsLoading(false);
     }
   }
 
   async function getTotalSold() {
-    const provider = await getOwnProvider();
-    const cryptoCoinSaleContract = CryptoCoinSaleAbi__factory.connect(
-      cryptoCoinSaleAddress,
-      provider
-    );
-    const totalSold = await cryptoCoinSaleContract.tokensSold();
-    const sold = Number(ethers.formatEther(totalSold))
-    setTotalSold(sold);
-    return sold;
+    try {
+      const provider = await getOwnProvider();
+      const cryptoCoinSaleContract = CryptoCoinSaleAbi__factory.connect(
+        cryptoCoinSaleAddress,
+        provider
+      );
+      const totalSold = await cryptoCoinSaleContract.tokensSold();
+      const sold = Number(ethers.formatEther(totalSold))
+      setTotalSold(sold);
+      return sold;
+    } catch (error: any) {
+      console.error("Error fetching total sold:", error);
+      // Don't throw error here as this is background data loading
+      return 0;
+    }
   }
 
-  return { buyToken, getTotalSold, totalSold, transactionSteps, errorMessage };
+  return { 
+    buyToken, 
+    getTotalSold, 
+    totalSold, 
+    transactionSteps, 
+    errorMessage,
+    isLoading 
+  };
 }

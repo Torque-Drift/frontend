@@ -32,14 +32,9 @@ export default function Inventory() {
 
   useEffect(() => {
     if (waitingForReveal && revealedNft && currentAction) {
-      console.log("NFT revelado detectado:", revealedNft);
-
       setIsOpenBoxModalOpen(false);
       setWaitingForReveal(false);
-
       const finalRarity = revealedNft.rarity.toLowerCase();
-      console.log("Abrindo vídeo com raridade:", finalRarity);
-
       setCurrentAction({
         type: "openBox",
         tokenId: currentAction.tokenId,
@@ -60,7 +55,7 @@ export default function Inventory() {
         setIsProcessing(false);
         setIsOpenBoxModalOpen(false);
         setCurrentAction(null);
-      }, 30000); // 30 segundos timeout
+      }, 30000);
     }
 
     return () => {
@@ -74,14 +69,11 @@ export default function Inventory() {
     return a.tokenId - b.tokenId;
   });
 
-  // Função para filtrar NFTs baseada na aba ativa e termo de busca
   const getFilteredNfts = () => {
     let filtered = [...sortedNfts];
 
-    // Filtro por categoria/aba
     switch (activeTab) {
       case "all":
-        // Mostra todos
         break;
       case "gpus":
         filtered = filtered.filter(nft => nft.rarity !== "Mystery");
@@ -103,7 +95,6 @@ export default function Inventory() {
         break;
     }
 
-    // Filtro por termo de busca
     if (searchTerm.trim()) {
       const term = searchTerm.toLowerCase().trim();
       filtered = filtered.filter(nft =>
@@ -116,7 +107,6 @@ export default function Inventory() {
     return filtered;
   };
 
-  // Função para obter contadores por categoria
   const getCategoryCount = (tabId: string) => {
     switch (tabId) {
       case "all":
@@ -155,19 +145,6 @@ export default function Inventory() {
     }
   };
 
-  const getRarityBadgeColor = (rarity: string) => {
-    switch (rarity.toLowerCase()) {
-      case "common":
-        return "bg-green-900/30";
-      case "rare":
-        return "bg-cyan-900/20";
-      case "epic":
-        return "bg-purple-900/20";
-      case "legendary":
-        return "bg-yellow-900/20";
-    }
-  };
-
   async function handleCollectRewards(tokenId: number) {
     if (isProcessing) return;
     setIsProcessing(true);
@@ -200,7 +177,6 @@ export default function Inventory() {
     setWaitingForReveal(true);
 
     try {
-      console.log("Chamando openBox para token:", tokenId);
       await openBox(tokenId);
 
     } catch (error) {

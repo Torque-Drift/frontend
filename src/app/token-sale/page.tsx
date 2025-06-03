@@ -7,7 +7,7 @@ import NumberInput from "@/components/NumberInput";
 import ProgressBar from "@/components/ProgressBar";
 import GridSection from "@/components/GridSection";
 import { useSale } from "@/hooks/useSale";
-import { faqItems } from "@/constants";
+import { cryptoCoinAddress, faqItems } from "@/constants";
 import TransactionProgress from "@/components/TransactionProgress";
 
 export default function TokenSale() {
@@ -54,6 +54,7 @@ export default function TokenSale() {
                   {tokenData.name} ({tokenData.symbol}) Pre-Sale
                 </h2>
                 <p className="text-cyan-300">Deflationary token powering virtual GPU mining</p>
+                <a href={`https://amoy.polygonscan.com/address/${cryptoCoinAddress}`} target="_blank" className="text-cyan-300 underline">Token Contract</a>
               </div>
 
               <div className="space-y-6">

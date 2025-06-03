@@ -136,7 +136,6 @@ export async function POST(request: NextRequest) {
     const dadosRaridade = obterDadosRaridade(raridadePortugues);
     const rarity = dadosRaridade.name;
     const metadataFile = dadosRaridade.file;
-
     const metadataPath = path.join(
       process.cwd(),
       "public",
@@ -146,7 +145,6 @@ export async function POST(request: NextRequest) {
     const baseMetadata: BaseMetadata = JSON.parse(
       fs.readFileSync(metadataPath, "utf8")
     );
-
     const metadata: NFTMetadata = {
       name: `${baseMetadata.name} #${tokenId}`,
       description: baseMetadata.description,
@@ -187,7 +185,6 @@ export async function POST(request: NextRequest) {
     const box = await gpuContract.setGPUStatus(tokenId, uri, power, {
       gasLimit: 2000000,
     });
-    console.log(box);
     await box.wait();
     /* const refresh = `https://api.opensea.io/api/v2/chain/amoy/contract/${gpuAddress}/nfts/${tokenId}/refresh`;
     await axios.post(refresh, {

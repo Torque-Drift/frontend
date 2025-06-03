@@ -28,10 +28,42 @@ export const boxData = {
 };
 
 export const gpuRarities = [
-  { name: "Rule 3434", rarity: "Common", chance: "70%", colorClass: "border-green-500/30 bg-green-900/10", iconClass: "bg-gradient-to-r from-green-500 to-green-700", badgeClass: "bg-green-500/20 text-green-400", hashPower: "10-25", video: "/videos/common.mp4" },
-  { name: "Sapphire 1690", rarity: "Rare", chance: "25%", colorClass: "border-cyan-500/30 bg-cyan-900/10", iconClass: "bg-gradient-to-r from-cyan-500 to-cyan-700", badgeClass: "bg-cyan-500/20 text-cyan-400", hashPower: "26-50", video: "/videos/rare.mp4" },
-  { name: "Subzero 8000", rarity: "Epic", chance: "4.5%", colorClass: "border-purple-500/30 bg-purple-900/10", iconClass: "bg-gradient-to-r from-purple-500 to-purple-700", badgeClass: "bg-purple-500/20 text-purple-400", hashPower: "51-75", video: "/videos/epic.mp4" },
-  { name: "EmberGold6969", rarity: "Legendary", chance: "0.5%", colorClass: "border-yellow-500/30 bg-yellow-900/10", iconClass: "bg-gradient-to-r from-yellow-500 to-yellow-700", badgeClass: "bg-yellow-500/20 text-yellow-400", hashPower: "76-100", video: "/videos/legendary.mp4" },
+  {
+    name: "Rule 3434",
+    rarity: "Common",
+    chance: "70%",
+    colorClass: "border-green-400/60 bg-gradient-to-br from-green-800/40 to-green-900/30 shadow-lg shadow-green-500/25 hover:shadow-green-400/40 transition-all duration-300",
+    badgeClass: "bg-gradient-to-r from-green-500/40 to-green-500/40 text-green-200 border border-green-400/50",
+    hashPower: "10-25",
+    video: "/videos/common.mp4"
+  },
+  {
+    name: "Sapphire 1690",
+    rarity: "Rare",
+    chance: "25%",
+    colorClass: "border-cyan-400/60 bg-gradient-to-br from-cyan-800/40 to-cyan-900/30 shadow-lg shadow-cyan-500/25 hover:shadow-cyan-400/40 transition-all duration-300",
+    badgeClass: "bg-gradient-to-r from-cyan-500/40 to-cyan-500/40 text-cyan-200 border border-cyan-400/50",
+    hashPower: "26-50",
+    video: "/videos/rare.mp4"
+  },
+  {
+    name: "Subzero 8000",
+    rarity: "Epic",
+    chance: "4.5%",
+    colorClass: "border-purple-400/60 bg-gradient-to-br from-purple-800/40 to-purple-900/30 shadow-lg shadow-purple-500/25 hover:shadow-purple-400/40 transition-all duration-300",
+    badgeClass: "bg-gradient-to-r from-purple-500/40 to-purple-500/40 text-purple-200 border border-purple-400/50",
+    hashPower: "51-75",
+    video: "/videos/epic.mp4"
+  },
+  {
+    name: "EmberGold6969",
+    rarity: "Legendary",
+    chance: "0.5%",
+    colorClass: "border-yellow-400/60 bg-gradient-to-br from-yellow-800/40 to-yellow-900/30 shadow-lg shadow-yellow-500/25 hover:shadow-yellow-400/40 transition-all duration-300",
+    badgeClass: "bg-gradient-to-r from-yellow-500/40 to-yellow-500/40 text-yellow-200 border border-yellow-400/50",
+    hashPower: "76-100",
+    video: "/videos/legendary.mp4"
+  },
 ]
 
 export const summaryStats = [

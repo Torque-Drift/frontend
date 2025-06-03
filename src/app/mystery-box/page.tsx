@@ -8,6 +8,7 @@ import NumberInput from "@/components/NumberInput";
 import Hero from "@/components/Hero";
 import GridSection from "@/components/GridSection";
 import { useMysteryBox } from "@/hooks/useMysteryBox";
+import { useUser } from "@/hooks/useUser";
 import { boxData, gpuRarities, howItWorksSteps } from "@/constants";
 import TransactionProgress from "@/components/TransactionProgress";
 
@@ -23,6 +24,7 @@ export default function MysteryBox() {
     calculatePrice,
     calculateDiscount
   } = useMysteryBox();
+  const { refreshBalance } = useUser();
 
   useEffect(() => {
     if (referralCode.trim() === "") return;
@@ -37,14 +39,50 @@ export default function MysteryBox() {
   async function handleBuyMysteryBox() {
     setIsTransactionModalOpen(true);
     try {
-      await buyMysteryBox(boxCount, referralCode);
+      await buyMysteryBox(boxCount, referralCode, refreshBalance);
       setTimeout(() => {
         setIsTransactionModalOpen(false);
       }, 2500);
     } catch (error) {
       console.error("Mystery box purchase failed:", error);
+      // Keep modal open to show error state
     }
   }
+
+  const getCardStyles = (rarity: string) => {
+    switch (rarity) {
+      case "Common":
+        return {
+          cardClass: "bg-green-900/20 border-2 border-green-400 shadow-lg shadow-green-500/20",
+          badgeClass: "bg-green-500 text-white",
+          textColor: "text-green-400"
+        };
+      case "Rare":
+        return {
+          cardClass: "bg-cyan-900/20 border-2 border-cyan-400 shadow-lg shadow-cyan-500/20",
+          badgeClass: "bg-cyan-500 text-white",
+          textColor: "text-cyan-400"
+        };
+      case "Epic":
+        return {
+          cardClass: "bg-purple-900/20 border-2 border-purple-400 shadow-lg shadow-purple-500/20",
+          badgeClass: "bg-purple-500 text-white",
+          textColor: "text-purple-400"
+        };
+      case "Legendary":
+        return {
+          cardClass: "bg-yellow-900/20 border-2 border-yellow-400 shadow-lg shadow-yellow-500/20",
+          badgeClass: "bg-yellow-500 text-black",
+          textColor: "text-yellow-400"
+        };
+      default:
+        return {
+          cardClass: "bg-gray-900/20 border-2 border-gray-400",
+          badgeClass: "bg-gray-500 text-white",
+          textColor: "text-gray-400"
+        };
+    }
+  };
 
   const basePrice = boxData.price;
   const baseTotalPrice = basePrice * boxCount;
@@ -302,7 +340,6 @@ export default function MysteryBox() {
         steps={transactionSteps}
       />
 
-      {/* Latest Pulls Section */}
       <section className="mb-16">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -319,46 +356,49 @@ export default function MysteryBox() {
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {gpuRarities.map((gpu, index) => (
-            <motion.div
-              key={gpu.name}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-            >
-              <Card className={gpu.colorClass}>
-                <div className="text-center">
-                  <h3 className="text-xl font-bold mb-2">{gpu.name}</h3>
-                  <div className={`inline-block px-3 py-1 rounded-full text-sm font-bold ${gpu.badgeClass} mb-3`}>
-                    {gpu.rarity}
-                  </div>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-cyan-300/70">Drop Chance:</span>
-                      <span className="font-bold">{gpu.chance}</span>
+          {gpuRarities.map((gpu, index) => {
+            const styles = getCardStyles(gpu.rarity);
+            return (
+              <motion.div
+                key={gpu.name}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+              >
+                <div className={`rounded-lg p-6 relative overflow-hidden ${styles.cardClass}`}>
+                  <div className="text-center">
+                    <h3 className="text-xl font-bold mb-2 text-white">{gpu.name}</h3>
+                    <div className={`inline-block px-3 py-1 rounded-full text-sm font-bold mb-3 ${styles.badgeClass}`}>
+                      {gpu.rarity}
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-cyan-300/70">Hash Power:</span>
-                      <span className="font-bold">{gpu.hashPower}</span>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-gray-300">Drop Chance:</span>
+                        <span className={`font-bold ${styles.textColor}`}>{gpu.chance}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-300">Hash Power:</span>
+                        <span className={`font-bold ${styles.textColor}`}>{gpu.hashPower}</span>
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="relative mx-auto max-w-md mt-4">
-                    <video
-                      src={gpu.video}
-                      autoPlay
-                      muted
-                      loop
-                      className={`rounded-lg`}
-                    ></video>
+                    <div className="relative mx-auto max-w-md mt-4">
+                      <video
+                        src={gpu.video}
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                        className="rounded-lg w-full h-auto"
+                      />
+                    </div>
                   </div>
                 </div>
-              </Card>
-            </motion.div>
-          ))}
+              </motion.div>
+            );
+          })}
         </div>
       </section>
-
 
       {/* How It Works Section */}
       <GridSection title="How It Works" columns={3}>

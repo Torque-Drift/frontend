@@ -10,7 +10,7 @@ export function useMysteryBox() {
     {
       title: "Approve CCoin Spending",
       description: "Approve CCoin spending for the token purchase",
-      status: "loading",
+      status: "pending",
     },
     {
       title: "Purchase Mystery Box",
@@ -23,6 +23,7 @@ export function useMysteryBox() {
     isValid: boolean;
     isChecking: boolean;
     hasChecked: boolean;
+    error?: string;
   }>({
     isValid: false,
     isChecking: false,
@@ -72,12 +73,21 @@ export function useMysteryBox() {
       });
 
       return isValid;
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error checking referral code:", error);
+      let errorMessage = "Failed to verify referral code. Please try again.";
+      
+      if (error.message?.includes("network")) {
+        errorMessage = "Network error. Please check your connection and try again.";
+      } else if (error.message?.includes("user rejected")) {
+        errorMessage = "Transaction was cancelled by user.";
+      }
+
       setReferralCodeStatus({
         isValid: false,
         isChecking: false,
         hasChecked: true,
+        error: errorMessage,
       });
       return false;
     }
@@ -95,11 +105,20 @@ export function useMysteryBox() {
     return (basePrice * amount) * 0.05; // 5% discount amount
   }
 
-  async function buyMysteryBox(amount: number, referralCode: string = "") {
+  async function buyMysteryBox(amount: number, referralCode: string = "", onBalanceUpdate?: () => void) {
     try {
-      setTransactionSteps(steps => steps.map((step, i) =>
-        i === 0 ? { ...step, status: "loading" } : step
-      ));
+      setTransactionSteps([
+        {
+          title: "Approve CCoin Spending",
+          description: "Approve CCoin spending for the mystery box purchase",
+          status: "loading",
+        },
+        {
+          title: "Purchase Mystery Box",
+          description: "Complete the mystery box purchase",
+          status: "pending",
+        },
+      ]);
 
       const provider = await getProvider();
       const signer = await provider.getSigner();
@@ -112,12 +131,21 @@ export function useMysteryBox() {
         cryptoCoinAddress,
         signer
       );
+      
+      // Check balance first
+      const userBalance = await cryptoCoinContract.balanceOf(signer.address);
+      const requiredAmount = to18Decimals(finalAmount);
+      
+      if (userBalance < requiredAmount) {
+        throw new Error(`Insufficient CCoin balance. You need ${finalAmount.toFixed(2)} CCoin but only have ${Number(ethers.formatEther(userBalance)).toFixed(2)} CCoin.`);
+      }
+
       const allowance = await cryptoCoinContract.allowance(signer.address, gpuSaleAddress);
 
-      if (allowance < to18Decimals(finalAmount)) {
+      if (allowance < requiredAmount) {
         const approveTx = await cryptoCoinContract.approve(
           gpuSaleAddress,
-          to18Decimals(finalAmount),
+          requiredAmount,
         );
         await approveTx.wait();
       }
@@ -125,14 +153,16 @@ export function useMysteryBox() {
       setTransactionSteps(steps => steps.map(step =>
         step.title === "Approve CCoin Spending" ? {
           ...step,
-          status: "success"
+          status: "success",
+          description: "CCoin spending approved successfully"
         } : step
       ));
 
       setTransactionSteps(steps => steps.map(step =>
         step.title === "Purchase Mystery Box" ? {
           ...step,
-          status: "loading"
+          status: "loading",
+          description: "Processing mystery box purchase..."
         } : step
       ));
 
@@ -148,21 +178,52 @@ export function useMysteryBox() {
       setTransactionSteps(steps => steps.map(step =>
         step.title === "Purchase Mystery Box" ? {
           ...step,
-          status: "success"
+          status: "success",
+          description: `Successfully purchased ${amount} mystery box${amount > 1 ? 'es' : ''}!`
         } : step
       ));
 
+      // Update user balance after successful purchase
+      if (onBalanceUpdate) {
+        try {
+          await onBalanceUpdate();
+        } catch (error) {
+          console.warn("Failed to update balance after purchase:", error);
+        }
+      }
+
       return { txBuy };
     } catch (error: any) {
+      console.error("Mystery box purchase failed:", error);
+      
+      let errorMessage = "Transaction failed. Please try again later.";
+      let errorDescription = "An unexpected error occurred during the purchase.";
+
+      if (error.message?.includes("insufficient funds") || error.message?.includes("Insufficient CCoin")) {
+        errorMessage = "Insufficient Balance";
+        errorDescription = error.message.includes("Insufficient CCoin") 
+          ? error.message 
+          : "You don't have enough CCoin to complete this purchase.";
+      } else if (error.message?.includes("user rejected")) {
+        errorMessage = "Transaction Cancelled";
+        errorDescription = "You cancelled the transaction.";
+      } else if (error.message?.includes("network")) {
+        errorMessage = "Network Error";
+        errorDescription = "Please check your internet connection and try again.";
+      } else if (error.message?.includes("gas")) {
+        errorMessage = "Transaction Failed";
+        errorDescription = "Transaction failed due to gas estimation. Please try again with a higher gas limit.";
+      }
+
       setTransactionSteps(steps => steps.map(step =>
         step.status === "loading" ? {
           ...step,
           status: "error",
-          description: "Transaction failed, check on Explorer"
+          description: errorDescription
         } : step
       ));
-      console.error("Mystery box purchase failed:", error);
-      throw error;
+
+      throw new Error(errorMessage);
     }
   }
 

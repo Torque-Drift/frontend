@@ -77,6 +77,7 @@ export function useInventory() {
             ? {
               ...step,
               status: "success",
+              description: "GPU NFT generated successfully!"
             }
             : step
         )
@@ -88,6 +89,7 @@ export function useInventory() {
             ? {
               ...step,
               status: "loading",
+              description: "Minting your GPU NFT to the blockchain..."
             }
             : step
         )
@@ -100,6 +102,7 @@ export function useInventory() {
             ? {
               ...step,
               status: "success",
+              description: "GPU NFT minted successfully!"
             }
             : step
         )
@@ -116,20 +119,31 @@ export function useInventory() {
       if (revealed) setRevealedNft(revealed);
 
       return { ...data, metadata: refreshedMetadata };
-    } catch (error) {
+    } catch (error: any) {
+      console.error("Error opening box:", error);
+      
+      let errorMessage = "Failed to open mystery box. Please try again later.";
+      
+      if (error.response?.status === 500) {
+        errorMessage = "Server error while generating GPU. Please try again in a few moments.";
+      } else if (error.response?.status === 400) {
+        errorMessage = "Invalid mystery box. Please refresh your inventory and try again.";
+      } else if (error.message?.includes("network")) {
+        errorMessage = "Network error. Please check your connection and try again.";
+      }
+
       setOpenBoxTransactionSteps((steps) =>
         steps.map((step) =>
           step.status === "loading"
             ? {
               ...step,
               status: "error",
-              description: "Failed to open mystery box",
+              description: errorMessage,
             }
             : step
         )
       );
-      console.error("Error opening box:", error);
-      throw error;
+      throw new Error(errorMessage);
     }
   }
 
@@ -320,12 +334,12 @@ export function useInventory() {
     return Number(reward);
   }
 
-  async function onCollect(tokenId: number) {
+  async function onCollect(tokenId: number, onBalanceUpdate?: () => void) {
     try {
       setCollectTransactionSteps([
         {
           title: "Claim Rewards",
-          description: "Claiming your mining rewards",
+          description: "Claiming your mining rewards...",
           status: "loading",
         },
       ]);
@@ -333,29 +347,64 @@ export function useInventory() {
       const provider = await getProvider();
       const signer = await provider.getSigner();
       const rewardContract = RewardAbi__factory.connect(rewardAddress, signer);
+      
+      // Check if there are rewards to claim
+      const previewReward = await rewardContract.previewReward(tokenId);
+      if (previewReward === BigInt(0)) {
+        throw new Error("No rewards available to claim for this GPU.");
+      }
+
       const tx = await rewardContract.mine(tokenId);
       const result = await tx.wait();
 
       setCollectTransactionSteps([
         {
           title: "Claim Rewards",
-          description: "Successfully claimed your mining rewards!",
+          description: `Successfully claimed ${Number(ethers.formatEther(previewReward)).toFixed(4)} CCoin!`,
           status: "success",
         },
       ]);
 
+      // Update user balance after successful claim
+      if (onBalanceUpdate) {
+        try {
+          await onBalanceUpdate();
+        } catch (error) {
+          console.warn("Failed to update balance after claim:", error);
+        }
+      }
+
       await loadRewards();
       return result;
-    } catch (error) {
+    } catch (error: any) {
+      console.error("Error collecting rewards:", error);
+      
+      let errorMessage = "Failed to claim rewards. Please try again later.";
+      let errorDescription = "An unexpected error occurred while claiming your rewards.";
+
+      if (error.message?.includes("No rewards available")) {
+        errorMessage = "No Rewards Available";
+        errorDescription = error.message;
+      } else if (error.message?.includes("user rejected")) {
+        errorMessage = "Transaction Cancelled";
+        errorDescription = "You cancelled the reward claim transaction.";
+      } else if (error.message?.includes("network")) {
+        errorMessage = "Network Error";
+        errorDescription = "Please check your internet connection and try again.";
+      } else if (error.message?.includes("gas")) {
+        errorMessage = "Transaction Failed";
+        errorDescription = "Transaction failed due to gas estimation. Please try again.";
+      }
+
       setCollectTransactionSteps([
         {
           title: "Claim Rewards",
-          description: "Failed to claim rewards, please try again",
+          description: errorDescription,
           status: "error",
         },
       ]);
-      console.error("Error collecting rewards:", error);
-      throw error;
+      
+      throw new Error(errorMessage);
     }
   }
 
