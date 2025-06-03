@@ -8,7 +8,7 @@ import NumberInput from "@/components/NumberInput";
 import Hero from "@/components/Hero";
 import GridSection from "@/components/GridSection";
 import { useMysteryBox } from "@/hooks/useMysteryBox";
-import { boxData, howItWorksSteps } from "@/constants";
+import { boxData, gpuRarities, howItWorksSteps } from "@/constants";
 import TransactionProgress from "@/components/TransactionProgress";
 
 export default function MysteryBox() {
@@ -319,12 +319,7 @@ export default function MysteryBox() {
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[
-            { name: "Rule 3434", rarity: "Common", chance: "70%", colorClass: "border-green-500/30 bg-green-900/10", iconClass: "bg-gradient-to-r from-green-500 to-green-700", badgeClass: "bg-green-500/20 text-green-400", hashPower: "10-25" },
-            { name: "Sapphire 1690", rarity: "Rare", chance: "25%", colorClass: "border-cyan-500/30 bg-cyan-900/10", iconClass: "bg-gradient-to-r from-cyan-500 to-cyan-700", badgeClass: "bg-cyan-500/20 text-cyan-400", hashPower: "26-50" },
-            { name: "Subzero 8000", rarity: "Epic", chance: "4.5%", colorClass: "border-purple-500/30 bg-purple-900/10", iconClass: "bg-gradient-to-r from-purple-500 to-purple-700", badgeClass: "bg-purple-500/20 text-purple-400", hashPower: "51-75" },
-            { name: "EmberGold6969", rarity: "Legendary", chance: "0.5%", colorClass: "border-yellow-500/30 bg-yellow-900/10", iconClass: "bg-gradient-to-r from-yellow-500 to-yellow-700", badgeClass: "bg-yellow-500/20 text-yellow-400", hashPower: "76-100" },
-          ].map((gpu, index) => (
+          {gpuRarities.map((gpu, index) => (
             <motion.div
               key={gpu.name}
               initial={{ opacity: 0, y: 20 }}
@@ -333,9 +328,6 @@ export default function MysteryBox() {
             >
               <Card className={gpu.colorClass}>
                 <div className="text-center">
-                  <div className={`w-16 h-16 mx-auto mb-4 rounded-full ${gpu.iconClass} flex items-center justify-center`}>
-                    <span className="text-2xl">⚡</span>
-                  </div>
                   <h3 className="text-xl font-bold mb-2">{gpu.name}</h3>
                   <div className={`inline-block px-3 py-1 rounded-full text-sm font-bold ${gpu.badgeClass} mb-3`}>
                     {gpu.rarity}
@@ -349,6 +341,16 @@ export default function MysteryBox() {
                       <span className="text-cyan-300/70">Hash Power:</span>
                       <span className="font-bold">{gpu.hashPower}</span>
                     </div>
+                  </div>
+
+                  <div className="relative mx-auto max-w-md mt-4">
+                    <video
+                      src={gpu.video}
+                      autoPlay
+                      muted
+                      loop
+                      className={`rounded-lg`}
+                    ></video>
                   </div>
                 </div>
               </Card>

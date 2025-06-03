@@ -27,6 +27,13 @@ export const boxData = {
   ],
 };
 
+export const gpuRarities = [
+  { name: "Rule 3434", rarity: "Common", chance: "70%", colorClass: "border-green-500/30 bg-green-900/10", iconClass: "bg-gradient-to-r from-green-500 to-green-700", badgeClass: "bg-green-500/20 text-green-400", hashPower: "10-25", video: "/videos/common.mp4" },
+  { name: "Sapphire 1690", rarity: "Rare", chance: "25%", colorClass: "border-cyan-500/30 bg-cyan-900/10", iconClass: "bg-gradient-to-r from-cyan-500 to-cyan-700", badgeClass: "bg-cyan-500/20 text-cyan-400", hashPower: "26-50", video: "/videos/rare.mp4" },
+  { name: "Subzero 8000", rarity: "Epic", chance: "4.5%", colorClass: "border-purple-500/30 bg-purple-900/10", iconClass: "bg-gradient-to-r from-purple-500 to-purple-700", badgeClass: "bg-purple-500/20 text-purple-400", hashPower: "51-75", video: "/videos/epic.mp4" },
+  { name: "EmberGold6969", rarity: "Legendary", chance: "0.5%", colorClass: "border-yellow-500/30 bg-yellow-900/10", iconClass: "bg-gradient-to-r from-yellow-500 to-yellow-700", badgeClass: "bg-yellow-500/20 text-yellow-400", hashPower: "76-100", video: "/videos/legendary.mp4" },
+]
+
 export const summaryStats = [
   { label: "Total GPUs", value: 0 },
   { label: "Mining GPUs", value: 0 },
