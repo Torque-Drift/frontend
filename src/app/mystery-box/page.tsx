@@ -373,7 +373,7 @@ export default function MysteryBox() {
                     </div>
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
-                        <span className="text-gray-300">Drop Chance:</span>
+                        <span className="text-gray-300">Drop Rate:</span>
                         <span className={`font-bold ${styles.textColor}`}>{gpu.chance}</span>
                       </div>
                       <div className="flex justify-between">
