@@ -66,6 +66,12 @@ export default function Inventory() {
   const sortedNfts = [...nfts].sort((a, b) => {
     if (a.rarity === "Mystery" && b.rarity !== "Mystery") return 1;
     if (a.rarity !== "Mystery" && b.rarity === "Mystery") return -1;
+    
+    // For non-Mystery NFTs (GPUs), sort by power in descending order
+    if (a.rarity !== "Mystery" && b.rarity !== "Mystery") {
+      return Number(b.power) - Number(a.power);
+    }
+    
     return a.tokenId - b.tokenId;
   });
 
