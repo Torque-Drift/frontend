@@ -26,7 +26,7 @@ export default function RootLayout({
           name="viewport"
           content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
         />
-        <link rel="icon" href="/images/legendary.png" />
+        <link rel="icon" href="/images/contract_image.png" />
       </head>
       <body className={chakra.className}>
         <Providers>{children}</Providers>
