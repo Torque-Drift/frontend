@@ -54,7 +54,7 @@ export default function TokenSale() {
                   {tokenData.name} ({tokenData.symbol}) Pre-Sale
                 </h2>
                 <p className="text-cyan-300">Deflationary token powering virtual GPU mining</p>
-                <a href={`https://amoy.polygonscan.com/address/${cryptoCoinAddress}`} target="_blank" className="text-cyan-300 underline">Token Contract</a>
+                <a href={`https://polygonscan.com/address/${cryptoCoinAddress}`} target="_blank" className="text-cyan-300 underline">Token Contract</a>
               </div>
 
               <div className="space-y-6">
