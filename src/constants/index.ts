@@ -4,7 +4,7 @@ export const cryptoCoinSaleAddress =
   "0xfaD8A6C8c8f9e4B7AD1F7736c681D295A6fC5B2E";
 export const gpuSaleAddress = "0xCfD40e440384A0d411946bBBb8aA7b43F35EB989";
 export const rewardAddress = "0xBC404C1B8fae99A7983f7fDA6A67a06271d4b5d0";
-export const usdAddress = "0x080457D49031fAA004a1f6242A4c77d43f1f62e6";
+export const usdAddress = "0xc2132D05D31c914a87C6611C10748AEb04B58e8F";
 
 export const boxData = {
   price: 400,
