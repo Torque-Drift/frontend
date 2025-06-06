@@ -61,7 +61,7 @@ export default function TokenSale() {
                 <div className="border-t border-cyan-800/50 pt-4">
                   <div className="flex justify-between mb-3">
                     <span className="text-cyan-300/80">Token Price</span>
-                    <span className="font-bold">{tokenData.price} USD</span>
+                    <span className="font-bold">{tokenData.price} USDT</span>
                   </div>
 
                   <div className="flex justify-between mb-3">
@@ -128,7 +128,7 @@ export default function TokenSale() {
               <Card variant="gradient" className="mb-6">
                 <div className="flex justify-between mb-2">
                   <span className="text-cyan-300/80">Price per token</span>
-                  <span>{tokenData.price} USD</span>
+                  <span>{tokenData.price} USDT</span>
                 </div>
                 <div className="flex justify-between mb-2">
                   <span className="text-cyan-300/80">Amount</span>
@@ -139,7 +139,7 @@ export default function TokenSale() {
                 <div className="flex justify-between pt-2 border-t border-cyan-800/50">
                   <span className="font-bold">Total</span>
                   <span className="font-bold">
-                    {(amount * tokenData.price)} USD
+                    {(amount * tokenData.price)} USDT
                   </span>
                 </div>
               </Card>
