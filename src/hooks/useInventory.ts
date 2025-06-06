@@ -51,7 +51,7 @@ export function useInventory() {
     if (!window.ethereum) {
       throw new Error("Ethereum provider not found");
     }
-    return new ethers.JsonRpcProvider("https://polygon-amoy.g.alchemy.com/v2/UTe3D7JmoPvgh36ldqaV-7BlAeQ0oCgx");
+    return new ethers.JsonRpcProvider("https://rpc-mainnet.matic.quiknode.pro/");
   }
 
   async function openBox(tokenId: number) {
