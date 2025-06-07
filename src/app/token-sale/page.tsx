@@ -145,11 +145,12 @@ export default function TokenSale() {
               </Card>
 
               <Button
-                variant="secondary"
+                variant="ghost"
                 fullWidth
-                onClick={handleBuyToken}
+                disabled={true}
+              /*  onClick={handleBuyToken} */
               >
-                Buy {tokenData.symbol} Tokens
+                Coming Soon  {/* Buy {tokenData.symbol} Tokens */}
               </Button>
 
               <div className="mt-6 text-center text-cyan-300/60 text-sm">

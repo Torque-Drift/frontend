@@ -306,11 +306,12 @@ export default function MysteryBox() {
               </Card>
 
               <Button
-                variant="secondary"
+                variant="ghost"
                 fullWidth
-                onClick={handleBuyMysteryBox}
+                disabled={true}
+              /*  onClick={handleBuyMysteryBox} */
               >
-                Buy Now
+                Coming Soon  {/* Buy Now */}
                 {referralCodeStatus.isValid && (
                   <span className="ml-2 text-green-400 text-sm">
                     (5% OFF!)
