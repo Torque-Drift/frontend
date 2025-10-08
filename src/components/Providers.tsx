@@ -1,7 +1,6 @@
 import React from "react";
 import WalletProviderWrapper from "./WalletProvider";
 import { QueryProvider } from "../providers/QueryProvider";
-import { WebSocketProvider } from "../providers/WebSocketProvider";
 
 interface ProvidersProps {
   children: React.ReactNode;
@@ -10,11 +9,7 @@ interface ProvidersProps {
 const Providers: React.FC<ProvidersProps> = ({ children }) => {
   return (
     <QueryProvider>
-      <WalletProviderWrapper>
-        <WebSocketProvider>
-          {children}
-        </WebSocketProvider>
-      </WalletProviderWrapper>
+      <WalletProviderWrapper>{children}</WalletProviderWrapper>
     </QueryProvider>
   );
 };

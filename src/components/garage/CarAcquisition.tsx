@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { useBurn } from "@/hooks/useBurn";
+import { Button } from "../Button";
 
 interface CarAcquisitionProps {
   selectedBoxPrice: number;
@@ -74,13 +75,9 @@ export const CarAcquisition: React.FC<CarAcquisitionProps> = ({
               </div>
             )}
           </div>
-          <button
-            onClick={handleBuyBox}
-            disabled={burnLoading}
-            className="w-full bg-[#6C28FF] hover:bg-[#5B24E3] disabled:bg-[#49474E] disabled:cursor-not-allowed text-[#EEEEF0] font-medium py-2 px-3 rounded-md transition-colors"
-          >
+          <Button onClick={handleBuyBox} disabled={burnLoading}>
             {burnLoading ? "Processing..." : "Buy Mystery Box"}
-          </button>
+          </Button>
         </div>
 
         {/* Rarity Chances */}

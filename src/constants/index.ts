@@ -1,2 +1,4 @@
-export const PROGRAM_ID = "Gc7QK7doe74PTyuXMa3kbjbQC5h9FH2rf76Juc5s2Gpo"
+export const PROGRAM_ID = "DQCp6ZCiMuYcdbYZSPETupXG8sT2BowtwFVVRBny5x8r"
 export const TOKEN_MINT = "CvXNcYb9A5RPXHYJFGfMxdbTiqvJpzWN8UjQdP5qUed5"
+export const GLOBAL_STATE_ADDRESS = "D94dDxXQKfHHbKLYRioNekw2xLM3dXfChxuwmz3YoXM5"
+export const METADATA_PROGRAM_ID = "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"

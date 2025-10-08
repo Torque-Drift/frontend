@@ -1,5 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
+import { Button } from "../Button";
 
 interface Car {
   id: string;
@@ -36,6 +37,11 @@ export const MaintenanceSection: React.FC<MaintenanceSectionProps> = ({
   toggleOverclock,
   getMaintenanceStatus,
 }) => {
+  const carsNeedingMaintenance = cars.filter((car) => car.isBlocked).length;
+  const carsWithOverclock = cars.filter((car) => car.overclockActive).length;
+  const totalMaintenanceCost = carsNeedingMaintenance * 3.0;
+  const totalOverclockCost = carsWithOverclock * 5.0;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -45,94 +51,97 @@ export const MaintenanceSection: React.FC<MaintenanceSectionProps> = ({
     >
       <div className="flex items-center gap-2 mb-4">
         <div className="w-1 h-4 bg-[#FF8C42] rounded-full"></div>
-        <h2 className="text-lg font-semibold text-[#EEEEF0]">
-          Maintenance
-        </h2>
+        <h2 className="text-lg font-semibold text-[#EEEEF0]">Maintenance</h2>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4">
         {/* Maintenance Info */}
         <div className="bg-[#121113]/50 rounded-md p-3">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-sm font-medium text-[#EEEEF0]">Weekly Maintenance</span>
-            <span className="text-xs text-[#B5B2BC] bg-[#49474E] px-2 py-1 rounded">Required</span>
+            <span className="text-sm font-medium text-[#EEEEF0]">
+              Weekly Maintenance
+            </span>
+            <span className="text-xs text-[#B5B2BC] bg-[#49474E] px-2 py-1 rounded">
+              Required
+            </span>
           </div>
-          <div className="space-y-2 text-sm">
+
+          <div className="space-y-2 text-sm mb-4">
             <div className="flex justify-between">
-              <span className="text-[#B5B2BC]">Cost:</span>
-              <span className="text-orange-400 font-medium">
-                ~30% yield
-              </span>
+              <span className="text-[#B5B2BC]">Cost per car:</span>
+              <span className="text-orange-400 font-medium">3.0 $TOD</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[#B5B2BC]">Fee:</span>
-              <span className="text-blue-400 font-medium">
-                ~5% yield
-              </span>
+              <span className="text-[#B5B2BC]">Overclock cost:</span>
+              <span className="text-purple-400 font-medium">5.0 $TOD</span>
             </div>
+            <div className="flex justify-between">
+              <span className="text-[#B5B2BC]">Frequency:</span>
+              <span className="text-blue-400 font-medium">Weekly</span>
+            </div>
+          </div>
+
+          {/* Maintenance Stats */}
+          <div className="border-t border-[#49474E] pt-3 mb-3">
+            <h4 className="text-xs font-medium text-[#B5B2BC] mb-2 uppercase tracking-wide">
+              Fleet Status
+            </h4>
+            <div className="space-y-1 text-xs">
+              <div className="flex justify-between">
+                <span className="text-[#888]">Total Cars:</span>
+                <span className="text-[#EEEEF0]">{cars.length}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-[#888]">Need Maintenance:</span>
+                <span className="text-red-400">{carsNeedingMaintenance}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-[#888]">Overclocked:</span>
+                <span className="text-yellow-400">{carsWithOverclock}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-[#888]">Total Cost:</span>
+                <span className="text-orange-400">
+                  {(totalMaintenanceCost + totalOverclockCost).toFixed(1)} $TOD
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {carsNeedingMaintenance > 0 && (
+            <div className="bg-red-500/10 border border-red-500/20 rounded-md p-2 mb-3">
+              <p className="text-red-400 text-xs text-center">
+                🚨 {carsNeedingMaintenance} car
+                {carsNeedingMaintenance > 1 ? "s" : ""} need maintenance!
+              </p>
+            </div>
+          )}
+
+          <div className="text-xs text-[#888] leading-relaxed">
+            <p>• Maintenance keeps cars running optimally</p>
+            <p>• Overclock gives temporary power boost</p>
+            <p>• Skip maintenance = reduced mining power</p>
           </div>
         </div>
+      </div>
 
-        {/* Car Status */}
-        <div>
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-[#EEEEF0]">Car Status</span>
-            <span className="text-xs text-[#B5B2BC] bg-[#49474E] px-2 py-1 rounded">Monitor</span>
+      {/* Maintenance System Info */}
+      <div className="border-t border-[#49474E] pt-4 mt-4">
+        <h4 className="text-xs font-medium text-[#B5B2BC] mb-3 uppercase tracking-wide">
+          Maintenance System
+        </h4>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-[#888]">
+          <div>
+            <p className="font-medium text-[#B5B2BC] mb-1">🔧 Weekly Care</p>
+            <p>Keep your cars maintained for optimal mining performance</p>
           </div>
-          <div className="space-y-2 max-h-40 overflow-y-auto">
-            {cars.map((car) => {
-              const maintenanceStatus = getMaintenanceStatus(car);
-              return (
-                <div
-                  key={car.id}
-                  className="bg-[#121113]/50 rounded-md p-2"
-                >
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-[#EEEEF0] font-medium text-xs truncate max-w-[100px]">
-                      {car.name}
-                    </span>
-                    <span
-                      className={`text-xs ${maintenanceStatus.color}`}
-                    >
-                      {maintenanceStatus.text}
-                    </span>
-                  </div>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => performMaintenance(car.id)}
-                      disabled={todBalance < 3.0 || !car.isBlocked}
-                      className={`flex-1 text-xs py-1 px-2 rounded ${
-                        car.isBlocked
-                          ? "bg-green-600 hover:bg-green-700 text-[#EEEEF0]"
-                          : "bg-red-600 hover:bg-red-700 text-[#EEEEF0]"
-                      } ${
-                        car.isBlocked
-                          ? "opacity-50 cursor-not-allowed"
-                          : ""
-                      }`}
-                    >
-                      Maintain
-                    </button>
-                    <button
-                      onClick={() => toggleOverclock(car.id)}
-                      disabled={todBalance < 5.0}
-                      className={`flex-1 text-xs py-1 px-2 rounded ${
-                        car.overclockActive
-                          ? "bg-yellow-600 hover:bg-yellow-700"
-                          : "bg-purple-600 hover:bg-purple-700"
-                      }`}
-                    >
-                      {car.overclockActive ? "⚡" : "Boost"} (5)
-                    </button>
-                  </div>
-                  <div className="text-xs text-[#B5B2BC] text-center bg-[#121113]/30 rounded-md p-2">
-                    {car.overclockActive
-                      ? "• Failed overclock damages car temporarily"
-                      : "One use per burn cycle"}
-                  </div>
-                </div>
-              );
-            })}
+          <div>
+            <p className="font-medium text-[#B5B2BC] mb-1">⚡ Overclock</p>
+            <p>Temporary power boost with risk of car damage</p>
+          </div>
+          <div>
+            <p className="font-medium text-[#B5B2BC] mb-1">💰 Cost Effective</p>
+            <p>Regular maintenance prevents expensive repairs</p>
           </div>
         </div>
       </div>

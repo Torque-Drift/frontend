@@ -8,6 +8,7 @@ import {
 } from "@solana/spl-token";
 import { TOKEN_MINT } from "@/constants";
 import { purchaseService } from "@/services";
+import toast from "react-hot-toast";
 
 async function burnTokens(
   burnAmount: number,
@@ -59,12 +60,12 @@ async function burnTokens(
   transaction.feePayer = publicKey;
   const signature = await sendTransaction(transaction, connection);
   const confirmation = await connection.confirmTransaction(
-    { signature, blockhash, lastValidBlockHeight },
+    { signature, blockhash, lastValidBlockHeight, skipPreflight: true },
     "confirmed"
   );
 
-  if (confirmation.value.err) {
-    throw new Error(`Transaction failed: ${confirmation.value.err}`);
+  if (confirmation.value?.err) {
+    throw new Error(`Transaction failed: ${confirmation.value?.err}`);
   }
   return signature;
 }
@@ -90,12 +91,21 @@ export const useBurn = () => {
         sendTransaction,
         connection
       );
-      
+
       const userWallet = publicKey.toBase58();
       const payload = { userWallet, boxType, burnTxSignature };
       const result = await purchaseService.drawLootbox(payload);
 
+      toast.success(`${boxType} opened successfully! Check your new car.`);
+
       return { burnTxSignature, result };
+    },
+    onError: (error, variables) => {
+      toast.error(
+        `Failed to open ${variables.boxType}: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
     },
   });
 

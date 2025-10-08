@@ -1,0 +1,52 @@
+{
+  "name": "Torque Drift",
+  "short_name": "TorqueDrift",
+  "description": "Torque Drift - Racing Game on Solana",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#FF6B35",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "en-US",
+  "categories": ["games", "entertainment"],
+  "icons": [
+    {
+      "src": "images/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "images/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "images/hero_bg.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    }
+  ],
+  "related_applications": [
+    {
+      "platform": "play",
+      "url": "https://play.google.com/store/apps/details?id=com.phantom.wallet",
+      "id": "com.phantom.wallet"
+    }
+  ],
+  "prefer_related_applications": false,
+  "shortcuts": [
+    {
+      "name": "Garage",
+      "short_name": "Garage",
+      "description": "Access your car garage",
+      "url": "/garage",
+      "icons": [{ "src": "images/logo.png", "sizes": "96x96" }]
+    }
+  ]
+}

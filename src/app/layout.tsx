@@ -22,34 +22,49 @@ const beVietnamPro = Be_Vietnam_Pro({
 });
 
 export const metadata: Metadata = {
-  title: "TorqueDrift",
+  title: "Torque Drift - Racing Game on Solana",
   description:
-    "Send SOL donations with personalized messages to your favorite streamers. Join the crypto community and show your support!",
+    "Torque Drift - Race, upgrade and earn $TOD tokens in this exciting Solana-based racing game. Connect your Phantom wallet and start your engine!",
   keywords: [
-    "meme coin",
-    "crypto",
     "solana",
-    "donation",
-    "streamer",
-    "support",
-    "pump.fun",
+    "blockchain",
+    "gaming",
+    "racing",
+    "crypto",
+    "phantom wallet",
+    "web3",
+    "nft",
+    "decentralized",
+    "dapp",
+    "torque drift",
+    "tod token",
   ],
   authors: [{ name: "TorqueDrift Team" }],
   creator: "TorqueDrift",
   publisher: "TorqueDrift",
   robots: "index, follow",
+  manifest: "/manifest.json",
   openGraph: {
-    title: "TorqueDrift",
+    title: "Torque Drift - Racing Game on Solana",
     description:
-      "Send SOL donations with personalized messages to your favorite streamers. Join the crypto community and show your support!",
+      "Race, upgrade and earn $TOD tokens in this exciting Solana-based racing game. Connect your Phantom wallet and start your engine!",
     type: "website",
     locale: "en_US",
+    images: [
+      {
+        url: "/images/hero_bg.png",
+        width: 1200,
+        height: 630,
+        alt: "Torque Drift Racing Game",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "TorqueDrift",
+    title: "Torque Drift - Racing Game on Solana",
     description:
-      "Send SOL donations with personalized messages to your favorite streamers. Join the crypto community and show your support!",
+      "Race, upgrade and earn $TOD tokens in this exciting Solana-based racing game. Connect your Phantom wallet and start your engine!",
+    images: ["/images/hero_bg.png"],
   },
   icons: {
     icon: [
@@ -57,9 +72,13 @@ export const metadata: Metadata = {
       { url: "/images/logo.png", sizes: "192x192", type: "image/png" },
       { url: "/images/logo.png", sizes: "512x512", type: "image/png" },
     ],
-    apple: [
-      { url: "/images/logo.png", sizes: "180x180", type: "image/png" },
-    ],
+    apple: [{ url: "/images/logo.png", sizes: "180x180", type: "image/png" }],
+  },
+  other: {
+    "solana:site": "https://torquedrift.com",
+    "solana:title": "Torque Drift",
+    "solana:description": "Racing Game on Solana",
+    "solana:image": "https://torquedrift.com/images/hero_bg.png",
   },
 };
 
@@ -88,13 +107,50 @@ export default function RootLayout({ children }: RootLayoutProps) {
         <Toaster
           position="bottom-right"
           toastOptions={{
-            duration: 5000,
+            duration: 4000,
             style: {
-              background: "var(--card)",
-              color: "var(--foreground)",
-              border: "1px solid var(--border)",
+              background: "#1A191B",
+              color: "#EEEEF0",
+              border: "1px solid #49474E",
               borderRadius: "12px",
-              boxShadow: "var(--shadow-pump)",
+              boxShadow: "0 10px 25px rgba(108, 40, 255, 0.2)",
+              fontSize: "14px",
+              fontWeight: "500",
+            },
+            success: {
+              style: {
+                background: "#1A191B",
+                color: "#EEEEF0",
+                border: "1px solid #10B981",
+                borderRadius: "12px",
+                boxShadow: "0 10px 25px rgba(16, 185, 129, 0.2)",
+              },
+              iconTheme: {
+                primary: "#10B981",
+                secondary: "#EEEEF0",
+              },
+            },
+            error: {
+              style: {
+                background: "#1A191B",
+                color: "#EEEEF0",
+                border: "1px solid #EF4444",
+                borderRadius: "12px",
+                boxShadow: "0 10px 25px rgba(239, 68, 68, 0.2)",
+              },
+              iconTheme: {
+                primary: "#EF4444",
+                secondary: "#EEEEF0",
+              },
+            },
+            loading: {
+              style: {
+                background: "#1A191B",
+                color: "#EEEEF0",
+                border: "1px solid #6C28FF",
+                borderRadius: "12px",
+                boxShadow: "0 10px 25px rgba(108, 40, 255, 0.3)",
+              },
             },
           }}
         />
