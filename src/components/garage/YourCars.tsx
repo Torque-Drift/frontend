@@ -2,6 +2,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { DraggableCar } from "./DraggableCar";
 import { CarInventoryData, getRarityName, getVersionName } from "@/types/cars";
+import { Loader } from "../Loader";
 
 interface YourCarsProps {
   cars: CarInventoryData[];
@@ -24,7 +25,6 @@ export const YourCars: React.FC<YourCarsProps> = ({
   hasCars,
   getRarityColor,
 }) => {
-  console.log(cars);
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -42,7 +42,7 @@ export const YourCars: React.FC<YourCarsProps> = ({
 
       {isLoading ? (
         <div className="flex items-center justify-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#00D4FF]"></div>
+          <Loader height={32} width={32} />
           <span className="ml-2 text-[#B5B2BC]">Loading your cars...</span>
         </div>
       ) : error ? (

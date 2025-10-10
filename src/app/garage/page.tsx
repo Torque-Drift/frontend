@@ -20,7 +20,7 @@ import {
   ClaimSection,
   GamblingSection,
 } from "@/components/garage";
-import { useInitializeGame } from "@/hooks/useClaim";
+import { useInitializeGame } from "@/hooks/useInitializeGame";
 import toast from "react-hot-toast";
 import { Button } from "@/components/Button";
 import { Loader } from "@/components/Loader";
@@ -78,6 +78,8 @@ export default function GaragePage() {
     unequip,
     getEquippedCount,
     getTotalHashPower,
+    isSlotEquipping,
+    isSlotUnequipping,
   } = useCarsInventory();
 
   const [miningStats, setMiningStats] = useState<MiningStats>({
@@ -96,7 +98,11 @@ export default function GaragePage() {
 
     // Place each car in its correct slot based on slotIndex
     equippedCars.forEach((car) => {
-      if (car.slotIndex !== undefined && car.slotIndex >= 0 && car.slotIndex < 5) {
+      if (
+        car.slotIndex !== undefined &&
+        car.slotIndex >= 0 &&
+        car.slotIndex < 5
+      ) {
         slots[car.slotIndex] = car;
       }
     });
@@ -190,7 +196,7 @@ export default function GaragePage() {
 
             <p className="text-[#B5B2BC] text-lg mb-8 max-w-md mx-auto">
               Pay a one-time entry fee of{" "}
-              <span className="text-purple-400 font-semibold">0.3 SOL</span> to
+              <span className="text-yellow-500 font-semibold">0.1 BNB</span> to
               unlock your garage and start your racing journey!
             </p>
 
@@ -252,7 +258,7 @@ export default function GaragePage() {
             >
               {isInitializing
                 ? "Initializing..."
-                : "Pay 0.3 SOL & Start Racing"}
+                : "Pay 0.1 BNB & Start Racing"}
             </Button>
           </motion.div>
         </div>
@@ -314,6 +320,8 @@ export default function GaragePage() {
                 onEquip={equip}
                 onUnequip={unequip}
                 getRarityColor={getRarityColor}
+                isSlotEquipping={isSlotEquipping}
+                isSlotUnequipping={isSlotUnequipping}
               />
 
               <div className="mt-4 text-center">
@@ -351,7 +359,7 @@ export default function GaragePage() {
               <ClaimSection
                 todBalance={todBalance}
                 setTodBalance={setTodBalance}
-                equippedCars={[]}
+                equippedCars={equippedCars}
               />
 
               {/* Gambling */}

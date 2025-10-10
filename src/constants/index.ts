@@ -1,4 +1,6 @@
-export const PROGRAM_ID = "DQCp6ZCiMuYcdbYZSPETupXG8sT2BowtwFVVRBny5x8r"
-export const TOKEN_MINT = "CvXNcYb9A5RPXHYJFGfMxdbTiqvJpzWN8UjQdP5qUed5"
-export const GLOBAL_STATE_ADDRESS = "D94dDxXQKfHHbKLYRioNekw2xLM3dXfChxuwmz3YoXM5"
-export const METADATA_PROGRAM_ID = "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
+export const CONTRACT_ADDRESSES = {
+  TorqueDriftToken: "0xa85233C63b9Ee964Add6F2cffe00Fd84eb32338f",
+  TorqueDriftGame: "0x7a2088a1bFc9d81c55368AE168C2C02570cB814F",
+  TorqueDriftCars: "0x4A679253410272dd5232B3Ff7cF5dbB88f295319",
+  TorqueDriftViews: "0x09635F643e140090A9A8Dcd712eD6285858ceBef",
+};

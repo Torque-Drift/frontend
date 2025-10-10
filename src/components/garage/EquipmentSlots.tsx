@@ -13,6 +13,8 @@ interface EquipmentSlotsProps {
   onEquip: (car: CarInventoryData, slotIndex: number) => void;
   onUnequip: (slotIndex: number, carMint: string) => void;
   getRarityColor: (rarity: number) => string;
+  isSlotEquipping: (slotIndex: number) => boolean;
+  isSlotUnequipping: (slotIndex: number) => boolean;
   maxSlots?: number;
 }
 
@@ -21,6 +23,8 @@ export const EquipmentSlots: React.FC<EquipmentSlotsProps> = ({
   onEquip,
   onUnequip,
   getRarityColor,
+  isSlotEquipping,
+  isSlotUnequipping,
   maxSlots = 5,
 }) => {
   const slotIds = Array.from(
@@ -40,6 +44,8 @@ export const EquipmentSlots: React.FC<EquipmentSlotsProps> = ({
             onEquip={onEquip}
             onUnequip={onUnequip}
             getRarityColor={getRarityColor}
+            isEquipping={isSlotEquipping(index)}
+            isUnequipping={isSlotUnequipping(index)}
           />
         ))}
       </div>

@@ -8,6 +8,7 @@ import {
   type CarInventoryData,
 } from "@/types/cars";
 import { API_BASE_URL } from "@/services";
+import { Loader } from "@/components/Loader";
 
 interface EquipmentSlotProps {
   id: string;
@@ -16,6 +17,8 @@ interface EquipmentSlotProps {
   onEquip: (car: CarInventoryData, slotIndex: number) => void;
   onUnequip: (slotIndex: number, carMint: string) => void;
   getRarityColor: (rarity: number) => string;
+  isEquipping: boolean;
+  isUnequipping: boolean;
 }
 
 export const EquipmentSlot: React.FC<EquipmentSlotProps> = ({
@@ -25,6 +28,8 @@ export const EquipmentSlot: React.FC<EquipmentSlotProps> = ({
   onEquip,
   onUnequip,
   getRarityColor,
+  isEquipping,
+  isUnequipping,
 }) => {
   const { isOver, setNodeRef } = useDroppable({
     id,
@@ -32,12 +37,15 @@ export const EquipmentSlot: React.FC<EquipmentSlotProps> = ({
     disabled: car !== null,
   });
 
+  const isLoading = isEquipping || isUnequipping;
+
   return (
     <div
       ref={setNodeRef}
       className={`
         relative bg-[#121113]/50 rounded-lg border-2 min-h-[220px]
         transition-all duration-300 ease-out cursor-pointer group
+        ${isLoading ? "opacity-75" : ""}
         ${
           isOver
             ? "border-[#6C28FF] bg-[#6C28FF]/15 scale-110 shadow-2xl shadow-[#6C28FF]/30 border-dashed animate-pulse"
@@ -47,6 +55,17 @@ export const EquipmentSlot: React.FC<EquipmentSlotProps> = ({
         }
       `}
     >
+      {/* Loading overlay */}
+      {isLoading && (
+        <div className="absolute inset-0 bg-[#121113]/80 backdrop-blur-sm rounded-lg flex items-center justify-center z-10">
+          <div className="flex flex-col items-center gap-2">
+            <Loader height={32} width={32} className="animate-spin" />
+            <span className="text-xs text-[#EEEEF0] font-medium">
+              {isEquipping ? "Equipping..." : "Unequipping..."}
+            </span>
+          </div>
+        </div>
+      )}
       {car ? (
         <div className="h-full flex flex-col ">
           {/* Car Image */}

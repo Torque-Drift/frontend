@@ -1,0 +1,1722 @@
+[
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_tokenContract",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_carsContract",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "maxSupply",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "inputs": [],
+    "name": "ReentrancyGuardReentrantCall",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "carMint",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "hashPower",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "slot",
+        "type": "uint8"
+      }
+    ],
+    "name": "CarEquipped",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "carMint",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "slot",
+        "type": "uint8"
+      }
+    ],
+    "name": "CarUnequipped",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "claimableAmount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "baseReward",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "lockBoost",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "referralBoost",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "elapsedSeconds",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "currentTimestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "ClaimPreview",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "gamblePercent",
+        "type": "uint8"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "success",
+        "type": "bool"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "discount",
+        "type": "uint256"
+      }
+    ],
+    "name": "GambleResult",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "paymentAmount",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "carMint",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "GameStarted",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "halvingCount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "newBaseRate",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "nextThreshold",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "HalvingTriggered",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "referrer",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "referee",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "discountGranted",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "boostPercent",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "boostDuration",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "ReferralApplied",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "TokensBurned",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "TokensClaimed",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "unlockTime",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "boostPercent",
+        "type": "uint256"
+      }
+    ],
+    "name": "TokensLocked",
+    "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "CLOCK_DRIFT_TOLERANCE",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "DEFAULT_TIMELOCK_DURATION",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "MIN_CLAIM_COOLDOWN",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "PENALTY_1H_BURN_BPS",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "PENALTY_1H_SOL",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "PENALTY_2H_BURN_BPS",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "PENALTY_2H_SOL",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "PENALTY_3H_BURN_BPS",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "PENALTY_3H_SOL",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "PENALTY_4H_BURN_BPS",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "PENALTY_4H_SOL",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "REFERRAL_BOOST_DURATION",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "SECONDS_PER_DAY",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "SECONDS_PER_HOUR",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "TREASURY_WALLET",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "applySinks",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "elapsedSeconds",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "currentTimestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "calculateTotalReward",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "cancelUpgrade",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "carsContract",
+    "outputs": [
+      {
+        "internalType": "contract ITorqueDriftCars",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "claimTokens",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "emergencyRescueTokens",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "carAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "uint8",
+        "name": "slotIndex",
+        "type": "uint8"
+      }
+    ],
+    "name": "equipCar",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "equippedCars",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "mint",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "hashPower",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint8",
+        "name": "rarity",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint8",
+        "name": "version",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint8",
+        "name": "slotIndex",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "executeUpgrade",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint8",
+        "name": "gamblePercent",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint256",
+        "name": "serverRandomness",
+        "type": "uint256"
+      }
+    ],
+    "name": "gambleDiscount",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getGlobalState",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "totalMinted",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "maxSupply",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "baseRate",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "lastHalving",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "halvingCount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "nextHalvingThreshold",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "mintingPaused",
+            "type": "bool"
+          },
+          {
+            "internalType": "address",
+            "name": "admin",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "tokenMint",
+            "type": "address"
+          },
+          {
+            "internalType": "bool",
+            "name": "emergencyPause",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "claimPaused",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "equipPaused",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "gamblePaused",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "lockPaused",
+            "type": "bool"
+          },
+          {
+            "internalType": "uint256",
+            "name": "emergencyTimestamp",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "emergencyReason",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "address",
+            "name": "pendingAdmin",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "pendingBaseRate",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "pendingMaxSupply",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "timelockExpires",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "timelockDuration",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "upgradeProposedAt",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "totalUsers",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "totalHashPower",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "totalTokensClaimed",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "lastStatsUpdate",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct ITorqueDriftStructs.GlobalState",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "getLockVaultBalance",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "getReferralInfo",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "referrer",
+        "type": "address"
+      },
+      {
+        "internalType": "uint32",
+        "name": "referralCount",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "referralEarnings",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "hasActiveReferralBoost",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getUserCars",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "mint",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "hashPower",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint8",
+            "name": "rarity",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint8",
+            "name": "version",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint8",
+            "name": "slotIndex",
+            "type": "uint8"
+          }
+        ],
+        "internalType": "struct ITorqueDriftStructs.CarInfo[5]",
+        "name": "equippedCars_",
+        "type": "tuple[5]"
+      },
+      {
+        "internalType": "uint8",
+        "name": "totalEquipped",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint256",
+        "name": "totalHashPower",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getUserInfo",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "gameStarted_",
+        "type": "bool"
+      },
+      {
+        "internalType": "uint256",
+        "name": "totalHashPower",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "lastClaim",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "discount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "equippedCar",
+        "type": "bool"
+      },
+      {
+        "internalType": "uint256",
+        "name": "boostPercent",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint8",
+        "name": "equippedCount",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "getUserState",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "lastClaim",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "totalHashPower",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address[5]",
+            "name": "slots",
+            "type": "address[5]"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "unlockTime",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "boostPercent",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct ITorqueDriftStructs.LockInfo",
+            "name": "lock",
+            "type": "tuple"
+          },
+          {
+            "internalType": "uint256",
+            "name": "discount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "gambleUsed",
+            "type": "bool"
+          },
+          {
+            "internalType": "uint256",
+            "name": "boostPercent",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "boostStartTime",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "boostDuration",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "equippedCar",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "gameStarted",
+            "type": "bool"
+          },
+          {
+            "internalType": "uint256",
+            "name": "lastEquipTime",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint8",
+            "name": "equipCountToday",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint256",
+            "name": "lastEquipDay",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "lastGambleTime",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint8",
+            "name": "gambleCountToday",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint256",
+            "name": "lastGambleDay",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "lastLockTime",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "totalClaimed",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "referrer",
+            "type": "address"
+          },
+          {
+            "internalType": "uint32",
+            "name": "referralCount",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "referralEarnings",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct ITorqueDriftStructs.UserState",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "globalState",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "totalMinted",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "maxSupply",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "baseRate",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "lastHalving",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "halvingCount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "nextHalvingThreshold",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "mintingPaused",
+        "type": "bool"
+      },
+      {
+        "internalType": "address",
+        "name": "admin",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "tokenMint",
+        "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "emergencyPause",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "claimPaused",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "equipPaused",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "gamblePaused",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "lockPaused",
+        "type": "bool"
+      },
+      {
+        "internalType": "uint256",
+        "name": "emergencyTimestamp",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "emergencyReason",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "pendingAdmin",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "pendingBaseRate",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "pendingMaxSupply",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "timelockExpires",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "timelockDuration",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "upgradeProposedAt",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "totalUsers",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "totalHashPower",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "totalTokensClaimed",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "lastStatsUpdate",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "referrer",
+        "type": "address"
+      }
+    ],
+    "name": "initializeStartGame",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "days_",
+        "type": "uint256"
+      }
+    ],
+    "name": "lockTokens",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "lockVault",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "previewClaim",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "claimableAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "baseReward",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "lockBoost",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "referralBoost",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newAdmin",
+        "type": "address"
+      }
+    ],
+    "name": "proposeAdminChange",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "newRate",
+        "type": "uint256"
+      }
+    ],
+    "name": "proposeBaseRateChange",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "newMaxSupply",
+        "type": "uint256"
+      }
+    ],
+    "name": "proposeMaxSupplyChange",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "referralCounts",
+    "outputs": [
+      {
+        "internalType": "uint32",
+        "name": "",
+        "type": "uint32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "referrals",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "resetExpiredBoosts",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "resumeEmergencyPause",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "newRate",
+        "type": "uint256"
+      }
+    ],
+    "name": "setBaseRate",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "newDurationDays",
+        "type": "uint256"
+      }
+    ],
+    "name": "setTimelockDuration",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint8",
+        "name": "breakerType",
+        "type": "uint8"
+      },
+      {
+        "internalType": "bool",
+        "name": "pause",
+        "type": "bool"
+      }
+    ],
+    "name": "toggleCircuitBreaker",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bool",
+        "name": "pause",
+        "type": "bool"
+      }
+    ],
+    "name": "toggleMinting",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "tokenContract",
+    "outputs": [
+      {
+        "internalType": "contract IERC20",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "reason",
+        "type": "string"
+      }
+    ],
+    "name": "triggerEmergencyPause",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "carAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "uint8",
+        "name": "slotIndex",
+        "type": "uint8"
+      }
+    ],
+    "name": "unequipCar",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "unlockTokens",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newTokenMint",
+        "type": "address"
+      }
+    ],
+    "name": "updateTokenMint",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "userStates",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "lastClaim",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "totalHashPower",
+        "type": "uint256"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "unlockTime",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "boostPercent",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct ITorqueDriftStructs.LockInfo",
+        "name": "lock",
+        "type": "tuple"
+      },
+      {
+        "internalType": "uint256",
+        "name": "discount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "gambleUsed",
+        "type": "bool"
+      },
+      {
+        "internalType": "uint256",
+        "name": "boostPercent",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "boostStartTime",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "boostDuration",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "equippedCar",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "gameStarted",
+        "type": "bool"
+      },
+      {
+        "internalType": "uint256",
+        "name": "lastEquipTime",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint8",
+        "name": "equipCountToday",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint256",
+        "name": "lastEquipDay",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "lastGambleTime",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint8",
+        "name": "gambleCountToday",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint256",
+        "name": "lastGambleDay",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "lastLockTime",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "totalClaimed",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "referrer",
+        "type": "address"
+      },
+      {
+        "internalType": "uint32",
+        "name": "referralCount",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "referralEarnings",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]

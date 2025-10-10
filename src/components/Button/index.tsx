@@ -10,7 +10,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-gradient-to-b from-[#6C28FF] hover:from-[#5B24E3] to-[#9A51FF] hover:to-[#833EF0] text-[#EEEEF0] shadow-xs border-b-2 border-[#554282] transition-all duration-300 ease-in-out",
+          "bg-gradient-to-b from-[#6C28FF] hover:gradient-to-b hover:from-[#5B24E3] to-[#9A51FF] hover:to-[#833EF0] text-[#EEEEF0] shadow-xs border-b-2 border-[#554282] transition-all duration-300 ease-in-out",
       },
       size: {
         default: "h-10 px-4 py-5 has-[>svg]:px-3",

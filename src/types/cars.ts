@@ -93,6 +93,17 @@ export interface UseCarsInventoryReturn {
   // Stats
   carStats: CarStats;
 
+  // Inventory data from getUserInventory
+  inventoryData?: {
+    user: string;
+    totalOwned: number;
+    totalInventoryHashPower: number;
+    equippedSlots: [number, number, number, number, number];
+  } | null;
+  totalOwned: number;
+  totalInventoryHashPower: number;
+  equippedSlots: [number, number, number, number, number];
+
   // Loading states
   isLoading: boolean;
   error: Error | null;
@@ -108,6 +119,9 @@ export interface UseCarsInventoryReturn {
   unequip: (slotIndex: number, carMint: string) => void;
   getEquippedCount: () => number;
   getTotalHashPower: () => number;
+  isSlotEquipping: (slotIndex: number) => boolean;
+  isSlotUnequipping: (slotIndex: number) => boolean;
+  isSlotOccupied: (slotIndex: number) => boolean;
 
   // Equipment state
   equipData?: any;

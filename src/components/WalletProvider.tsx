@@ -1,19 +1,23 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React from "react";
 import {
-  ConnectionProvider,
-  WalletProvider,
-} from "@solana/wallet-adapter-react";
-import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
-import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
-import {
-  PhantomWalletAdapter,
-  SolflareWalletAdapter,
-  TorusWalletAdapter,
-} from "@solana/wallet-adapter-wallets";
-import { clusterApiUrl } from "@solana/web3.js";
-import "@solana/wallet-adapter-react-ui/styles.css";
+  getDefaultConfig,
+  RainbowKitProvider,
+  darkTheme,
+} from "@rainbow-me/rainbowkit";
+import { WagmiProvider } from "wagmi";
+import { bscTestnet, bsc, hardhat } from "wagmi/chains";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "@/services";
+import "@rainbow-me/rainbowkit/styles.css";
+
+const config = getDefaultConfig({
+  appName: "Torque Drift",
+  projectId: "development-project-id",
+  chains: [hardhat, bscTestnet, bsc],
+  ssr: true,
+});
 
 interface WalletProviderWrapperProps {
   children: React.ReactNode;
@@ -22,24 +26,14 @@ interface WalletProviderWrapperProps {
 const WalletProviderWrapper: React.FC<WalletProviderWrapperProps> = ({
   children,
 }) => {
-  const network = WalletAdapterNetwork.Devnet;
-  const endpoint = useMemo(() => clusterApiUrl(network), [network]);
-
-  const wallets = useMemo(
-    () => [
-      new PhantomWalletAdapter(),
-      new SolflareWalletAdapter(),
-      new TorusWalletAdapter(),
-    ],
-    []
-  );
-
   return (
-    <ConnectionProvider endpoint={endpoint}>
-      <WalletProvider wallets={wallets} autoConnect>
-        <WalletModalProvider>{children}</WalletModalProvider>
-      </WalletProvider>
-    </ConnectionProvider>
+    <WagmiProvider config={config}>
+      <QueryClientProvider client={queryClient}>
+        <RainbowKitProvider coolMode={true} theme={darkTheme()}>
+          {children}
+        </RainbowKitProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
   );
 };
 

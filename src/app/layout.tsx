@@ -22,16 +22,17 @@ const beVietnamPro = Be_Vietnam_Pro({
 });
 
 export const metadata: Metadata = {
-  title: "Torque Drift - Racing Game on Solana",
+  title: "Torque Drift - Racing Game on EVM",
   description:
-    "Torque Drift - Race, upgrade and earn $TOD tokens in this exciting Solana-based racing game. Connect your Phantom wallet and start your engine!",
+    "Torque Drift - Race, upgrade and earn $TOD tokens in this exciting EVM-based racing game. Connect your wallet and start your engine!",
   keywords: [
-    "solana",
+    "ethereum",
+    "evm",
+    "polygon",
     "blockchain",
     "gaming",
     "racing",
     "crypto",
-    "phantom wallet",
     "web3",
     "nft",
     "decentralized",
@@ -45,9 +46,9 @@ export const metadata: Metadata = {
   robots: "index, follow",
   manifest: "/manifest.json",
   openGraph: {
-    title: "Torque Drift - Racing Game on Solana",
+    title: "Torque Drift - Racing Game on EVM",
     description:
-      "Race, upgrade and earn $TOD tokens in this exciting Solana-based racing game. Connect your Phantom wallet and start your engine!",
+      "Race, upgrade and earn $TOD tokens in this exciting EVM-based racing game. Connect your wallet and start your engine!",
     type: "website",
     locale: "en_US",
     images: [
@@ -61,9 +62,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Torque Drift - Racing Game on Solana",
+    title: "Torque Drift - Racing Game on EVM",
     description:
-      "Race, upgrade and earn $TOD tokens in this exciting Solana-based racing game. Connect your Phantom wallet and start your engine!",
+      "Race, upgrade and earn $TOD tokens in this exciting EVM-based racing game. Connect your wallet and start your engine!",
     images: ["/images/hero_bg.png"],
   },
   icons: {
@@ -75,10 +76,10 @@ export const metadata: Metadata = {
     apple: [{ url: "/images/logo.png", sizes: "180x180", type: "image/png" }],
   },
   other: {
-    "solana:site": "https://torquedrift.com",
-    "solana:title": "Torque Drift",
-    "solana:description": "Racing Game on Solana",
-    "solana:image": "https://torquedrift.com/images/hero_bg.png",
+    "ethereum:site": "https://torquedrift.com",
+    "ethereum:title": "Torque Drift",
+    "ethereum:description": "Racing Game on EVM",
+    "ethereum:image": "https://torquedrift.com/images/hero_bg.png",
   },
 };
 

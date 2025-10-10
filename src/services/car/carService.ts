@@ -4,13 +4,10 @@ export class CarService {
   private apiClient: any;
 
   constructor(apiClient?: any) {
-    // Allow dependency injection to avoid circular imports
     if (apiClient) {
       this.apiClient = apiClient;
     } else {
-      // Lazy import to avoid circular dependency
-      const { apiClient: defaultApiClient } = require("../index");
-      this.apiClient = defaultApiClient;
+      throw new Error("apiClient is required for CarService");
     }
   }
 

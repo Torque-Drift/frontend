@@ -1,77 +1,28 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { PublicKey } from "@solana/web3.js";
-import { AnchorProvider, Program } from "@coral-xyz/anchor";
+import { CONTRACT_ADDRESSES } from "@/constants";
 import {
-  useAnchorWallet,
-  useConnection,
-  useWallet,
-} from "@solana/wallet-adapter-react";
-import { CarService } from "@/services/car/carService";
-import { GLOBAL_STATE_ADDRESS, PROGRAM_ID } from "@/constants";
+  TorqueDriftViews__factory,
+  TorqueDriftGame__factory,
+  TorqueDriftCars__factory,
+} from "@/contracts";
+import { useEthers } from "./useEthers";
 import { CarInventoryData, UseCarsInventoryReturn } from "@/types/cars";
 
-async function onEquipCar(
-  provider: AnchorProvider,
-  carMint: string,
-  slotIndex: number
-) {
-  if (!provider.wallet.publicKey) throw new Error("Wallet not connected");
+async function onEquipCar(signer: any, carMint: string, slotIndex: number) {
+  if (!signer) throw new Error("Wallet not connected");
 
-  const idl = await Program.fetchIdl(PROGRAM_ID, provider);
-  if (!idl) throw new Error("IDL not found");
-
-  const program = new Program(idl, provider);
-
-  const userStateAddress = PublicKey.findProgramAddressSync(
-    [Buffer.from("user_state"), provider.wallet.publicKey.toBuffer()],
-    new PublicKey(PROGRAM_ID)
-  )[0];
+  const gameContract = TorqueDriftGame__factory.connect(
+    CONTRACT_ADDRESSES.TorqueDriftGame,
+    signer
+  );
 
   try {
-    const userStateData = await (program.account as any).userState.fetch(
-      userStateAddress
-    );
-    if (!userStateData.gameStarted) {
-      console.error("User has not started the game yet!");
-      return;
-    }
-  } catch (error) {
-    console.error("User not found! Initialize first.");
-    return;
-  }
-
-  const carStatePDA = new PublicKey(carMint);
-
-  try {
-    const carStateData = await (program.account as any).carState.fetch(
-      carStatePDA
-    );
-    if (
-      carStateData.owner.toString() !== provider.wallet.publicKey.toString()
-    ) {
-      console.error("This car does not belong to you!");
-      return;
-    }
-  } catch (error) {
-    console.error("Error equipping car:", error);
-    return;
-  }
-
-  try {
-    const signature = await program.methods
-      .equipCar(slotIndex)
-      .accounts({
-        user: provider.wallet.publicKey,
-        userState: userStateAddress,
-        globalState: new PublicKey(GLOBAL_STATE_ADDRESS),
-        carState: carStatePDA,
-      })
-      .rpc({ skipPreflight: true, commitment: "confirmed" });
-
-    console.log("Transaction successful:", signature);
-    return signature;
+    const tx = await gameContract.equipCar(carMint, slotIndex);
+    const receipt = await tx.wait();
+    console.log("Car equipped successfully:", receipt?.hash);
+    return receipt?.hash || tx.hash;
   } catch (error) {
     console.error("Transaction failed:", error);
     throw error;
@@ -79,36 +30,22 @@ async function onEquipCar(
 }
 
 async function onUnequipCar(
-  provider: AnchorProvider,
-  slotIndex: number,
-  carMint: string
+  signer: any,
+  carAddress: string,
+  slotIndex: number
 ) {
-  if (!provider.wallet.publicKey) throw new Error("Wallet not connected");
+  if (!signer) throw new Error("Wallet not connected");
 
-  const idl = await Program.fetchIdl(PROGRAM_ID, provider);
-  if (!idl) throw new Error("IDL not found");
-
-  const program = new Program(idl, provider);
-
-  const userStateAddress = PublicKey.findProgramAddressSync(
-    [Buffer.from("user_state"), provider.wallet.publicKey.toBuffer()],
-    new PublicKey(PROGRAM_ID)
-  )[0];
-
-  const carStatePDA = new PublicKey(carMint);
+  const gameContract = TorqueDriftGame__factory.connect(
+    CONTRACT_ADDRESSES.TorqueDriftGame,
+    signer
+  );
 
   try {
-    const signature = await program.methods
-      .unequipCar(slotIndex)
-      .accounts({
-        user: provider.wallet.publicKey,
-        userState: userStateAddress,
-        globalState: new PublicKey(GLOBAL_STATE_ADDRESS),
-        carState: carStatePDA,
-      })
-      .rpc({ skipPreflight: true, commitment: "confirmed" });
-
-    return signature;
+    const tx = await gameContract.unequipCar(carAddress, slotIndex);
+    const receipt = await tx.wait();
+    console.log("Car unequipped successfully:", receipt?.hash);
+    return receipt?.hash || tx.hash;
   } catch (error) {
     console.error("Transaction failed:", error);
     throw error;
@@ -116,31 +53,112 @@ async function onUnequipCar(
 }
 
 export const useCarsInventory = (): UseCarsInventoryReturn => {
-  const { connection } = useConnection();
-  const { publicKey } = useWallet();
-  const anchorWallet = useAnchorWallet();
+  const { signer, address, isConnected } = useEthers();
   const queryClient = useQueryClient();
 
-  const carService = new CarService();
+  const [equippingSlots, setEquippingSlots] = useState<Set<number>>(new Set());
+  const [unequippingSlots, setUnequippingSlots] = useState<Set<number>>(
+    new Set()
+  );
+
+  // Query para dados completos do inventário
+  const { data: inventoryData } = useQuery({
+    queryKey: ["userInventory", address],
+    queryFn: async () => {
+      if (!address || !signer) throw new Error("Wallet not connected");
+
+      try {
+        const provider = signer.provider || (signer as any).provider;
+        if (!provider) {
+          console.warn("No provider available for inventory query");
+          return null;
+        }
+
+        const viewsContract = TorqueDriftViews__factory.connect(
+          CONTRACT_ADDRESSES.TorqueDriftViews,
+          provider
+        );
+
+        const userInventory = await viewsContract.getUserInventory(address);
+
+        return {
+          user: userInventory.user,
+          totalOwned: Number(userInventory.totalOwned),
+          totalInventoryHashPower: Number(
+            userInventory.totalInventoryHashPower
+          ),
+          equippedSlots: userInventory.equippedSlots.map((slot: bigint) =>
+            Number(slot)
+          ) as [number, number, number, number, number],
+        };
+      } catch (error) {
+        console.error("Error fetching user inventory data:", error);
+        return null;
+      }
+    },
+    enabled: !!address && isConnected,
+    staleTime: 30000, // 30 seconds
+    gcTime: 300000, // 5 minutes
+    retry: 2,
+    retryDelay: 1000,
+  });
 
   const {
     data: cars = [],
     isLoading,
     error,
-    refetch,
+    refetch: refetchCars,
   } = useQuery<CarInventoryData[]>({
-    queryKey: ["carsInventory", publicKey?.toBase58()],
+    queryKey: ["carsInventory", address],
     queryFn: async (): Promise<CarInventoryData[]> => {
-      if (!publicKey) throw new Error("Wallet not connected");
-      const cars = await carService.getUserCars(publicKey.toBase58());
-      return cars;
+      if (!address || !signer) throw new Error("Wallet not connected");
+
+      try {
+        const provider = signer.provider || (signer as any).provider;
+        if (!provider) {
+          console.warn("No provider available for inventory query");
+          return [];
+        }
+
+        const carsContract = TorqueDriftCars__factory.connect(
+          CONTRACT_ADDRESSES.TorqueDriftCars,
+          provider
+        );
+
+        const userInventory = await carsContract.getUserInventory(address);
+
+        return userInventory.ownedCars.map((car: any, index: number) => {
+          const slotIndex = Number(car.slotIndex);
+          const isEquipped = slotIndex !== 255;
+          return {
+            mint: car.mint || `0x${index.toString().padStart(40, "0")}`,
+            rarity: (Number(car.rarity) || 0) as 0 | 1 | 2 | 3,
+            version: (Number(car.version) || 0) as 0 | 1,
+            hashPower: Number(car.hashPower) || 0,
+            owner: address || "",
+            isEquipped,
+            slotIndex: isEquipped ? slotIndex : undefined,
+            image: `/images/cars/${Number(car.rarity) || 0}.png`,
+            name: `Car #${index + 1}`,
+            description: "A racing car",
+            dailyYield: 0, // TODO: Calcular baseado no hashPower
+            cooldown: 0,
+            roi: 0,
+          };
+        });
+      } catch (error) {
+        console.error("Error fetching user inventory:", error);
+        // Return empty array on error to prevent breaking the UI
+        return [];
+      }
     },
-    enabled: !!publicKey,
-    staleTime: 30000,
-    gcTime: 300000,
+    enabled: !!address && isConnected,
+    staleTime: 30000, // 30 seconds
+    gcTime: 300000, // 5 minutes
+    retry: 2,
+    retryDelay: 1000,
   });
 
-  // Computed values
   const equippedCars = cars.filter((car) => car.isEquipped);
   const unequippedCars = cars.filter((car) => !car.isEquipped);
   const totalHashPower = cars.reduce((sum, car) => sum + car.hashPower, 0);
@@ -165,7 +183,6 @@ export const useCarsInventory = (): UseCarsInventoryReturn => {
     }, {} as Record<string, number>),
   };
 
-  // Equipment mutations
   const equipMutation = useMutation({
     mutationFn: async ({
       car,
@@ -174,19 +191,38 @@ export const useCarsInventory = (): UseCarsInventoryReturn => {
       car: CarInventoryData;
       slotIndex: number;
     }) => {
-      if (!publicKey || !connection || !anchorWallet) {
-        throw new Error("Wallet not connected");
+      setEquippingSlots((prev) => new Set([...prev, slotIndex]));
+      try {
+        if (!signer || !isConnected || !address) {
+          throw new Error("Wallet not connected or signer not available");
+        }
+
+        if (car.isEquipped) {
+          throw new Error("Car is already equipped");
+        }
+
+        if (
+          inventoryData?.equippedSlots &&
+          inventoryData.equippedSlots[slotIndex] === 1
+        ) {
+          throw new Error("Slot is already occupied");
+        }
+
+        const equipTxSignature = await onEquipCar(signer, car.mint, slotIndex);
+        await refetchCars();
+        toast.success(`Car equipped successfully in slot ${slotIndex + 1}!`);
+        return { equipTxSignature };
+      } finally {
+        setEquippingSlots((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(slotIndex);
+          return newSet;
+        });
       }
-      const provider = new AnchorProvider(connection, anchorWallet, {
-        commitment: "confirmed",
-      });
-      const equipTxSignature = await onEquipCar(provider, car.mint, slotIndex);
-      toast.success(`Car equipped successfully in slot ${slotIndex + 1}!`);
-      return { equipTxSignature };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["carsInventory", publicKey?.toString()],
+        queryKey: ["carsInventory", address],
       });
     },
     onError: (error) => {
@@ -199,31 +235,42 @@ export const useCarsInventory = (): UseCarsInventoryReturn => {
   });
 
   const unequipMutation = useMutation({
-    mutationFn: async ({
-      slotIndex,
-      carMint,
-    }: {
-      slotIndex: number;
-      carMint: string;
-    }) => {
-      if (!publicKey || !connection || !anchorWallet) {
-        throw new Error("Wallet not connected");
-      }
-      const provider = new AnchorProvider(connection, anchorWallet, {
-        commitment: "confirmed",
-      });
-      const unequipTxSignature = await onUnequipCar(
-        provider,
-        slotIndex,
-        carMint
-      );
+    mutationFn: async ({ slotIndex }: { slotIndex: number }) => {
+      setUnequippingSlots((prev) => new Set([...prev, slotIndex]));
+      try {
+        if (!signer || !isConnected || !address) {
+          throw new Error("Wallet not connected or signer not available");
+        }
 
-      toast.success(`Car unequipped successfully from slot ${slotIndex + 1}!`);
-      return { unequipTxSignature };
+        const equippedCar = equippedCars.find(
+          (car) => car.slotIndex === slotIndex
+        );
+        if (!equippedCar) {
+          throw new Error(`No car equipped in slot ${slotIndex}`);
+        }
+
+        const unequipTxSignature = await onUnequipCar(
+          signer,
+          equippedCar.mint,
+          slotIndex
+        );
+        await refetchCars();
+        toast.success(
+          `Car unequipped successfully from slot ${slotIndex + 1}!`
+        );
+
+        return { unequipTxSignature };
+      } finally {
+        setUnequippingSlots((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(slotIndex);
+          return newSet;
+        });
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["carsInventory", publicKey?.toString()],
+        queryKey: ["carsInventory", address],
       });
     },
     onError: (error) => {
@@ -243,8 +290,8 @@ export const useCarsInventory = (): UseCarsInventoryReturn => {
   );
 
   const unequip = useCallback(
-    (slotIndex: number, carMint: string) => {
-      unequipMutation.mutate({ slotIndex, carMint });
+    (slotIndex: number) => {
+      unequipMutation.mutate({ slotIndex });
     },
     [unequipMutation]
   );
@@ -259,6 +306,29 @@ export const useCarsInventory = (): UseCarsInventoryReturn => {
     }, 0);
   }, [equippedCars]);
 
+  const isSlotEquipping = useCallback(
+    (slotIndex: number) => equippingSlots.has(slotIndex),
+    [equippingSlots]
+  );
+
+  const isSlotOccupied = useCallback(
+    (slotIndex: number) => {
+      // First check if we have inventory data with equippedSlots
+      if (inventoryData?.equippedSlots) {
+        return inventoryData.equippedSlots[slotIndex] === 1;
+      }
+
+      // Fallback: check if any car is equipped in this slot
+      return equippedCars.some((car) => car.slotIndex === slotIndex);
+    },
+    [inventoryData?.equippedSlots, equippedCars]
+  );
+
+  const isSlotUnequipping = useCallback(
+    (slotIndex: number) => unequippingSlots.has(slotIndex),
+    [unequippingSlots]
+  );
+
   return {
     cars,
     equippedCars,
@@ -266,9 +336,16 @@ export const useCarsInventory = (): UseCarsInventoryReturn => {
 
     carStats,
 
+    // Dados do inventário completo
+    inventoryData,
+    totalOwned: inventoryData?.totalOwned || cars.length,
+    totalInventoryHashPower:
+      inventoryData?.totalInventoryHashPower || totalHashPower,
+    equippedSlots: inventoryData?.equippedSlots || [0, 0, 0, 0, 0],
+
     isLoading,
     error,
-    refetch,
+    refetch: refetchCars,
 
     hasCars: cars.length > 0,
     hasEquippedCars: equippedCars.length > 0,
@@ -278,6 +355,9 @@ export const useCarsInventory = (): UseCarsInventoryReturn => {
     unequip,
     getEquippedCount,
     getTotalHashPower,
+    isSlotEquipping,
+    isSlotUnequipping,
+    isSlotOccupied,
 
     equipData: equipMutation.data,
     unequipData: unequipMutation.data,
