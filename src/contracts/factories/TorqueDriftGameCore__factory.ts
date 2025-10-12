@@ -4,9 +4,9 @@
 
 import { Contract, Interface, type ContractRunner } from "ethers";
 import type {
-  TorqueDriftGame,
-  TorqueDriftGameInterface,
-} from "../TorqueDriftGame";
+  TorqueDriftGameCore,
+  TorqueDriftGameCoreInterface,
+} from "../TorqueDriftGameCore";
 
 const _abi = [
   {
@@ -249,50 +249,6 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
-        indexed: true,
-        internalType: "address",
-        name: "user",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "uint8",
-        name: "lockOption",
-        type: "uint8",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "unlockTime",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "boostPercent",
-        type: "uint256",
-      },
-    ],
-    name: "ClaimLockActivated",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "user",
-        type: "address",
-      },
-    ],
-    name: "ClaimLockDeactivated",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
         indexed: false,
         internalType: "uint256",
         name: "oldValue",
@@ -306,37 +262,6 @@ const _abi = [
       },
     ],
     name: "ClockDriftToleranceUpdated",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "user",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "uint8",
-        name: "gamblePercent",
-        type: "uint8",
-      },
-      {
-        indexed: false,
-        internalType: "bool",
-        name: "success",
-        type: "bool",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "discount",
-        type: "uint256",
-      },
-    ],
-    name: "GambleResult",
     type: "event",
   },
   {
@@ -722,89 +647,6 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "address",
-        name: "carAddress",
-        type: "address",
-      },
-    ],
-    name: "calculateMaintenanceCost",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "cost",
-        type: "uint256",
-      },
-      {
-        internalType: "bool",
-        name: "canMaintain",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "effectiveHashPower",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "lockUnlockTime",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "lockBoostPercent",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "referralBoostPercent",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "referralBoostStartTime",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "referralBoostDuration",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "baseRate",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "elapsedTime",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "currentTime",
-        type: "uint256",
-      },
-    ],
-    name: "calculateTotalReward",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "pure",
-    type: "function",
-  },
-  {
     inputs: [],
     name: "carsContract",
     outputs: [
@@ -822,29 +664,6 @@ const _abi = [
     name: "claimTokens",
     outputs: [],
     stateMutability: "payable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "user",
-        type: "address",
-      },
-      {
-        internalType: "uint8",
-        name: "rarity",
-        type: "uint8",
-      },
-      {
-        internalType: "uint8",
-        name: "version",
-        type: "uint8",
-      },
-    ],
-    name: "createAdditionalCar",
-    outputs: [],
-    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -960,50 +779,6 @@ const _abi = [
     name: "gambleDiscount",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "user",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "carAddress",
-        type: "address",
-      },
-    ],
-    name: "getCarEfficiencyInfo",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "currentEfficiency",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "effectiveHashPower",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "maintenanceCost",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "timeUntilNextMaintenance",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "currentDailyYield",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
     type: "function",
   },
   {
@@ -1146,55 +921,6 @@ const _abi = [
         internalType: "struct ITorqueDriftStructs.GlobalState",
         name: "",
         type: "tuple",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "user",
-        type: "address",
-      },
-    ],
-    name: "getReferralInfo",
-    outputs: [
-      {
-        internalType: "address",
-        name: "referrer_",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "referralEarnings_",
-        type: "uint256",
-      },
-      {
-        internalType: "uint32",
-        name: "referralCount_",
-        type: "uint32",
-      },
-      {
-        internalType: "uint256",
-        name: "discount_",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "boostPercent_",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "boostStartTime_",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "boostDuration_",
-        type: "uint256",
       },
     ],
     stateMutability: "view",
@@ -1686,32 +1412,6 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "carAddress",
-        type: "address",
-      },
-    ],
-    name: "payMaintenance",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "carAddress",
-        type: "address",
-      },
-    ],
-    name: "performMaintenance",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
         name: "user",
         type: "address",
       },
@@ -1781,13 +1481,6 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [],
-    name: "resetExpiredBoosts",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
     inputs: [
       {
         internalType: "address",
@@ -1796,19 +1489,6 @@ const _abi = [
       },
     ],
     name: "setAdvancedContract",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "newRate",
-        type: "uint256",
-      },
-    ],
-    name: "setBaseRate",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -1990,15 +1670,19 @@ const _abi = [
   },
 ] as const;
 
-export class TorqueDriftGame__factory {
+export class TorqueDriftGameCore__factory {
   static readonly abi = _abi;
-  static createInterface(): TorqueDriftGameInterface {
-    return new Interface(_abi) as TorqueDriftGameInterface;
+  static createInterface(): TorqueDriftGameCoreInterface {
+    return new Interface(_abi) as TorqueDriftGameCoreInterface;
   }
   static connect(
     address: string,
     runner?: ContractRunner | null
-  ): TorqueDriftGame {
-    return new Contract(address, _abi, runner) as unknown as TorqueDriftGame;
+  ): TorqueDriftGameCore {
+    return new Contract(
+      address,
+      _abi,
+      runner
+    ) as unknown as TorqueDriftGameCore;
   }
 }

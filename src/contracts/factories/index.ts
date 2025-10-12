@@ -3,5 +3,6 @@
 /* eslint-disable */
 export { TorqueDriftCars__factory } from "./TorqueDriftCars__factory";
 export { TorqueDriftGame__factory } from "./TorqueDriftGame__factory";
+export { TorqueDriftGameCore__factory } from "./TorqueDriftGameCore__factory";
 export { TorqueDriftToken__factory } from "./TorqueDriftToken__factory";
 export { TorqueDriftViews__factory } from "./TorqueDriftViews__factory";

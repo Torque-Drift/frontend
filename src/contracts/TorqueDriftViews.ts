@@ -245,6 +245,8 @@ export declare namespace ITorqueDriftStructs {
   export type CarInfoStruct = {
     mint: AddressLike;
     hashPower: BigNumberish;
+    efficiency: BigNumberish;
+    lastMaintenance: BigNumberish;
     rarity: BigNumberish;
     version: BigNumberish;
     slotIndex: BigNumberish;
@@ -253,12 +255,16 @@ export declare namespace ITorqueDriftStructs {
   export type CarInfoStructOutput = [
     mint: string,
     hashPower: bigint,
+    efficiency: bigint,
+    lastMaintenance: bigint,
     rarity: bigint,
     version: bigint,
     slotIndex: bigint
   ] & {
     mint: string;
     hashPower: bigint;
+    efficiency: bigint;
+    lastMaintenance: bigint;
     rarity: bigint;
     version: bigint;
     slotIndex: bigint;
@@ -301,9 +307,35 @@ export declare namespace ITorqueDriftStructs {
     totalHashPower: bigint;
   };
 
+  export type CarEfficiencyInfoStruct = {
+    carAddress: AddressLike;
+    currentEfficiency: BigNumberish;
+    effectiveHashPower: BigNumberish;
+    maintenanceCost: BigNumberish;
+    currentDailyYield: BigNumberish;
+    timeUntilNextMaintenance: BigNumberish;
+  };
+
+  export type CarEfficiencyInfoStructOutput = [
+    carAddress: string,
+    currentEfficiency: bigint,
+    effectiveHashPower: bigint,
+    maintenanceCost: bigint,
+    currentDailyYield: bigint,
+    timeUntilNextMaintenance: bigint
+  ] & {
+    carAddress: string;
+    currentEfficiency: bigint;
+    effectiveHashPower: bigint;
+    maintenanceCost: bigint;
+    currentDailyYield: bigint;
+    timeUntilNextMaintenance: bigint;
+  };
+
   export type UserInventoryEventStruct = {
     user: AddressLike;
     ownedCars: ITorqueDriftStructs.CarInfoStruct[];
+    carsEfficiency: ITorqueDriftStructs.CarEfficiencyInfoStruct[];
     totalOwned: BigNumberish;
     totalInventoryHashPower: BigNumberish;
     equippedSlots: [
@@ -318,12 +350,14 @@ export declare namespace ITorqueDriftStructs {
   export type UserInventoryEventStructOutput = [
     user: string,
     ownedCars: ITorqueDriftStructs.CarInfoStructOutput[],
+    carsEfficiency: ITorqueDriftStructs.CarEfficiencyInfoStructOutput[],
     totalOwned: bigint,
     totalInventoryHashPower: bigint,
     equippedSlots: [bigint, bigint, bigint, bigint, bigint]
   ] & {
     user: string;
     ownedCars: ITorqueDriftStructs.CarInfoStructOutput[];
+    carsEfficiency: ITorqueDriftStructs.CarEfficiencyInfoStructOutput[];
     totalOwned: bigint;
     totalInventoryHashPower: bigint;
     equippedSlots: [bigint, bigint, bigint, bigint, bigint];
@@ -581,7 +615,7 @@ export interface TorqueDriftViews extends BaseContract {
   >;
 
   getLeaderboard: TypedContractMethod<
-    [limit: BigNumberish, offset: BigNumberish],
+    [arg0: BigNumberish, arg1: BigNumberish],
     [ITorqueDriftStructs.LeaderboardEventStructOutput],
     "view"
   >;
@@ -676,7 +710,7 @@ export interface TorqueDriftViews extends BaseContract {
   getFunction(
     nameOrSignature: "getLeaderboard"
   ): TypedContractMethod<
-    [limit: BigNumberish, offset: BigNumberish],
+    [arg0: BigNumberish, arg1: BigNumberish],
     [ITorqueDriftStructs.LeaderboardEventStructOutput],
     "view"
   >;

@@ -425,12 +425,12 @@ const _abi = [
     inputs: [
       {
         internalType: "uint256",
-        name: "limit",
+        name: "",
         type: "uint256",
       },
       {
         internalType: "uint256",
-        name: "offset",
+        name: "",
         type: "uint256",
       },
     ],
@@ -568,6 +568,16 @@ const _abi = [
                 internalType: "uint256",
                 name: "hashPower",
                 type: "uint256",
+              },
+              {
+                internalType: "uint32",
+                name: "efficiency",
+                type: "uint32",
+              },
+              {
+                internalType: "uint32",
+                name: "lastMaintenance",
+                type: "uint32",
               },
               {
                 internalType: "uint8",
@@ -729,6 +739,16 @@ const _abi = [
                 type: "uint256",
               },
               {
+                internalType: "uint32",
+                name: "efficiency",
+                type: "uint32",
+              },
+              {
+                internalType: "uint32",
+                name: "lastMaintenance",
+                type: "uint32",
+              },
+              {
                 internalType: "uint8",
                 name: "rarity",
                 type: "uint8",
@@ -746,6 +766,43 @@ const _abi = [
             ],
             internalType: "struct ITorqueDriftStructs.CarInfo[]",
             name: "ownedCars",
+            type: "tuple[]",
+          },
+          {
+            components: [
+              {
+                internalType: "address",
+                name: "carAddress",
+                type: "address",
+              },
+              {
+                internalType: "uint256",
+                name: "currentEfficiency",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "effectiveHashPower",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "maintenanceCost",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "currentDailyYield",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "timeUntilNextMaintenance",
+                type: "uint256",
+              },
+            ],
+            internalType: "struct ITorqueDriftStructs.CarEfficiencyInfo[]",
+            name: "carsEfficiency",
             type: "tuple[]",
           },
           {

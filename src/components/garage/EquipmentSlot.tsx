@@ -9,6 +9,8 @@ import {
 } from "@/types/cars";
 import { API_BASE_URL } from "@/services";
 import { Loader } from "@/components/Loader";
+import Image from "next/image";
+import { Button } from "../Button";
 
 interface EquipmentSlotProps {
   id: string;
@@ -16,9 +18,11 @@ interface EquipmentSlotProps {
   car: CarInventoryData | null;
   onEquip: (car: CarInventoryData, slotIndex: number) => void;
   onUnequip: (slotIndex: number, carMint: string) => void;
+  onPerformMaintenance: (carMint: string) => void;
   getRarityColor: (rarity: number) => string;
   isEquipping: boolean;
   isUnequipping: boolean;
+  isUnderMaintenance: boolean;
 }
 
 export const EquipmentSlot: React.FC<EquipmentSlotProps> = ({
@@ -27,9 +31,11 @@ export const EquipmentSlot: React.FC<EquipmentSlotProps> = ({
   car,
   onEquip,
   onUnequip,
+  onPerformMaintenance,
   getRarityColor,
   isEquipping,
   isUnequipping,
+  isUnderMaintenance,
 }) => {
   const { isOver, setNodeRef } = useDroppable({
     id,
@@ -37,7 +43,7 @@ export const EquipmentSlot: React.FC<EquipmentSlotProps> = ({
     disabled: car !== null,
   });
 
-  const isLoading = isEquipping || isUnequipping;
+  const isLoading = isEquipping || isUnequipping || isUnderMaintenance;
 
   return (
     <div
@@ -61,7 +67,11 @@ export const EquipmentSlot: React.FC<EquipmentSlotProps> = ({
           <div className="flex flex-col items-center gap-2">
             <Loader height={32} width={32} className="animate-spin" />
             <span className="text-xs text-[#EEEEF0] font-medium">
-              {isEquipping ? "Equipping..." : "Unequipping..."}
+              {isEquipping
+                ? "Equipping..."
+                : isUnequipping
+                ? "Unequipping..."
+                : "Maintaining..."}
             </span>
           </div>
         </div>
@@ -71,10 +81,14 @@ export const EquipmentSlot: React.FC<EquipmentSlotProps> = ({
           {/* Car Image */}
           <div className="relative ">
             <div className="aspect-square flex items-center justify-center overflow-hidden">
-              <img
-                src={`${API_BASE_URL}${car.image}`}
+              <Image
+                src={`${car.image}`}
                 alt={`${car.rarity} ${car.version} car`}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover scale-125"
+                width={100}
+                height={100}
+                draggable={false}
+                priority={true}
               />
             </div>
             <button
@@ -117,11 +131,31 @@ export const EquipmentSlot: React.FC<EquipmentSlotProps> = ({
                 </div>
               </div>
               <div>
-                <span className="text-[#B5B2BC]">Slot:</span>
-                <div className="text-[#6C28FF] font-medium">
-                  #{slotIndex + 1}
+                <span className="text-[#B5B2BC]">Efficiency:</span>
+                <div
+                  className={`font-medium ${
+                    car.efficiency >= 90
+                      ? "text-green-400"
+                      : car.efficiency >= 70
+                      ? "text-yellow-400"
+                      : "text-red-400"
+                  }`}
+                >
+                  {car.efficiency.toFixed(1)}%
                 </div>
               </div>
+            </div>
+
+            {/* Maintenance Button */}
+            <div className="mt-2 flex gap-2">
+              <Button
+                onClick={() => onPerformMaintenance(car.mint)}
+                disabled={isUnderMaintenance || Number(car.efficiency) < 100}
+                className="w-full h-8 py-2"
+                title="Perform maintenance to restore efficiency"
+              >
+                {isUnderMaintenance ? "Maintaining..." : "Repair"}
+              </Button>
             </div>
           </div>
 
@@ -162,3 +196,4 @@ export const EquipmentSlot: React.FC<EquipmentSlotProps> = ({
     </div>
   );
 };
+

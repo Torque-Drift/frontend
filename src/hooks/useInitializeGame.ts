@@ -2,10 +2,7 @@ import { useState, useEffect } from "react";
 import { CONTRACT_ADDRESSES } from "@/constants";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import {
-  TorqueDriftGame__factory,
-  TorqueDriftViews__factory,
-} from "@/contracts";
+import { TorqueDriftGame__factory } from "@/contracts";
 import { useEthers } from "./useEthers";
 import { ethers } from "ethers";
 
@@ -34,13 +31,14 @@ export const useInitializeGame = () => {
       }
 
       try {
-        const viewsContract = TorqueDriftViews__factory.connect(
-          CONTRACT_ADDRESSES.TorqueDriftViews,
+        const gameContract = TorqueDriftGame__factory.connect(
+          CONTRACT_ADDRESSES.TorqueDriftGame,
           provider
         );
 
-        const userInfo = await viewsContract.getUserInfo(address);
-        return userInfo.gameStarted || false;
+        const userState = await gameContract.getUserState(address);
+        console.log("userState", userState);
+        return Boolean(userState[20]) || false; // Index 20 is gameStarted
       } catch (error) {
         console.error("Error checking user existence:", error);
         return false;

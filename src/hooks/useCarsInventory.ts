@@ -1,39 +1,123 @@
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
+import React from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
+import { ethers } from "ethers";
 import { CONTRACT_ADDRESSES } from "@/constants";
 import {
-  TorqueDriftViews__factory,
   TorqueDriftGame__factory,
-  TorqueDriftCars__factory,
+  TorqueDriftViews__factory,
 } from "@/contracts";
 import { useEthers } from "./useEthers";
 import { CarInventoryData, UseCarsInventoryReturn } from "@/types/cars";
 
-async function onEquipCar(signer: any, carMint: string, slotIndex: number) {
-  if (!signer) throw new Error("Wallet not connected");
+// ==========================================
+// 🎨 UTILITY FUNCTIONS
+// ==========================================
 
-  const gameContract = TorqueDriftGame__factory.connect(
-    CONTRACT_ADDRESSES.TorqueDriftGame,
-    signer
-  );
-
-  try {
-    const tx = await gameContract.equipCar(carMint, slotIndex);
-    const receipt = await tx.wait();
-    console.log("Car equipped successfully:", receipt?.hash);
-    return receipt?.hash || tx.hash;
-  } catch (error) {
-    console.error("Transaction failed:", error);
-    throw error;
-  }
+function formatHashPower(hashPower: bigint | number): string {
+  const numHashPower =
+    typeof hashPower === "bigint" ? Number(hashPower) : hashPower;
+  const billions = numHashPower / 1_000_000_000;
+  if (billions >= 1) return `${billions.toFixed(2)}B HP`;
+  const millions = numHashPower / 1_000_000;
+  if (millions >= 1) return `${millions.toFixed(2)}M HP`;
+  return `${numHashPower.toLocaleString()} HP`;
 }
 
-async function onUnequipCar(
-  signer: any,
-  carAddress: string,
-  slotIndex: number
-) {
+function getCarCatalogData(rarity: number, version: number) {
+  const catalogMap: Record<string, any> = {
+    "0-0": {
+      name: "Chevrolet Bel Air 1955",
+      description:
+        "The classic American beauty from the 1950s. This rock 'n' roll era icon combines vintage elegance with reliable performance.",
+      image: "/images/common_0.png",
+      hashRange: [10, 18],
+      cooldown: 12,
+      dailyYield: 0.931,
+      roi: 12.53,
+    },
+    "0-1": {
+      name: "UNO With Stairs",
+      description:
+        "A modern and creative take on the classic Fiat Uno. This compact urban vehicle features external stairs for easy rooftop access.",
+      image: "/images/common_1.png",
+      hashRange: [15, 25],
+      cooldown: 11,
+      dailyYield: 1.33,
+      roi: 8.77,
+    },
+    "1-0": {
+      name: "Rare Vintage Car",
+      description:
+        "A rare gem from the vintage collection. This classic vehicle has been meticulously restored with attention to original details.",
+      image: "/images/rare_0.png",
+      hashRange: [26, 40],
+      cooldown: 9,
+      dailyYield: 2.194,
+      roi: 5.32,
+    },
+    "1-1": {
+      name: "Golf GTI 2025",
+      description:
+        "The ultimate evolution of the sporty hatchback. With cutting-edge technology and aerodynamic design.",
+      image: "/images/rare_1.png",
+      hashRange: [34, 50],
+      cooldown: 8,
+      dailyYield: 2.792,
+      roi: 4.18,
+    },
+    "2-0": {
+      name: "Epic Vintage Car",
+      description:
+        "A masterpiece of vintage engineering. This legendary vehicle combines classic elegance with modern modifications.",
+      image: "/images/epic_0.png",
+      hashRange: [51, 63],
+      cooldown: 6,
+      dailyYield: 3.79,
+      roi: 3.08,
+    },
+    "2-1": {
+      name: "Red Car",
+      description:
+        "A fiery red speedster that turns heads wherever it goes. Its vibrant color symbolizes passion and speed.",
+      image: "/images/epic_1.png",
+      hashRange: [60, 75],
+      cooldown: 5,
+      dailyYield: 4.488,
+      roi: 2.6,
+    },
+    "3-0": {
+      name: "Chevrolet Impala 1967",
+      description:
+        "The ultimate muscle car from the classic era. This 1967 Impala represents the pinnacle of American power.",
+      image: "/images/legendary_0.png",
+      hashRange: [76, 88],
+      cooldown: 4,
+      dailyYield: 5.452,
+      roi: 2.14,
+    },
+    "3-1": {
+      name: "Dodge Challenger Black 2023",
+      description:
+        "Absolute darkness meets maximum speed. This midnight black Challenger combines muscle car heritage with cutting-edge technology.",
+      image: "/images/legendary_1.png",
+      hashRange: [84, 100],
+      cooldown: 3,
+      dailyYield: 6.117,
+      roi: 1.91,
+    },
+  };
+
+  const key = `${rarity}-${version}`;
+  return catalogMap[key] || catalogMap["0-0"];
+}
+
+// ==========================================
+// 🔄 CONTRACT INTERACTIONS
+// ==========================================
+
+async function equipCar(signer: any, carMint: string, slotIndex: number) {
   if (!signer) throw new Error("Wallet not connected");
 
   const gameContract = TorqueDriftGame__factory.connect(
@@ -41,15 +125,35 @@ async function onUnequipCar(
     signer
   );
 
-  try {
-    const tx = await gameContract.unequipCar(carAddress, slotIndex);
-    const receipt = await tx.wait();
-    console.log("Car unequipped successfully:", receipt?.hash);
-    return receipt?.hash || tx.hash;
-  } catch (error) {
-    console.error("Transaction failed:", error);
-    throw error;
-  }
+  const tx = await gameContract.equipCar(carMint, slotIndex);
+  const receipt = await tx.wait();
+  return receipt?.hash || tx.hash;
+}
+
+async function unequipCar(signer: any, carAddress: string, slotIndex: number) {
+  if (!signer) throw new Error("Wallet not connected");
+
+  const gameContract = TorqueDriftGame__factory.connect(
+    CONTRACT_ADDRESSES.TorqueDriftGame,
+    signer
+  );
+
+  const tx = await gameContract.unequipCar(carAddress, slotIndex);
+  const receipt = await tx.wait();
+  return receipt?.hash || tx.hash;
+}
+
+async function performMaintenance(signer: any, carAddress: string) {
+  if (!signer) throw new Error("Wallet not connected");
+
+  const gameContract = TorqueDriftGame__factory.connect(
+    CONTRACT_ADDRESSES.TorqueDriftGame,
+    signer
+  );
+
+  const tx = await gameContract.performMaintenance(carAddress);
+  const receipt = await tx.wait();
+  return receipt?.hash || tx.hash;
 }
 
 export const useCarsInventory = (): UseCarsInventoryReturn => {
@@ -60,129 +164,175 @@ export const useCarsInventory = (): UseCarsInventoryReturn => {
   const [unequippingSlots, setUnequippingSlots] = useState<Set<number>>(
     new Set()
   );
+  const [maintainingCars, setMaintainingCars] = useState<Set<string>>(
+    new Set()
+  );
 
-  // Query para dados completos do inventário
-  const { data: inventoryData } = useQuery({
+  // ==========================================
+  // 📦 INVENTORY QUERY
+  // ==========================================
+  const {
+    data: inventoryData,
+    isLoading: inventoryLoading,
+    error: inventoryError,
+    refetch: refetchInventory,
+  } = useQuery({
     queryKey: ["userInventory", address],
     queryFn: async () => {
       if (!address || !signer) throw new Error("Wallet not connected");
 
-      try {
-        const provider = signer.provider || (signer as any).provider;
-        if (!provider) {
-          console.warn("No provider available for inventory query");
-          return null;
-        }
-
-        const viewsContract = TorqueDriftViews__factory.connect(
-          CONTRACT_ADDRESSES.TorqueDriftViews,
-          provider
-        );
-
-        const userInventory = await viewsContract.getUserInventory(address);
-
+      const provider = signer.provider || (signer as any).provider;
+      if (!provider) {
         return {
-          user: userInventory.user,
-          totalOwned: Number(userInventory.totalOwned),
-          totalInventoryHashPower: Number(
-            userInventory.totalInventoryHashPower
-          ),
-          equippedSlots: userInventory.equippedSlots.map((slot: bigint) =>
-            Number(slot)
-          ) as [number, number, number, number, number],
+          cars: [],
+          totalOwned: 0,
+          totalInventoryHashPower: 0,
+          totalInventoryHashPowerFormatted: "0 HP",
+          equippedSlots: [false, false, false, false, false],
         };
-      } catch (error) {
-        console.error("Error fetching user inventory data:", error);
-        return null;
       }
-    },
-    enabled: !!address && isConnected,
-    staleTime: 30000, // 30 seconds
-    gcTime: 300000, // 5 minutes
-    retry: 2,
-    retryDelay: 1000,
-  });
 
-  const {
-    data: cars = [],
-    isLoading,
-    error,
-    refetch: refetchCars,
-  } = useQuery<CarInventoryData[]>({
-    queryKey: ["carsInventory", address],
-    queryFn: async (): Promise<CarInventoryData[]> => {
-      if (!address || !signer) throw new Error("Wallet not connected");
+      const views = TorqueDriftViews__factory.connect(
+        CONTRACT_ADDRESSES.TorqueDriftViews,
+        provider
+      );
 
-      try {
-        const provider = signer.provider || (signer as any).provider;
-        if (!provider) {
-          console.warn("No provider available for inventory query");
-          return [];
-        }
+      const userInventoryViews = await views.getUserInventory(address);
+      const [
+        user,
+        ownedCars,
+        carsEfficiency,
+        totalOwned,
+        totalInventoryHashPower,
+        equippedSlots,
+      ] = userInventoryViews;
 
-        const carsContract = TorqueDriftCars__factory.connect(
-          CONTRACT_ADDRESSES.TorqueDriftCars,
-          provider
-        );
+      const cars: CarInventoryData[] = [];
+      for (const car of ownedCars) {
+        const rarity = Number(car.rarity) || 0;
+        const version = Number(car.version) || 0;
+        const catalogData = getCarCatalogData(rarity, version);
+        const slotIndexNum = Number(car.slotIndex);
+        const isEquipped = slotIndexNum < 5;
 
-        const userInventory = await carsContract.getUserInventory(address);
-
-        return userInventory.ownedCars.map((car: any, index: number) => {
-          const slotIndex = Number(car.slotIndex);
-          const isEquipped = slotIndex !== 255;
-          return {
-            mint: car.mint || `0x${index.toString().padStart(40, "0")}`,
-            rarity: (Number(car.rarity) || 0) as 0 | 1 | 2 | 3,
-            version: (Number(car.version) || 0) as 0 | 1,
-            hashPower: Number(car.hashPower) || 0,
-            owner: address || "",
-            isEquipped,
-            slotIndex: isEquipped ? slotIndex : undefined,
-            image: `/images/cars/${Number(car.rarity) || 0}.png`,
-            name: `Car #${index + 1}`,
-            description: "A racing car",
-            dailyYield: 0, // TODO: Calcular baseado no hashPower
-            cooldown: 0,
-            roi: 0,
-          };
+        cars.push({
+          mint: car.mint,
+          rarity: rarity as 0 | 1 | 2 | 3,
+          version: version as 0 | 1,
+          hashPower: Number(car.hashPower) || 0,
+          efficiency: Number(car.efficiency) / 100 || 0,
+          owner: address || "",
+          isEquipped,
+          slotIndex: isEquipped ? slotIndexNum : undefined,
+          image: catalogData.image,
+          name: catalogData.name,
+          description: catalogData.description,
+          dailyYield: catalogData.dailyYield,
+          cooldown: catalogData.cooldown,
+          roi: catalogData.roi,
         });
-      } catch (error) {
-        console.error("Error fetching user inventory:", error);
-        // Return empty array on error to prevent breaking the UI
-        return [];
       }
+
+      return {
+        cars,
+        totalOwned: Number(totalOwned),
+        totalInventoryHashPower: Number(totalInventoryHashPower),
+        totalInventoryHashPowerFormatted: formatHashPower(
+          totalInventoryHashPower
+        ),
+        equippedSlots: equippedSlots.map((slot) => Number(slot) === 1),
+      };
     },
     enabled: !!address && isConnected,
-    staleTime: 30000, // 30 seconds
-    gcTime: 300000, // 5 minutes
+    staleTime: 30000,
+    gcTime: 300000,
     retry: 2,
     retryDelay: 1000,
   });
 
-  const equippedCars = cars.filter((car) => car.isEquipped);
-  const unequippedCars = cars.filter((car) => !car.isEquipped);
-  const totalHashPower = cars.reduce((sum, car) => sum + car.hashPower, 0);
-  const equippedHashPower = equippedCars.reduce(
-    (sum, car) => sum + car.hashPower,
-    0
+  // ==========================================
+  // 🎯 EQUIPPED SLOTS DATA
+  // ==========================================
+  const equippedSlotsData = React.useMemo(() => {
+    if (!inventoryData?.cars) {
+      return {
+        slots: new Array(5).fill(null).map((_, i) => ({
+          slotIndex: i,
+          isEmpty: true,
+          car: null,
+        })),
+        totalEquipped: 0,
+        totalHashPower: 0,
+        totalHashPowerFormatted: "0 HP",
+      };
+    }
+
+    const slots: any[] = new Array(5).fill(null).map((_, i) => ({
+      slotIndex: i,
+      isEmpty: true,
+      car: null,
+    }));
+
+    const equippedCars = inventoryData.cars.filter((car) => car.isEquipped);
+
+    equippedCars.forEach((car) => {
+      if (
+        car.slotIndex !== undefined &&
+        car.slotIndex >= 0 &&
+        car.slotIndex < 5
+      ) {
+        slots[car.slotIndex] = {
+          slotIndex: car.slotIndex,
+          isEmpty: false,
+          car: car,
+        };
+      }
+    });
+
+    const totalHashPower = equippedCars.reduce(
+      (sum, car) => sum + car.hashPower,
+      0
+    );
+
+    return {
+      slots,
+      totalEquipped: equippedCars.length,
+      totalHashPower,
+      totalHashPowerFormatted: formatHashPower(totalHashPower),
+    };
+  }, [inventoryData?.cars]);
+
+  // ==========================================
+  // 📊 CAR STATISTICS
+  // ==========================================
+  const allCars = inventoryData?.cars || [];
+  const equippedCars = allCars.filter((car) => car.isEquipped);
+  const unequippedCars = allCars.filter((car) => !car.isEquipped);
+
+  const carStats = useMemo(
+    () => ({
+      totalCars: allCars.length,
+      equippedCars: equippedCars.length,
+      unequippedCars: unequippedCars.length,
+      totalHashPower: inventoryData?.totalInventoryHashPower || 0,
+      equippedHashPower: equippedSlotsData?.totalHashPower || 0,
+      unequippedHashPower:
+        (inventoryData?.totalInventoryHashPower || 0) -
+        (equippedSlotsData?.totalHashPower || 0),
+      rarityCount: allCars.reduce((acc, car) => {
+        acc[car.rarity] = (acc[car.rarity] || 0) + 1;
+        return acc;
+      }, {} as Record<number, number>),
+    }),
+    [
+      allCars,
+      equippedCars.length,
+      unequippedCars.length,
+      inventoryData?.totalInventoryHashPower,
+      equippedSlotsData?.totalHashPower,
+    ]
   );
-
-  // Car stats
-  const carStats = {
-    totalCars: cars.length,
-    equippedCars: equippedCars.length,
-    unequippedCars: unequippedCars.length,
-    totalHashPower,
-    equippedHashPower,
-    unequippedHashPower: totalHashPower - equippedHashPower,
-    rarityCount: cars.reduce((acc, car) => {
-      const rarityNames = ["Common", "Rare", "Epic", "Legendary"];
-      const rarityName = rarityNames[car.rarity] || "Common";
-      acc[rarityName] = (acc[rarityName] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>),
-  };
-
+  
   const equipMutation = useMutation({
     mutationFn: async ({
       car,
@@ -197,19 +347,12 @@ export const useCarsInventory = (): UseCarsInventoryReturn => {
           throw new Error("Wallet not connected or signer not available");
         }
 
-        if (car.isEquipped) {
-          throw new Error("Car is already equipped");
-        }
-
-        if (
-          inventoryData?.equippedSlots &&
-          inventoryData.equippedSlots[slotIndex] === 1
-        ) {
+        if (equippedSlotsData?.slots[slotIndex]?.isEmpty === false) {
           throw new Error("Slot is already occupied");
         }
 
-        const equipTxSignature = await onEquipCar(signer, car.mint, slotIndex);
-        await refetchCars();
+        const equipTxSignature = await equipCar(signer, car.mint, slotIndex);
+        await refetchInventory();
         toast.success(`Car equipped successfully in slot ${slotIndex + 1}!`);
         return { equipTxSignature };
       } finally {
@@ -221,9 +364,7 @@ export const useCarsInventory = (): UseCarsInventoryReturn => {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["carsInventory", address],
-      });
+      queryClient.invalidateQueries({ queryKey: ["userInventory", address] });
     },
     onError: (error) => {
       toast.error(
@@ -242,19 +383,17 @@ export const useCarsInventory = (): UseCarsInventoryReturn => {
           throw new Error("Wallet not connected or signer not available");
         }
 
-        const equippedCar = equippedCars.find(
-          (car) => car.slotIndex === slotIndex
-        );
+        const equippedCar = equippedSlotsData?.slots[slotIndex]?.car;
         if (!equippedCar) {
           throw new Error(`No car equipped in slot ${slotIndex}`);
         }
 
-        const unequipTxSignature = await onUnequipCar(
+        const unequipTxSignature = await unequipCar(
           signer,
           equippedCar.mint,
           slotIndex
         );
-        await refetchCars();
+        await refetchInventory();
         toast.success(
           `Car unequipped successfully from slot ${slotIndex + 1}!`
         );
@@ -269,9 +408,7 @@ export const useCarsInventory = (): UseCarsInventoryReturn => {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["carsInventory", address],
-      });
+      queryClient.invalidateQueries({ queryKey: ["userInventory", address] });
     },
     onError: (error) => {
       toast.error(
@@ -282,6 +419,47 @@ export const useCarsInventory = (): UseCarsInventoryReturn => {
     },
   });
 
+  // ==========================================
+  // 🔧 MAINTENANCE MUTATION
+  // ==========================================
+  const maintenanceMutation = useMutation({
+    mutationFn: async ({ carMint }: { carMint: string }) => {
+      setMaintainingCars((prev) => new Set([...prev, carMint]));
+      try {
+        if (!signer || !isConnected || !address) {
+          throw new Error("Wallet not connected or signer not available");
+        }
+
+        const maintenanceTxSignature = await performMaintenance(
+          signer,
+          carMint
+        );
+        await refetchInventory();
+        toast.success("Car maintenance completed successfully!");
+        return { maintenanceTxSignature };
+      } finally {
+        setMaintainingCars((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(carMint);
+          return newSet;
+        });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["userInventory", address] });
+    },
+    onError: (error) => {
+      toast.error(
+        `Failed to perform maintenance: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
+    },
+  });
+
+  // ==========================================
+  // 🎯 CALLBACK FUNCTIONS
+  // ==========================================
   const equip = useCallback(
     (car: CarInventoryData, slotIndex: number) => {
       equipMutation.mutate({ car, slotIndex });
@@ -296,32 +474,15 @@ export const useCarsInventory = (): UseCarsInventoryReturn => {
     [unequipMutation]
   );
 
-  const getEquippedCount = useCallback(() => {
-    return equippedCars.length;
-  }, [equippedCars]);
-
-  const getTotalHashPower = useCallback(() => {
-    return equippedCars.reduce((total, car) => {
-      return total + (car?.hashPower || 0);
-    }, 0);
-  }, [equippedCars]);
-
   const isSlotEquipping = useCallback(
     (slotIndex: number) => equippingSlots.has(slotIndex),
     [equippingSlots]
   );
 
   const isSlotOccupied = useCallback(
-    (slotIndex: number) => {
-      // First check if we have inventory data with equippedSlots
-      if (inventoryData?.equippedSlots) {
-        return inventoryData.equippedSlots[slotIndex] === 1;
-      }
-
-      // Fallback: check if any car is equipped in this slot
-      return equippedCars.some((car) => car.slotIndex === slotIndex);
-    },
-    [inventoryData?.equippedSlots, equippedCars]
+    (slotIndex: number) =>
+      equippedSlotsData?.slots[slotIndex]?.isEmpty === false,
+    [equippedSlotsData]
   );
 
   const isSlotUnequipping = useCallback(
@@ -329,41 +490,69 @@ export const useCarsInventory = (): UseCarsInventoryReturn => {
     [unequippingSlots]
   );
 
+  const performCarMaintenance = useCallback(
+    (carMint: string) => {
+      maintenanceMutation.mutate({ carMint });
+    },
+    [maintenanceMutation]
+  );
+
+  const isCarUnderMaintenance = useCallback(
+    (carMint: string) => maintainingCars.has(carMint),
+    [maintainingCars]
+  );
+
+  // ==========================================
+  // 📤 RETURN OBJECT
+  // ==========================================
   return {
-    cars,
+    // Car collections
+    cars: allCars,
     equippedCars,
     unequippedCars,
 
+    // Statistics
     carStats,
+    equippedSlotsData,
 
-    // Dados do inventário completo
+    // Inventory totals
     inventoryData,
-    totalOwned: inventoryData?.totalOwned || cars.length,
-    totalInventoryHashPower:
-      inventoryData?.totalInventoryHashPower || totalHashPower,
-    equippedSlots: inventoryData?.equippedSlots || [0, 0, 0, 0, 0],
+    totalOwned: inventoryData?.totalOwned || 0,
+    totalInventoryHashPower: inventoryData?.totalInventoryHashPower || 0,
 
-    isLoading,
-    error,
-    refetch: refetchCars,
+    // State management
+    isLoading: inventoryLoading,
+    error: inventoryError,
+    refetch: refetchInventory,
 
-    hasCars: cars.length > 0,
+    // Boolean flags
+    hasCars: allCars.length > 0,
     hasEquippedCars: equippedCars.length > 0,
     hasUnequippedCars: unequippedCars.length > 0,
 
+    // Actions
     equip,
     unequip,
-    getEquippedCount,
-    getTotalHashPower,
+    performCarMaintenance,
+    getEquippedCount: () => equippedSlotsData?.totalEquipped || 0,
+    getTotalHashPower: () => equippedSlotsData?.totalHashPower || 0,
+
+    // Slot states
     isSlotEquipping,
     isSlotUnequipping,
     isSlotOccupied,
+    isCarUnderMaintenance,
 
+    // Mutation states
     equipData: equipMutation.data,
     unequipData: unequipMutation.data,
+    maintenanceData: maintenanceMutation.data,
     isEquipping: equipMutation.isPending,
     isUnequipping: unequipMutation.isPending,
+    isMaintaining: maintenanceMutation.isPending,
     equipError: equipMutation.error,
     unequipError: unequipMutation.error,
+    maintenanceError: maintenanceMutation.error,
   };
 };
+

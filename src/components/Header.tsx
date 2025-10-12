@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import Image from "next/image";
 import { Button } from "./Button";
-import { useTokenBalances } from "@/hooks";
+import { useTokenBalances } from "@/hooks/useTokenBalances";
 
 const Header: React.FC = () => {
   const { formattedTodBalance, formattedBnbBalance, isLoading } =
@@ -35,6 +35,12 @@ const Header: React.FC = () => {
             className="font-be-vietnam-pro text-[#B5B2BC] hover:text-[#FFFFFF] transition-colors duration-200 text-base"
           >
             Garage
+          </Link>
+          <Link
+            href="/store"
+            className="font-be-vietnam-pro text-[#B5B2BC] hover:text-[#FFFFFF] transition-colors duration-200 text-base"
+          >
+            Store
           </Link>
           <Link
             href="https://torque-drift.gitbook.io/torque-drift-docs"

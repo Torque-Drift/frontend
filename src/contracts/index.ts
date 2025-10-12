@@ -3,10 +3,12 @@
 /* eslint-disable */
 export type { TorqueDriftCars } from "./TorqueDriftCars";
 export type { TorqueDriftGame } from "./TorqueDriftGame";
+export type { TorqueDriftGameCore } from "./TorqueDriftGameCore";
 export type { TorqueDriftToken } from "./TorqueDriftToken";
 export type { TorqueDriftViews } from "./TorqueDriftViews";
 export * as factories from "./factories";
 export { TorqueDriftCars__factory } from "./factories/TorqueDriftCars__factory";
 export { TorqueDriftGame__factory } from "./factories/TorqueDriftGame__factory";
+export { TorqueDriftGameCore__factory } from "./factories/TorqueDriftGameCore__factory";
 export { TorqueDriftToken__factory } from "./factories/TorqueDriftToken__factory";
 export { TorqueDriftViews__factory } from "./factories/TorqueDriftViews__factory";

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import {
   DndContext,
@@ -12,15 +12,17 @@ import { Street } from "@/components/Street";
 import { useCarsInventory } from "@/hooks/useCarsInventory";
 import {
   HeaderStats,
-  CarAcquisition,
   MiningStats,
   YourCars,
   EquipmentSlots,
   MaintenanceSection,
   ClaimSection,
+  ClaimLockSection,
   GamblingSection,
 } from "@/components/garage";
 import { useInitializeGame } from "@/hooks/useInitializeGame";
+import { useTokenBalances } from "@/hooks/useTokenBalances";
+import { useUserData } from "@/hooks/useUserData";
 import toast from "react-hot-toast";
 import { Button } from "@/components/Button";
 import { Loader } from "@/components/Loader";
@@ -51,10 +53,6 @@ interface MiningStats {
 }
 
 export default function GaragePage() {
-  const [userBalance, setUserBalance] = useState(1250.5);
-  const [todBalance, setTodBalance] = useState(0);
-  const [selectedBoxPrice, setSelectedBoxPrice] = useState(100);
-  const [gamblingAmount, setGamblingAmount] = useState(10);
   const [referrerInput, setReferrerInput] = useState("");
 
   // Hook para verificar e inicializar usuário
@@ -66,48 +64,51 @@ export default function GaragePage() {
     initializeError,
   } = useInitializeGame();
 
+  // Hooks para dados reais do contrato
+  const { todBalance } = useTokenBalances();
+  const { data: userData } = useUserData();
+
   const {
     cars: allCars = [],
     equippedCars,
     unequippedCars,
     carStats,
+    equippedSlotsData,
     isLoading: carsLoading,
     error: carsError,
     hasUnequippedCars,
     equip,
     unequip,
+    performCarMaintenance,
     getEquippedCount,
     getTotalHashPower,
     isSlotEquipping,
     isSlotUnequipping,
+    isCarUnderMaintenance,
   } = useCarsInventory();
 
-  const [miningStats, setMiningStats] = useState<MiningStats>({
-    totalHp: getTotalHashPower(),
-    currentYield: getTotalHashPower() * 0.05, // Base rate calculation
-    nextClaimTime: Date.now() + 3600000,
-    lockBoost: 7,
-    globalBaseRate: 0.05,
-  });
+  // Mining stats calculados dos dados reais do contrato
+  const miningStats: MiningStats = useMemo(
+    () => ({
+      totalHp: getTotalHashPower(),
+      currentYield: userData?.claimableAmount || 0,
+      nextClaimTime: (userData?.nextClaimTime || 0) * 1000, // Convert to milliseconds
+      lockBoost: 7, // TODO: Get from contract
+      globalBaseRate: 0.05, // TODO: Get from contract
+    }),
+    [getTotalHashPower, userData]
+  );
 
-  // Helper function to convert equipped cars to slots format (5 positions)
-  const convertEquippedToSlots = (
-    equippedCars: CarInventoryData[]
-  ): (CarInventoryData | null)[] => {
-    const slots: (CarInventoryData | null)[] = new Array(5).fill(null);
+  // Helper function to convert equipped slots data to slots format (5 positions)
+  const convertEquippedToSlots = (): (CarInventoryData | null)[] => {
+    if (!equippedSlotsData?.slots) {
+      return new Array(5).fill(null);
+    }
 
-    // Place each car in its correct slot based on slotIndex
-    equippedCars.forEach((car) => {
-      if (
-        car.slotIndex !== undefined &&
-        car.slotIndex >= 0 &&
-        car.slotIndex < 5
-      ) {
-        slots[car.slotIndex] = car;
-      }
-    });
-
-    return slots;
+    // Convert from new format to expected format
+    return equippedSlotsData.slots.map((slot: any) =>
+      slot.isEmpty ? null : slot.car
+    );
   };
 
   const getRarityColor = (rarity: number) => {
@@ -139,7 +140,6 @@ export default function GaragePage() {
     if (activeId.startsWith("car-") && overId.startsWith("slot-")) {
       const carMint = activeId.replace("car-", "");
       const slotIndex = parseInt(overId.replace("slot-", ""));
-
       const car = allCars.find((c) => c.mint === carMint);
       if (car) {
         equip(car, slotIndex);
@@ -147,39 +147,6 @@ export default function GaragePage() {
       }
     }
   };
-
-  const getMaintenanceStatus = (car: Car) => {
-    const now = new Date();
-    const dueTime = car.maintenanceDue?.getTime() || 0;
-    const daysUntilDue = Math.ceil(
-      (dueTime - now.getTime()) / (24 * 60 * 60 * 1000)
-    );
-
-    if (car.isBlocked)
-      return { text: "OVERDUE - BLOCKED", color: "text-red-400" };
-    if (daysUntilDue <= 0) return { text: "Due Now", color: "text-orange-400" };
-    if (daysUntilDue <= 2)
-      return { text: `${daysUntilDue} days`, color: "text-yellow-400" };
-    return { text: `${daysUntilDue} days`, color: "text-green-400" };
-  };
-
-  if (checkingUser) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="text-center"
-        >
-          <Loader height={100} width={100} className="mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-[#EEEEF0] mb-2">
-            Checking Account Status...
-          </h2>
-          <p className="text-[#B5B2BC]">Verifying your Torque Drift account</p>
-        </motion.div>
-      </div>
-    );
-  }
 
   if (!userExists) {
     return (
@@ -272,7 +239,7 @@ export default function GaragePage() {
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      <div className="flex flex-col bg-[#121113] pt-24 relative overflow-hidden">
+      <div className="flex flex-col bg-[#121113] pt-20 relative overflow-hidden">
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500/8 rounded-full blur-3xl animate-pulse"></div>
           <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-blue-500/6 rounded-full blur-3xl animate-pulse delay-1000"></div>
@@ -282,21 +249,8 @@ export default function GaragePage() {
 
         {/* Content overlay for readability */}
         <div className="flex flex-col relative min-h-screen py-8">
-          {/* Compact Header Stats */}
-          <HeaderStats
-            userBalance={userBalance}
-            todBalance={todBalance}
-            miningStats={miningStats}
-          />
-
           {/* Main Content - Vertical Flow */}
           <div className="space-y-6 max-w-7xl mx-auto px-4 sm:px-0 w-full mb-6">
-            {/* Car Acquisition */}
-            <CarAcquisition
-              selectedBoxPrice={selectedBoxPrice}
-              setSelectedBoxPrice={setSelectedBoxPrice}
-            />
-
             {/* Mining Stats */}
             <MiningStats miningStats={miningStats} />
 
@@ -316,12 +270,14 @@ export default function GaragePage() {
               </div>
 
               <EquipmentSlots
-                equippedCars={convertEquippedToSlots(equippedCars)}
+                equippedCars={convertEquippedToSlots()}
                 onEquip={equip}
                 onUnequip={unequip}
+                onPerformMaintenance={performCarMaintenance}
                 getRarityColor={getRarityColor}
                 isSlotEquipping={isSlotEquipping}
                 isSlotUnequipping={isSlotUnequipping}
+                isCarUnderMaintenance={isCarUnderMaintenance}
               />
 
               <div className="mt-4 text-center">
@@ -343,30 +299,16 @@ export default function GaragePage() {
             />
 
             {/* Actions Row */}
-            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-              {/* Maintenance & Overclock */}
-              <MaintenanceSection
-                cars={[]}
-                todBalance={todBalance}
-                setTodBalance={setTodBalance}
-                setCars={() => {}}
-                performMaintenance={() => {}}
-                toggleOverclock={() => {}}
-                getMaintenanceStatus={getMaintenanceStatus}
-              />
-
-              {/* Claim & Mint */}
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+              {/* Claim */}
               <ClaimSection
                 todBalance={todBalance}
-                setTodBalance={setTodBalance}
+                setTodBalance={() => {}} // Not used since we have real data
                 equippedCars={equippedCars}
               />
 
-              {/* Gambling */}
-              <GamblingSection
-                gamblingAmount={gamblingAmount}
-                setGamblingAmount={setGamblingAmount}
-              />
+              {/* Claim Lock */}
+              <ClaimLockSection />
             </div>
           </div>
         </div>
@@ -379,3 +321,4 @@ export default function GaragePage() {
     </DndContext>
   );
 }
+

@@ -1,6 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { useClaim, usePreviewClaim } from "@/hooks/useClaim";
+import { useClaimLock } from "@/hooks/useClaimLock";
 import { Button } from "../Button";
 import { Loader } from "@/components/Loader";
 import { useQueryClient } from "@tanstack/react-query";
@@ -38,9 +39,7 @@ export const ClaimSection: React.FC<ClaimSectionProps> = ({ equippedCars }) => {
     error: previewError,
   } = usePreviewClaim();
 
-  // Informações de penalidade
-  const hasPenalty = previewData?.hasPenalty ?? false;
-  const penaltyDescription = previewData?.penaltyDescription ?? "";
+  const { lockState } = useClaimLock();
 
   // Estimativa ao vivo que aumenta com o tempo
   React.useEffect(() => {
@@ -62,6 +61,14 @@ export const ClaimSection: React.FC<ClaimSectionProps> = ({ equippedCars }) => {
   }, [previewData?.hashPower, previewData?.lastClaim]);
 
   const { onClaim, isLoading: claimLoading, isClaiming } = useClaim();
+
+  // Controle de claim lock
+  const hasActiveLock = lockState?.hasActiveLock ?? false;
+  const isClaimDisabled = isClaiming || hasActiveLock;
+
+  // Informações de penalidade
+  const hasPenalty = previewData?.hasPenalty ?? false;
+  const penaltyDescription = previewData?.penaltyDescription ?? "";
 
   // Function to refresh claim data
   const handleRefreshData = async () => {
@@ -252,15 +259,25 @@ export const ClaimSection: React.FC<ClaimSectionProps> = ({ equippedCars }) => {
             <div className="flex justify-between border-t border-[#49474E] pt-2 mt-2">
               <span className="text-[#EEEEF0] font-medium">Total Boost:</span>
               <span className="text-green-400 font-bold">
-                +{previewData?.totalBoost ?? 0}%
+                +{previewData?.totalBoost.toFixed(2) ?? 0}%
               </span>
             </div>
           )}
         </div>
 
+        {/* Mensagem explicativa quando há lock ativo */}
+        {hasActiveLock && (
+          <div className="mb-3 p-3 bg-[#ff6b6b]/10 border border-[#ff6b6b]/30 rounded-lg">
+            <p className="text-sm text-[#ff6b6b]">
+              Claim is locked due to active Claim Lock. Normal claims are
+              disabled during lock period.
+            </p>
+          </div>
+        )}
+
         <div className="flex gap-2 mb-4 h-full">
           <Button
-            disabled={isClaiming}
+            disabled={isClaimDisabled}
             className="flex-1"
             onClick={async () => {
               try {
@@ -279,6 +296,8 @@ export const ClaimSection: React.FC<ClaimSectionProps> = ({ equippedCars }) => {
           >
             {isClaiming
               ? "Claiming..."
+              : hasActiveLock
+              ? "Claim Locked"
               : claimLoading
               ? "Processing..."
               : hasPenalty
@@ -345,7 +364,7 @@ export const ClaimSection: React.FC<ClaimSectionProps> = ({ equippedCars }) => {
               <div className="flex justify-between">
                 <span className="text-[#888]">Total Claimed:</span>
                 <span className="text-[#EEEEF0]">
-                  {previewData.totalClaimed?.toFixed(4) || "0"} $TOD
+                  {previewData.totalClaimed?.toFixed(2) || "0"} $TOD
                 </span>
               </div>
             )}
@@ -361,9 +380,9 @@ export const ClaimSection: React.FC<ClaimSectionProps> = ({ equippedCars }) => {
             {previewData?.referralEarnings !== undefined &&
               previewData.referralEarnings > 0 && (
                 <div className="flex justify-between">
-                  <span className="text-[#888]">Referral Earnings:</span>
+                  <span className="text-[#888]">Referral Boost:</span>
                   <span className="text-[#EEEEF0]">
-                    {previewData.referralEarnings?.toFixed(4) || "0"} $TOD
+                    {previewData.referralEarnings?.toFixed(2) || "0"}%
                   </span>
                 </div>
               )}
@@ -372,7 +391,7 @@ export const ClaimSection: React.FC<ClaimSectionProps> = ({ equippedCars }) => {
                 <div className="flex justify-between">
                   <span className="text-[#888]">Total Boost:</span>
                   <span className="text-[#EEEEF0]">
-                    {previewData.totalBoost?.toFixed(4) || "0"} $TOD
+                    {previewData.totalBoost?.toFixed(2) || "0"}%
                   </span>
                 </div>
               )}
@@ -396,3 +415,4 @@ export const ClaimSection: React.FC<ClaimSectionProps> = ({ equippedCars }) => {
     </motion.div>
   );
 };
+

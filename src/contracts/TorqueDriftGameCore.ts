@@ -220,7 +220,7 @@ export declare namespace ITorqueDriftStructs {
   };
 }
 
-export interface TorqueDriftGameInterface extends Interface {
+export interface TorqueDriftGameCoreInterface extends Interface {
   getFunction(
     nameOrSignature:
       | "DEFAULT_TIMELOCK_DURATION"
@@ -238,19 +238,14 @@ export interface TorqueDriftGameInterface extends Interface {
       | "SECONDS_PER_HOUR"
       | "activateClaimLock"
       | "advancedContract"
-      | "calculateMaintenanceCost"
-      | "calculateTotalReward"
       | "carsContract"
       | "claimTokens"
-      | "createAdditionalCar"
       | "deactivateClaimLock"
       | "emergencyRescueTokens"
       | "equipCar"
       | "equippedCars"
       | "gambleDiscount"
-      | "getCarEfficiencyInfo"
       | "getGlobalState"
-      | "getReferralInfo"
       | "getUserCars"
       | "getUserEquippedCars"
       | "getUserInfo"
@@ -258,14 +253,10 @@ export interface TorqueDriftGameInterface extends Interface {
       | "globalState"
       | "hasActiveClaimLock"
       | "initializeStartGame"
-      | "payMaintenance"
-      | "performMaintenance"
       | "previewClaim"
       | "referralCounts"
       | "referrals"
-      | "resetExpiredBoosts"
       | "setAdvancedContract"
-      | "setBaseRate"
       | "tokenContract"
       | "treasuryWallet"
       | "unequipCar"
@@ -281,10 +272,7 @@ export interface TorqueDriftGameInterface extends Interface {
       | "CarEquipped"
       | "CarMaintenance"
       | "CarUnequipped"
-      | "ClaimLockActivated"
-      | "ClaimLockDeactivated"
       | "ClockDriftToleranceUpdated"
-      | "GambleResult"
       | "GameStarted"
       | "HalvingTriggered"
       | "MinClaimCooldownUpdated"
@@ -355,34 +343,12 @@ export interface TorqueDriftGameInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "calculateMaintenanceCost",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "calculateTotalReward",
-    values: [
-      BigNumberish,
-      BigNumberish,
-      BigNumberish,
-      BigNumberish,
-      BigNumberish,
-      BigNumberish,
-      BigNumberish,
-      BigNumberish,
-      BigNumberish
-    ]
-  ): string;
-  encodeFunctionData(
     functionFragment: "carsContract",
     values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "claimTokens",
     values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "createAdditionalCar",
-    values: [AddressLike, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "deactivateClaimLock",
@@ -405,16 +371,8 @@ export interface TorqueDriftGameInterface extends Interface {
     values: [BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "getCarEfficiencyInfo",
-    values: [AddressLike, AddressLike]
-  ): string;
-  encodeFunctionData(
     functionFragment: "getGlobalState",
     values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getReferralInfo",
-    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "getUserCars",
@@ -445,14 +403,6 @@ export interface TorqueDriftGameInterface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "payMaintenance",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "performMaintenance",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
     functionFragment: "previewClaim",
     values: [AddressLike]
   ): string;
@@ -465,16 +415,8 @@ export interface TorqueDriftGameInterface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "resetExpiredBoosts",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "setAdvancedContract",
     values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setBaseRate",
-    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "tokenContract",
@@ -554,23 +496,11 @@ export interface TorqueDriftGameInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "calculateMaintenanceCost",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "calculateTotalReward",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "carsContract",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "claimTokens",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "createAdditionalCar",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -591,15 +521,7 @@ export interface TorqueDriftGameInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getCarEfficiencyInfo",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "getGlobalState",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getReferralInfo",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -631,14 +553,6 @@ export interface TorqueDriftGameInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "payMaintenance",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "performMaintenance",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "previewClaim",
     data: BytesLike
   ): Result;
@@ -648,15 +562,7 @@ export interface TorqueDriftGameInterface extends Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "referrals", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "resetExpiredBoosts",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "setAdvancedContract",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setBaseRate",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -836,74 +742,12 @@ export namespace CarUnequippedEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
-export namespace ClaimLockActivatedEvent {
-  export type InputTuple = [
-    user: AddressLike,
-    lockOption: BigNumberish,
-    unlockTime: BigNumberish,
-    boostPercent: BigNumberish
-  ];
-  export type OutputTuple = [
-    user: string,
-    lockOption: bigint,
-    unlockTime: bigint,
-    boostPercent: bigint
-  ];
-  export interface OutputObject {
-    user: string;
-    lockOption: bigint;
-    unlockTime: bigint;
-    boostPercent: bigint;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace ClaimLockDeactivatedEvent {
-  export type InputTuple = [user: AddressLike];
-  export type OutputTuple = [user: string];
-  export interface OutputObject {
-    user: string;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
 export namespace ClockDriftToleranceUpdatedEvent {
   export type InputTuple = [oldValue: BigNumberish, newValue: BigNumberish];
   export type OutputTuple = [oldValue: bigint, newValue: bigint];
   export interface OutputObject {
     oldValue: bigint;
     newValue: bigint;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace GambleResultEvent {
-  export type InputTuple = [
-    user: AddressLike,
-    gamblePercent: BigNumberish,
-    success: boolean,
-    discount: BigNumberish
-  ];
-  export type OutputTuple = [
-    user: string,
-    gamblePercent: bigint,
-    success: boolean,
-    discount: bigint
-  ];
-  export interface OutputObject {
-    user: string;
-    gamblePercent: bigint;
-    success: boolean;
-    discount: bigint;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -1049,11 +893,11 @@ export namespace TreasuryWalletUpdatedEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
-export interface TorqueDriftGame extends BaseContract {
-  connect(runner?: ContractRunner | null): TorqueDriftGame;
+export interface TorqueDriftGameCore extends BaseContract {
+  connect(runner?: ContractRunner | null): TorqueDriftGameCore;
   waitForDeployment(): Promise<this>;
 
-  interface: TorqueDriftGameInterface;
+  interface: TorqueDriftGameCoreInterface;
 
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
@@ -1126,37 +970,9 @@ export interface TorqueDriftGame extends BaseContract {
 
   advancedContract: TypedContractMethod<[], [string], "view">;
 
-  calculateMaintenanceCost: TypedContractMethod<
-    [carAddress: AddressLike],
-    [[bigint, boolean] & { cost: bigint; canMaintain: boolean }],
-    "view"
-  >;
-
-  calculateTotalReward: TypedContractMethod<
-    [
-      effectiveHashPower: BigNumberish,
-      lockUnlockTime: BigNumberish,
-      lockBoostPercent: BigNumberish,
-      referralBoostPercent: BigNumberish,
-      referralBoostStartTime: BigNumberish,
-      referralBoostDuration: BigNumberish,
-      baseRate: BigNumberish,
-      elapsedTime: BigNumberish,
-      currentTime: BigNumberish
-    ],
-    [bigint],
-    "view"
-  >;
-
   carsContract: TypedContractMethod<[], [string], "view">;
 
   claimTokens: TypedContractMethod<[], [void], "payable">;
-
-  createAdditionalCar: TypedContractMethod<
-    [user: AddressLike, rarity: BigNumberish, version: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
 
   deactivateClaimLock: TypedContractMethod<[], [void], "nonpayable">;
 
@@ -1194,39 +1010,9 @@ export interface TorqueDriftGame extends BaseContract {
     "nonpayable"
   >;
 
-  getCarEfficiencyInfo: TypedContractMethod<
-    [user: AddressLike, carAddress: AddressLike],
-    [
-      [bigint, bigint, bigint, bigint, bigint] & {
-        currentEfficiency: bigint;
-        effectiveHashPower: bigint;
-        maintenanceCost: bigint;
-        timeUntilNextMaintenance: bigint;
-        currentDailyYield: bigint;
-      }
-    ],
-    "view"
-  >;
-
   getGlobalState: TypedContractMethod<
     [],
     [ITorqueDriftStructs.GlobalStateStructOutput],
-    "view"
-  >;
-
-  getReferralInfo: TypedContractMethod<
-    [user: AddressLike],
-    [
-      [string, bigint, bigint, bigint, bigint, bigint, bigint] & {
-        referrer_: string;
-        referralEarnings_: bigint;
-        referralCount_: bigint;
-        discount_: bigint;
-        boostPercent_: bigint;
-        boostStartTime_: bigint;
-        boostDuration_: bigint;
-      }
-    ],
     "view"
   >;
 
@@ -1382,18 +1168,6 @@ export interface TorqueDriftGame extends BaseContract {
     "payable"
   >;
 
-  payMaintenance: TypedContractMethod<
-    [carAddress: AddressLike],
-    [void],
-    "nonpayable"
-  >;
-
-  performMaintenance: TypedContractMethod<
-    [carAddress: AddressLike],
-    [void],
-    "nonpayable"
-  >;
-
   previewClaim: TypedContractMethod<
     [user: AddressLike],
     [
@@ -1411,16 +1185,8 @@ export interface TorqueDriftGame extends BaseContract {
 
   referrals: TypedContractMethod<[arg0: AddressLike], [string], "view">;
 
-  resetExpiredBoosts: TypedContractMethod<[], [void], "nonpayable">;
-
   setAdvancedContract: TypedContractMethod<
     [_advancedContract: AddressLike],
-    [void],
-    "nonpayable"
-  >;
-
-  setBaseRate: TypedContractMethod<
-    [newRate: BigNumberish],
     [void],
     "nonpayable"
   >;
@@ -1535,42 +1301,11 @@ export interface TorqueDriftGame extends BaseContract {
     nameOrSignature: "advancedContract"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
-    nameOrSignature: "calculateMaintenanceCost"
-  ): TypedContractMethod<
-    [carAddress: AddressLike],
-    [[bigint, boolean] & { cost: bigint; canMaintain: boolean }],
-    "view"
-  >;
-  getFunction(
-    nameOrSignature: "calculateTotalReward"
-  ): TypedContractMethod<
-    [
-      effectiveHashPower: BigNumberish,
-      lockUnlockTime: BigNumberish,
-      lockBoostPercent: BigNumberish,
-      referralBoostPercent: BigNumberish,
-      referralBoostStartTime: BigNumberish,
-      referralBoostDuration: BigNumberish,
-      baseRate: BigNumberish,
-      elapsedTime: BigNumberish,
-      currentTime: BigNumberish
-    ],
-    [bigint],
-    "view"
-  >;
-  getFunction(
     nameOrSignature: "carsContract"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "claimTokens"
   ): TypedContractMethod<[], [void], "payable">;
-  getFunction(
-    nameOrSignature: "createAdditionalCar"
-  ): TypedContractMethod<
-    [user: AddressLike, rarity: BigNumberish, version: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
   getFunction(
     nameOrSignature: "deactivateClaimLock"
   ): TypedContractMethod<[], [void], "nonpayable">;
@@ -1613,42 +1348,10 @@ export interface TorqueDriftGame extends BaseContract {
     "nonpayable"
   >;
   getFunction(
-    nameOrSignature: "getCarEfficiencyInfo"
-  ): TypedContractMethod<
-    [user: AddressLike, carAddress: AddressLike],
-    [
-      [bigint, bigint, bigint, bigint, bigint] & {
-        currentEfficiency: bigint;
-        effectiveHashPower: bigint;
-        maintenanceCost: bigint;
-        timeUntilNextMaintenance: bigint;
-        currentDailyYield: bigint;
-      }
-    ],
-    "view"
-  >;
-  getFunction(
     nameOrSignature: "getGlobalState"
   ): TypedContractMethod<
     [],
     [ITorqueDriftStructs.GlobalStateStructOutput],
-    "view"
-  >;
-  getFunction(
-    nameOrSignature: "getReferralInfo"
-  ): TypedContractMethod<
-    [user: AddressLike],
-    [
-      [string, bigint, bigint, bigint, bigint, bigint, bigint] & {
-        referrer_: string;
-        referralEarnings_: bigint;
-        referralCount_: bigint;
-        discount_: bigint;
-        boostPercent_: bigint;
-        boostStartTime_: bigint;
-        boostDuration_: bigint;
-      }
-    ],
     "view"
   >;
   getFunction(
@@ -1803,12 +1506,6 @@ export interface TorqueDriftGame extends BaseContract {
     nameOrSignature: "initializeStartGame"
   ): TypedContractMethod<[referrer: AddressLike], [void], "payable">;
   getFunction(
-    nameOrSignature: "payMaintenance"
-  ): TypedContractMethod<[carAddress: AddressLike], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "performMaintenance"
-  ): TypedContractMethod<[carAddress: AddressLike], [void], "nonpayable">;
-  getFunction(
     nameOrSignature: "previewClaim"
   ): TypedContractMethod<
     [user: AddressLike],
@@ -1829,18 +1526,12 @@ export interface TorqueDriftGame extends BaseContract {
     nameOrSignature: "referrals"
   ): TypedContractMethod<[arg0: AddressLike], [string], "view">;
   getFunction(
-    nameOrSignature: "resetExpiredBoosts"
-  ): TypedContractMethod<[], [void], "nonpayable">;
-  getFunction(
     nameOrSignature: "setAdvancedContract"
   ): TypedContractMethod<
     [_advancedContract: AddressLike],
     [void],
     "nonpayable"
   >;
-  getFunction(
-    nameOrSignature: "setBaseRate"
-  ): TypedContractMethod<[newRate: BigNumberish], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "tokenContract"
   ): TypedContractMethod<[], [string], "view">;
@@ -1956,32 +1647,11 @@ export interface TorqueDriftGame extends BaseContract {
     CarUnequippedEvent.OutputObject
   >;
   getEvent(
-    key: "ClaimLockActivated"
-  ): TypedContractEvent<
-    ClaimLockActivatedEvent.InputTuple,
-    ClaimLockActivatedEvent.OutputTuple,
-    ClaimLockActivatedEvent.OutputObject
-  >;
-  getEvent(
-    key: "ClaimLockDeactivated"
-  ): TypedContractEvent<
-    ClaimLockDeactivatedEvent.InputTuple,
-    ClaimLockDeactivatedEvent.OutputTuple,
-    ClaimLockDeactivatedEvent.OutputObject
-  >;
-  getEvent(
     key: "ClockDriftToleranceUpdated"
   ): TypedContractEvent<
     ClockDriftToleranceUpdatedEvent.InputTuple,
     ClockDriftToleranceUpdatedEvent.OutputTuple,
     ClockDriftToleranceUpdatedEvent.OutputObject
-  >;
-  getEvent(
-    key: "GambleResult"
-  ): TypedContractEvent<
-    GambleResultEvent.InputTuple,
-    GambleResultEvent.OutputTuple,
-    GambleResultEvent.OutputObject
   >;
   getEvent(
     key: "GameStarted"
@@ -2111,28 +1781,6 @@ export interface TorqueDriftGame extends BaseContract {
       CarUnequippedEvent.OutputObject
     >;
 
-    "ClaimLockActivated(address,uint8,uint256,uint256)": TypedContractEvent<
-      ClaimLockActivatedEvent.InputTuple,
-      ClaimLockActivatedEvent.OutputTuple,
-      ClaimLockActivatedEvent.OutputObject
-    >;
-    ClaimLockActivated: TypedContractEvent<
-      ClaimLockActivatedEvent.InputTuple,
-      ClaimLockActivatedEvent.OutputTuple,
-      ClaimLockActivatedEvent.OutputObject
-    >;
-
-    "ClaimLockDeactivated(address)": TypedContractEvent<
-      ClaimLockDeactivatedEvent.InputTuple,
-      ClaimLockDeactivatedEvent.OutputTuple,
-      ClaimLockDeactivatedEvent.OutputObject
-    >;
-    ClaimLockDeactivated: TypedContractEvent<
-      ClaimLockDeactivatedEvent.InputTuple,
-      ClaimLockDeactivatedEvent.OutputTuple,
-      ClaimLockDeactivatedEvent.OutputObject
-    >;
-
     "ClockDriftToleranceUpdated(uint256,uint256)": TypedContractEvent<
       ClockDriftToleranceUpdatedEvent.InputTuple,
       ClockDriftToleranceUpdatedEvent.OutputTuple,
@@ -2142,17 +1790,6 @@ export interface TorqueDriftGame extends BaseContract {
       ClockDriftToleranceUpdatedEvent.InputTuple,
       ClockDriftToleranceUpdatedEvent.OutputTuple,
       ClockDriftToleranceUpdatedEvent.OutputObject
-    >;
-
-    "GambleResult(address,uint8,bool,uint256)": TypedContractEvent<
-      GambleResultEvent.InputTuple,
-      GambleResultEvent.OutputTuple,
-      GambleResultEvent.OutputObject
-    >;
-    GambleResult: TypedContractEvent<
-      GambleResultEvent.InputTuple,
-      GambleResultEvent.OutputTuple,
-      GambleResultEvent.OutputObject
     >;
 
     "GameStarted(address,uint256,address,uint256)": TypedContractEvent<

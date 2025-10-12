@@ -2,8 +2,12 @@ import { useState } from "react";
 import { CONTRACT_ADDRESSES } from "@/constants";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { TorqueDriftGame__factory, TorqueDriftViews__factory } from "@/contracts";
+import {
+  TorqueDriftGame__factory,
+  TorqueDriftViews__factory,
+} from "@/contracts";
 import { useEthers } from "./useEthers";
+import { ethers } from "ethers";
 
 export const useClaim = () => {
   const { signer, address, isConnected } = useEthers();
@@ -101,18 +105,17 @@ export const usePreviewClaim = () => {
     queryKey: ["claimPreview", address],
     queryFn: async (): Promise<PreviewClaimData> => {
       if (!address || !signer) throw new Error("Wallet not connected");
-      
+
       const viewsContract = TorqueDriftViews__factory.connect(
         CONTRACT_ADDRESSES.TorqueDriftViews,
         signer
       );
 
       try {
-        // Get claim preview from contract
+        // Get claim preview from contract - CORRECTED FORMAT
         const claimPreview = await viewsContract.getClaimPreview(address);
-        console.log("claimPreview", claimPreview);
-        const userInfo = await viewsContract.getUserInfo(address);
 
+        const userInfo = await viewsContract.getUserInfo(address);
         // Get referral info
         const referralInfo = await viewsContract.getReferralInfo(address);
 
@@ -128,13 +131,27 @@ export const usePreviewClaim = () => {
         const baseRate = 291667; // Base rate per hash power unit
         const baseHourlyReward = (hashPower * baseRate) / 100_000_000;
 
-        // Get boosts from claim preview
-        const lockBoost = Number(claimPreview.lockBoost) || 0;
-        const referralBoost = Number(claimPreview.referralBoost) || 0;
-        const totalBoost = lockBoost + referralBoost;
+        // CORRECTED: Format values from contract (9 decimals for TOD)
+        const baseReward = Number(
+          ethers.formatUnits(claimPreview.baseReward, 9)
+        );
+        const lockBoostValue = Number(
+          ethers.formatUnits(claimPreview.lockBoost, 9)
+        );
+        const referralBoostValue = Number(
+          ethers.formatUnits(claimPreview.referralBoost, 9)
+        );
+
+        // Calculate boost percentages correctly
+        const lockBoostPercent =
+          baseReward > 0 ? (lockBoostValue / baseReward) * 100 : 0;
+        const referralBoostPercent =
+          baseReward > 0 ? (referralBoostValue / baseReward) * 100 : 0;
+        const totalBoostPercent = lockBoostPercent + referralBoostPercent;
 
         // Calculate boosted hourly reward
-        const boostedHourlyReward = baseHourlyReward * (1 + totalBoost / 100);
+        const boostedHourlyReward =
+          baseHourlyReward * (1 + totalBoostPercent / 100);
 
         // Check for penalty (claiming too early - before 4 hours)
         const optimalClaimTime = 4 * 3600; // 4 hours in seconds
@@ -162,9 +179,9 @@ export const usePreviewClaim = () => {
           hasPenalty,
           penaltyDescription,
           hourlyReward: formatTokenAmount(boostedHourlyReward),
-          lockBoost,
-          referralBoost,
-          totalBoost,
+          lockBoost: lockBoostPercent, // Return percentage
+          referralBoost: referralBoostPercent, // Return percentage
+          totalBoost: totalBoostPercent, // Return percentage
           totalClaimed,
           referralCount,
           referralEarnings,
@@ -189,14 +206,21 @@ export const usePreviewClaim = () => {
   const now = Math.floor(Date.now() / 1000);
   const timeSinceLastClaim = previewData ? now - previewData.lastClaim : 0;
   const optimalClaimTime = 4 * 3600; // 4 hours
-  const remainingTimeSeconds = Math.max(0, optimalClaimTime - timeSinceLastClaim);
+  const remainingTimeSeconds = Math.max(
+    0,
+    optimalClaimTime - timeSinceLastClaim
+  );
   const remainingTimeMinutes = Math.floor(remainingTimeSeconds / 60);
 
   // Calculate potential reward
   const baseRate = 291667;
   const hoursSinceLastClaim = timeSinceLastClaim / 3600;
   const potentialReward = previewData
-    ? (previewData.hashPower * baseRate * hoursSinceLastClaim * (1 + previewData.totalBoost / 100)) / 100_000_000
+    ? (previewData.hashPower *
+        baseRate *
+        hoursSinceLastClaim *
+        (1 + previewData.totalBoost / 100)) /
+      100_000_000
     : 0;
 
   const formattedPotentialReward = formatTokenAmount(potentialReward);
@@ -226,3 +250,4 @@ function formatTokenAmount(amount: number): string {
     return `${amount.toFixed(2)} $TOD`;
   }
 }
+

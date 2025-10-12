@@ -21,6 +21,11 @@ const _abi = [
         name: "_mintAuthority",
         type: "address",
       },
+      {
+        internalType: "address",
+        name: "_treasuryWallet",
+        type: "address",
+      },
     ],
     stateMutability: "nonpayable",
     type: "constructor",
@@ -228,6 +233,38 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
+        indexed: false,
+        internalType: "uint256",
+        name: "oldPrice",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "newPrice",
+        type: "uint256",
+      },
+    ],
+    name: "TokenPriceUpdated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "bool",
+        name: "enabled",
+        type: "bool",
+      },
+    ],
+    name: "TokenPurchaseToggled",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
         indexed: true,
         internalType: "address",
         name: "from",
@@ -268,6 +305,31 @@ const _abi = [
       {
         indexed: true,
         internalType: "address",
+        name: "buyer",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "bnbAmount",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "tokenAmount",
+        type: "uint256",
+      },
+    ],
+    name: "TokensPurchased",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
         name: "from",
         type: "address",
       },
@@ -291,6 +353,25 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
+        indexed: true,
+        internalType: "address",
+        name: "oldWallet",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "newWallet",
+        type: "address",
+      },
+    ],
+    name: "TreasuryWalletUpdated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
         indexed: false,
         internalType: "address",
         name: "account",
@@ -299,6 +380,10 @@ const _abi = [
     ],
     name: "Unpaused",
     type: "event",
+  },
+  {
+    stateMutability: "payable",
+    type: "fallback",
   },
   {
     inputs: [],
@@ -425,6 +510,44 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "tokenAmount",
+        type: "uint256",
+      },
+    ],
+    name: "calculateBnbForTokens",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "bnbAmount",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "bnbAmount",
+        type: "uint256",
+      },
+    ],
+    name: "calculateTokensForBnb",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "tokenAmount",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "decimals",
     outputs: [
@@ -515,8 +638,34 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "tokenAmount",
+        type: "uint256",
+      },
+    ],
+    name: "purchaseTokens",
+    outputs: [],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "renounceOwnership",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "newPrice",
+        type: "uint256",
+      },
+    ],
+    name: "setTokenPrice",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -529,6 +678,45 @@ const _abi = [
         internalType: "string",
         name: "",
         type: "string",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bool",
+        name: "enabled",
+        type: "bool",
+      },
+    ],
+    name: "toggleTokenPurchase",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "tokenPriceInBnb",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "tokenPurchaseEnabled",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
       },
     ],
     stateMutability: "view",
@@ -615,6 +803,19 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "treasuryWallet",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "unpause",
     outputs: [],
     stateMutability: "nonpayable",
@@ -632,6 +833,23 @@ const _abi = [
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "newTreasuryWallet",
+        type: "address",
+      },
+    ],
+    name: "updateTreasuryWallet",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    stateMutability: "payable",
+    type: "receive",
   },
 ] as const;
 

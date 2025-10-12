@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { CONTRACT_ADDRESSES } from "@/constants";
-import { TorqueDriftViews__factory } from "@/contracts";
+import { TorqueDriftGame__factory } from "@/contracts";
 import { useEthers } from "./useEthers";
 
 export interface UserData {
@@ -30,17 +30,18 @@ export const useUserData = () => {
     queryFn: async (): Promise<UserData> => {
       if (!address || !signer) throw new Error("Wallet not connected");
 
-      const viewsContract = TorqueDriftViews__factory.connect(
-        CONTRACT_ADDRESSES.TorqueDriftViews,
+      const gameContract = TorqueDriftGame__factory.connect(
+        CONTRACT_ADDRESSES.TorqueDriftGame,
         signer
       );
 
-      const userInfo = await viewsContract.getUserInfo(address);
+      const userState = await gameContract.getUserState(address);
+      const userInfo = await gameContract.getUserInfo();
 
       // Extract user data from contract response
-      const gameStarted = userInfo.gameStarted || false;
-      const totalHashPower = Number(userInfo.totalHashPower) || 0;
-      const lastClaim = Number(userInfo.lastClaim) || 0;
+      const gameStarted = Boolean(userState[20]) || false;
+      const totalHashPower = Number(userState[1]) || 0;
+      const lastClaim = Number(userState[0]) || 0;
       const totalClaimed = 0; // Not available in current contract version
 
       const now = Math.floor(Date.now() / 1000);

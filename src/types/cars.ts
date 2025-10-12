@@ -31,6 +31,7 @@ export interface CarInventoryData {
   rarity: CarRarityNumber;
   version: CarVersionNumber;
   hashPower: number;
+  efficiency: number; // Eficiência em porcentagem (ex: 100.0 para 100%)
   owner: string;
   isEquipped: boolean;
   slotIndex?: number; // Slot position for equipped cars
@@ -84,6 +85,29 @@ export interface MiningStats {
 // HOOK RETURN TYPES
 // ============================================================================
 
+// Types for equipped slots data
+export interface EquippedSlotData {
+  slotIndex: number;
+  isEmpty: boolean;
+  car: CarInventoryData | null;
+}
+
+export interface EquippedSlotsData {
+  slots: EquippedSlotData[];
+  totalEquipped: number;
+  totalHashPower: number;
+  totalHashPowerFormatted: string;
+}
+
+// Types for inventory data
+export interface InventoryData {
+  cars: CarInventoryData[];
+  totalOwned: number;
+  totalInventoryHashPower: number;
+  totalInventoryHashPowerFormatted: string;
+  equippedSlots: boolean[];
+}
+
 export interface UseCarsInventoryReturn {
   // Data
   cars: CarInventoryData[];
@@ -93,16 +117,13 @@ export interface UseCarsInventoryReturn {
   // Stats
   carStats: CarStats;
 
-  // Inventory data from getUserInventory
-  inventoryData?: {
-    user: string;
-    totalOwned: number;
-    totalInventoryHashPower: number;
-    equippedSlots: [number, number, number, number, number];
-  } | null;
+  // New structured data
+  equippedSlotsData?: EquippedSlotsData | null;
+  inventoryData?: InventoryData | null;
+
+  // Legacy compatibility (to be removed after migration)
   totalOwned: number;
   totalInventoryHashPower: number;
-  equippedSlots: [number, number, number, number, number];
 
   // Loading states
   isLoading: boolean;
@@ -116,20 +137,25 @@ export interface UseCarsInventoryReturn {
 
   // Equipment actions
   equip: (car: CarInventoryData, slotIndex: number) => void;
-  unequip: (slotIndex: number, carMint: string) => void;
+  unequip: (slotIndex: number, carMint?: string) => void;
+  performCarMaintenance: (carMint: string) => void;
   getEquippedCount: () => number;
   getTotalHashPower: () => number;
   isSlotEquipping: (slotIndex: number) => boolean;
   isSlotUnequipping: (slotIndex: number) => boolean;
   isSlotOccupied: (slotIndex: number) => boolean;
+  isCarUnderMaintenance: (carMint: string) => boolean;
 
   // Equipment state
   equipData?: any;
   unequipData?: any;
+  maintenanceData?: any;
   isEquipping: boolean;
   isUnequipping: boolean;
+  isMaintaining: boolean;
   equipError?: Error | null;
   unequipError?: Error | null;
+  maintenanceError?: Error | null;
 }
 
 // ============================================================================
