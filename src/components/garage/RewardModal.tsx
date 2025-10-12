@@ -63,7 +63,7 @@ const getRarityConfig = (rarity: string) => {
 
 // Memoized confetti particles to avoid recreation
 const CONFETTI_COUNT = 20; // Reduced from 50
-const ConfettiParticle = memo(
+const ConfettiParticle = React.memo(
   ({
     index,
     particleColor,
@@ -110,6 +110,8 @@ const ConfettiParticle = memo(
     );
   }
 );
+
+ConfettiParticle.displayName = "ConfettiParticle";
 
 export const RewardModal: React.FC<RewardModalProps> = memo(
   ({ isOpen, onClose, rewardItem }) => {
@@ -333,4 +335,6 @@ export const RewardModal: React.FC<RewardModalProps> = memo(
     );
   }
 );
+
+RewardModal.displayName = "RewardModal";
 
