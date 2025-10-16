@@ -21,6 +21,49 @@ const _abi = [
     type: "constructor",
   },
   {
+    inputs: [],
+    name: "AlreadyInitialized",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "carAddress",
+        type: "address",
+      },
+    ],
+    name: "CarAlreadyExists",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "InvalidAddress",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint8",
+        name: "rarity",
+        type: "uint8",
+      },
+    ],
+    name: "InvalidRarity",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint8",
+        name: "version",
+        type: "uint8",
+      },
+    ],
+    name: "InvalidVersion",
+    type: "error",
+  },
+  {
     inputs: [
       {
         internalType: "address",
@@ -45,6 +88,17 @@ const _abi = [
   {
     inputs: [],
     name: "ReentrancyGuardReentrantCall",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "caller",
+        type: "address",
+      },
+    ],
+    name: "Unauthorized",
     type: "error",
   },
   {

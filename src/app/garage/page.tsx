@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   DndContext,
@@ -39,7 +39,6 @@ export default function GaragePage() {
     useInitializeGame();
 
   const { todBalance } = useTokenBalances();
-  const { data: userData } = useUserData();
 
   const {
     cars: allCars = [],
@@ -54,13 +53,18 @@ export default function GaragePage() {
     unequip,
     performCarMaintenance,
     getEquippedCount,
-    getTotalHashPower,
     isSlotEquipping,
     isSlotUnequipping,
+    refetch: refetchCarsInventory,
     isCarUnderMaintenance,
   } = useCarsInventory();
 
+  useEffect(() => {
+    if (userExists) refetchCarsInventory();
+  }, [userExists]);
+
   const convertEquippedToSlots = (): (CarInventoryData | null)[] => {
+    console.log("equippedSlotsData", equippedSlotsData);
     if (!equippedSlotsData?.slots) {
       return new Array(5).fill(null);
     }
@@ -238,3 +242,4 @@ export default function GaragePage() {
     </DndContext>
   );
 }
+

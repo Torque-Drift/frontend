@@ -1,13 +1,8 @@
-import { useState, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEthers } from "./useEthers";
-import {
-  TorqueDriftGame__factory,
-  TorqueDriftViews__factory,
-} from "@/contracts";
+import { TorqueDriftGame__factory } from "@/contracts";
 import { CONTRACT_ADDRESSES } from "@/constants";
 import toast from "react-hot-toast";
-import { ethers } from "ethers";
 
 export interface ClaimLockState {
   hasActiveLock: boolean;
@@ -239,3 +234,4 @@ export const useClaimLock = () => {
     lockOptions: LOCK_OPTIONS,
   };
 };
+

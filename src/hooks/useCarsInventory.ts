@@ -5,8 +5,8 @@ import toast from "react-hot-toast";
 import { ethers } from "ethers";
 import { CONTRACT_ADDRESSES } from "@/constants";
 import {
+  TorqueDriftCars__factory,
   TorqueDriftGame__factory,
-  TorqueDriftViews__factory,
 } from "@/contracts";
 import { useEthers } from "./useEthers";
 import { CarInventoryData, UseCarsInventoryReturn } from "@/types/cars";
@@ -192,28 +192,42 @@ export const useCarsInventory = (): UseCarsInventoryReturn => {
         };
       }
 
-      const views = TorqueDriftViews__factory.connect(
-        CONTRACT_ADDRESSES.TorqueDriftViews,
+      // Conectar aos contratos
+      const carsContract = TorqueDriftCars__factory.connect(
+        CONTRACT_ADDRESSES.TorqueDriftCars,
         provider
       );
 
-      const userInventoryViews = await views.getUserInventory(address);
-      const [
-        user,
-        ownedCars,
-        carsEfficiency,
-        totalOwned,
-        totalInventoryHashPower,
-        equippedSlots,
-      ] = userInventoryViews;
+      const gameContract = TorqueDriftGame__factory.connect(
+        CONTRACT_ADDRESSES.TorqueDriftGame,
+        provider
+      );
+
+      // Buscar inventário e estado do usuário em paralelo
+      const [inventory, userState] = await Promise.all([
+        carsContract.getUserInventory(address),
+        gameContract.getUserState(address),
+      ]);
+
+      const [ownedCars, totalOwned, totalHashPower, equippedSlotsFromCars] =
+        inventory;
 
       const cars: CarInventoryData[] = [];
       for (const car of ownedCars) {
         const rarity = Number(car.rarity) || 0;
         const version = Number(car.version) || 0;
         const catalogData = getCarCatalogData(rarity, version);
-        const slotIndexNum = Number(car.slotIndex);
-        const isEquipped = slotIndexNum < 5;
+
+        // ✅ Verificar se o carro está nos slots do UserState (fonte verdadeira)
+        let equippedSlotNumber = -1;
+        for (let i = 0; i < userState.slots.length; i++) {
+          if (userState.slots[i].toLowerCase() === car.mint.toLowerCase()) {
+            equippedSlotNumber = i;
+            break;
+          }
+        }
+
+        const isEquipped = equippedSlotNumber >= 0;
 
         cars.push({
           mint: car.mint,
@@ -223,7 +237,7 @@ export const useCarsInventory = (): UseCarsInventoryReturn => {
           efficiency: Number(car.efficiency) / 100 || 0,
           owner: address || "",
           isEquipped,
-          slotIndex: isEquipped ? slotIndexNum : undefined,
+          slotIndex: isEquipped ? equippedSlotNumber : undefined,
           image: catalogData.image,
           name: catalogData.name,
           description: catalogData.description,
@@ -233,14 +247,16 @@ export const useCarsInventory = (): UseCarsInventoryReturn => {
         });
       }
 
+      const equippedSlots = userState.slots.map(
+        (slot) => slot !== ethers.ZeroAddress
+      );
+
       return {
         cars,
         totalOwned: Number(totalOwned),
-        totalInventoryHashPower: Number(totalInventoryHashPower),
-        totalInventoryHashPowerFormatted: formatHashPower(
-          totalInventoryHashPower
-        ),
-        equippedSlots: equippedSlots.map((slot) => Number(slot) === 1),
+        totalInventoryHashPower: Number(totalHashPower),
+        totalInventoryHashPowerFormatted: formatHashPower(totalHashPower),
+        equippedSlots,
       };
     },
     enabled: !!address && isConnected,
@@ -332,7 +348,7 @@ export const useCarsInventory = (): UseCarsInventoryReturn => {
       equippedSlotsData?.totalHashPower,
     ]
   );
-  
+
   const equipMutation = useMutation({
     mutationFn: async ({
       car,

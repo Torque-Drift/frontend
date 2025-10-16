@@ -5,4 +5,3 @@ export { TorqueDriftCars__factory } from "./TorqueDriftCars__factory";
 export { TorqueDriftGame__factory } from "./TorqueDriftGame__factory";
 export { TorqueDriftReferral__factory } from "./TorqueDriftReferral__factory";
 export { TorqueDriftToken__factory } from "./TorqueDriftToken__factory";
-export { TorqueDriftViews__factory } from "./TorqueDriftViews__factory";

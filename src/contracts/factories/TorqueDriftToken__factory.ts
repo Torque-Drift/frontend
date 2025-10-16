@@ -31,6 +31,16 @@ const _abi = [
     type: "constructor",
   },
   {
+    inputs: [],
+    name: "BnbRefundFailed",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "BnbTransferFailed",
+    type: "error",
+  },
+  {
     inputs: [
       {
         internalType: "address",
@@ -129,6 +139,70 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "uint256",
+        name: "required",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "available",
+        type: "uint256",
+      },
+    ],
+    name: "InsufficientAllowance",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "required",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "available",
+        type: "uint256",
+      },
+    ],
+    name: "InsufficientBalance",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "required",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "sent",
+        type: "uint256",
+      },
+    ],
+    name: "InsufficientBnbSent",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "requested",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "maxSupply",
+        type: "uint256",
+      },
+    ],
+    name: "MaxSupplyExceeded",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
         internalType: "address",
         name: "owner",
         type: "address",
@@ -151,6 +225,21 @@ const _abi = [
   {
     inputs: [],
     name: "ReentrancyGuardReentrantCall",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "TokenPriceNotSet",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "TokenPurchaseDisabled",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "ZeroAmount",
     type: "error",
   },
   {
@@ -184,25 +273,6 @@ const _abi = [
       {
         indexed: true,
         internalType: "address",
-        name: "oldAuthority",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "newAuthority",
-        type: "address",
-      },
-    ],
-    name: "MintAuthorityUpdated",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
         name: "previousOwner",
         type: "address",
       },
@@ -227,76 +297,6 @@ const _abi = [
       },
     ],
     name: "Paused",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "oldPrice",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "newPrice",
-        type: "uint256",
-      },
-    ],
-    name: "TokenPriceUpdated",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: "bool",
-        name: "enabled",
-        type: "bool",
-      },
-    ],
-    name: "TokenPurchaseToggled",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "from",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
-      },
-    ],
-    name: "TokensBurned",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "to",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
-      },
-    ],
-    name: "TokensMinted",
     type: "event",
   },
   {
@@ -347,25 +347,6 @@ const _abi = [
       },
     ],
     name: "Transfer",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "oldWallet",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "newWallet",
-        type: "address",
-      },
-    ],
-    name: "TreasuryWalletUpdated",
     type: "event",
   },
   {

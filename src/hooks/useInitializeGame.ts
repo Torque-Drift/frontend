@@ -1,10 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { CONTRACT_ADDRESSES } from "@/constants";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import {
   TorqueDriftGame__factory,
-  TorqueDriftViews__factory,
   TorqueDriftReferral__factory,
 } from "@/contracts";
 import { useEthers } from "./useEthers";
@@ -130,10 +129,12 @@ export const useInitializeGame = () => {
         throw new Error("Invalid referral code");
       }
       const value = referralData.requiredPayment;
-      const tx = await gameContract["initializeStartGame(string)"](
-        referrerCode,
-        { value }
-      );
+      console.log("value", value);
+      console.log("referrerCode", referrerCode);
+      const code = referrerCode ? referrerCode : "";
+      const tx = await gameContract["initializeStartGame(string)"](code, {
+        value,
+      });
       await tx.wait();
       await refetchUserExists();
     },
@@ -178,3 +179,4 @@ export const useInitializeGame = () => {
     initializeError: initializeMutation.error || checkError,
   };
 };
+

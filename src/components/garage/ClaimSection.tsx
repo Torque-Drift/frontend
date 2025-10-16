@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useClaim, usePreviewClaim } from "@/hooks/useClaim";
 import { useClaimLock } from "@/hooks/useClaimLock";
@@ -22,11 +22,11 @@ interface ClaimSectionProps {
 }
 
 export const ClaimSection: React.FC<ClaimSectionProps> = ({ equippedCars }) => {
-  const [showSuccess, setShowSuccess] = React.useState(false);
-  const [claimedAmount, setClaimedAmount] = React.useState<string>("");
-  const [liveEstimate, setLiveEstimate] = React.useState<number>(0);
-  const [isRefreshing, setIsRefreshing] = React.useState(false);
-
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [claimedAmount, setClaimedAmount] = useState<string>("");
+  const [liveClaimableAmount, setLiveClaimableAmount] = useState(0);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [startTime, setStartTime] = useState<number>(0);
   const queryClient = useQueryClient();
   const { address } = useAccount();
 
@@ -34,30 +34,48 @@ export const ClaimSection: React.FC<ClaimSectionProps> = ({ equippedCars }) => {
     previewData,
     isLoading: previewLoading,
     canClaim,
-    formattedPotentialReward,
     remainingTimeMinutes,
     error: previewError,
   } = usePreviewClaim();
 
   const { lockState } = useClaimLock();
 
-  React.useEffect(() => {
-    if (!previewData?.hashPower || !previewData?.lastClaim) return;
+  useEffect(() => {
+    if (!previewData) return;
 
-    const updateLiveEstimate = () => {
-      const now = Math.floor(Date.now() / 1000);
-      const timeSinceLastClaim = now - previewData.lastClaim;
-      const baseRate = 291667;
-      const hoursSinceLastClaim = timeSinceLastClaim / 3600;
-      const estimateInTokens =
-        (previewData.hashPower * baseRate * hoursSinceLastClaim) / 100_000_000;
+    const calculateLiveAmount = () => {
+      const now = Date.now(); // Timestamp atual em milissegundos
+      const timeElapsed = (now - startTime) / 1000; // Tempo decorrido em segundos
 
-      setLiveEstimate(estimateInTokens);
+      // Taxa por segundo = hashPower * baseRate
+      // baseRate está em wei por segundo, então convertemos
+      const baseRatePerSecond = previewData.baseRate / 1e18; // Converter de wei para unidades
+      const tokensPerSecond = previewData.hashPower * baseRatePerSecond;
+
+      // Adicionar tokens gerados desde o último update
+      const additionalTokens = tokensPerSecond * timeElapsed;
+
+      // Novo valor live = claimableAmount do contrato + tokens gerados em tempo real
+      const newLiveAmount = previewData.claimableAmount + additionalTokens;
+
+      setLiveClaimableAmount(Math.max(0, newLiveAmount));
     };
-    updateLiveEstimate();
-    const interval = setInterval(updateLiveEstimate, 1000);
+
+    // Calcular imediatamente
+    calculateLiveAmount();
+
+    // Atualizar a cada segundo para mostrar o numero atualizando
+    const interval = setInterval(calculateLiveAmount, 1000);
+
     return () => clearInterval(interval);
-  }, [previewData?.hashPower, previewData?.lastClaim]);
+  }, [previewData, startTime]);
+
+  // Reset do startTime quando previewData muda
+  useEffect(() => {
+    if (previewData) {
+      setStartTime(Date.now());
+    }
+  }, [previewData]);
 
   const { onClaim, isLoading: claimLoading, isClaiming } = useClaim();
   const hasActiveLock = lockState?.hasActiveLock ?? false;
@@ -189,7 +207,9 @@ export const ClaimSection: React.FC<ClaimSectionProps> = ({ equippedCars }) => {
           <div className="flex justify-between">
             <span className="text-[#B5B2BC]">Available Now:</span>
             <span className="text-green-400 font-medium">
-              {formatTokenAmount(liveEstimate >= 0 ? liveEstimate : 0)}
+              {formatTokenAmount(
+                liveClaimableAmount >= 0 ? liveClaimableAmount : 0
+              )}
             </span>
           </div>
           <div className="flex justify-between">
@@ -260,12 +280,11 @@ export const ClaimSection: React.FC<ClaimSectionProps> = ({ equippedCars }) => {
             onClick={async () => {
               try {
                 await onClaim();
-                if (
-                  formattedPotentialReward &&
-                  formattedPotentialReward !== "0 $TOD"
-                ) {
+                if (liveClaimableAmount > 0) {
                   setClaimedAmount(
-                    formatTokenAmount(liveEstimate >= 0 ? liveEstimate : 0)
+                    formatTokenAmount(
+                      liveClaimableAmount >= 0 ? liveClaimableAmount : 0
+                    )
                   );
                   setShowSuccess(true);
                 }
@@ -386,3 +405,4 @@ export const ClaimSection: React.FC<ClaimSectionProps> = ({ equippedCars }) => {
     </motion.div>
   );
 };
+

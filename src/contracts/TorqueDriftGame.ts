@@ -309,12 +309,7 @@ export interface TorqueDriftGameInterface extends Interface {
       | "CarEquipped"
       | "CarMaintenance"
       | "CarUnequipped"
-      | "CircuitBreakerToggled"
-      | "ClaimLockActivated"
-      | "ClaimLockDeactivated"
       | "ClockDriftToleranceUpdated"
-      | "EmergencyPauseResumed"
-      | "EmergencyPauseTriggered"
       | "GameStarted"
       | "HalvingTriggered"
       | "MinClaimCooldownUpdated"
@@ -1036,102 +1031,12 @@ export namespace CarUnequippedEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
-export namespace CircuitBreakerToggledEvent {
-  export type InputTuple = [
-    admin: AddressLike,
-    breakerType: BigNumberish,
-    paused: boolean
-  ];
-  export type OutputTuple = [
-    admin: string,
-    breakerType: bigint,
-    paused: boolean
-  ];
-  export interface OutputObject {
-    admin: string;
-    breakerType: bigint;
-    paused: boolean;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace ClaimLockActivatedEvent {
-  export type InputTuple = [
-    user: AddressLike,
-    lockOption: BigNumberish,
-    unlockTime: BigNumberish,
-    boostPercent: BigNumberish
-  ];
-  export type OutputTuple = [
-    user: string,
-    lockOption: bigint,
-    unlockTime: bigint,
-    boostPercent: bigint
-  ];
-  export interface OutputObject {
-    user: string;
-    lockOption: bigint;
-    unlockTime: bigint;
-    boostPercent: bigint;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace ClaimLockDeactivatedEvent {
-  export type InputTuple = [user: AddressLike];
-  export type OutputTuple = [user: string];
-  export interface OutputObject {
-    user: string;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
 export namespace ClockDriftToleranceUpdatedEvent {
   export type InputTuple = [oldValue: BigNumberish, newValue: BigNumberish];
   export type OutputTuple = [oldValue: bigint, newValue: bigint];
   export interface OutputObject {
     oldValue: bigint;
     newValue: bigint;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace EmergencyPauseResumedEvent {
-  export type InputTuple = [admin: AddressLike, timestamp: BigNumberish];
-  export type OutputTuple = [admin: string, timestamp: bigint];
-  export interface OutputObject {
-    admin: string;
-    timestamp: bigint;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace EmergencyPauseTriggeredEvent {
-  export type InputTuple = [
-    admin: AddressLike,
-    reason: string,
-    timestamp: BigNumberish
-  ];
-  export type OutputTuple = [admin: string, reason: string, timestamp: bigint];
-  export interface OutputObject {
-    admin: string;
-    reason: string;
-    timestamp: bigint;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -2376,46 +2281,11 @@ export interface TorqueDriftGame extends BaseContract {
     CarUnequippedEvent.OutputObject
   >;
   getEvent(
-    key: "CircuitBreakerToggled"
-  ): TypedContractEvent<
-    CircuitBreakerToggledEvent.InputTuple,
-    CircuitBreakerToggledEvent.OutputTuple,
-    CircuitBreakerToggledEvent.OutputObject
-  >;
-  getEvent(
-    key: "ClaimLockActivated"
-  ): TypedContractEvent<
-    ClaimLockActivatedEvent.InputTuple,
-    ClaimLockActivatedEvent.OutputTuple,
-    ClaimLockActivatedEvent.OutputObject
-  >;
-  getEvent(
-    key: "ClaimLockDeactivated"
-  ): TypedContractEvent<
-    ClaimLockDeactivatedEvent.InputTuple,
-    ClaimLockDeactivatedEvent.OutputTuple,
-    ClaimLockDeactivatedEvent.OutputObject
-  >;
-  getEvent(
     key: "ClockDriftToleranceUpdated"
   ): TypedContractEvent<
     ClockDriftToleranceUpdatedEvent.InputTuple,
     ClockDriftToleranceUpdatedEvent.OutputTuple,
     ClockDriftToleranceUpdatedEvent.OutputObject
-  >;
-  getEvent(
-    key: "EmergencyPauseResumed"
-  ): TypedContractEvent<
-    EmergencyPauseResumedEvent.InputTuple,
-    EmergencyPauseResumedEvent.OutputTuple,
-    EmergencyPauseResumedEvent.OutputObject
-  >;
-  getEvent(
-    key: "EmergencyPauseTriggered"
-  ): TypedContractEvent<
-    EmergencyPauseTriggeredEvent.InputTuple,
-    EmergencyPauseTriggeredEvent.OutputTuple,
-    EmergencyPauseTriggeredEvent.OutputObject
   >;
   getEvent(
     key: "GameStarted"
@@ -2545,39 +2415,6 @@ export interface TorqueDriftGame extends BaseContract {
       CarUnequippedEvent.OutputObject
     >;
 
-    "CircuitBreakerToggled(address,uint8,bool)": TypedContractEvent<
-      CircuitBreakerToggledEvent.InputTuple,
-      CircuitBreakerToggledEvent.OutputTuple,
-      CircuitBreakerToggledEvent.OutputObject
-    >;
-    CircuitBreakerToggled: TypedContractEvent<
-      CircuitBreakerToggledEvent.InputTuple,
-      CircuitBreakerToggledEvent.OutputTuple,
-      CircuitBreakerToggledEvent.OutputObject
-    >;
-
-    "ClaimLockActivated(address,uint8,uint256,uint256)": TypedContractEvent<
-      ClaimLockActivatedEvent.InputTuple,
-      ClaimLockActivatedEvent.OutputTuple,
-      ClaimLockActivatedEvent.OutputObject
-    >;
-    ClaimLockActivated: TypedContractEvent<
-      ClaimLockActivatedEvent.InputTuple,
-      ClaimLockActivatedEvent.OutputTuple,
-      ClaimLockActivatedEvent.OutputObject
-    >;
-
-    "ClaimLockDeactivated(address)": TypedContractEvent<
-      ClaimLockDeactivatedEvent.InputTuple,
-      ClaimLockDeactivatedEvent.OutputTuple,
-      ClaimLockDeactivatedEvent.OutputObject
-    >;
-    ClaimLockDeactivated: TypedContractEvent<
-      ClaimLockDeactivatedEvent.InputTuple,
-      ClaimLockDeactivatedEvent.OutputTuple,
-      ClaimLockDeactivatedEvent.OutputObject
-    >;
-
     "ClockDriftToleranceUpdated(uint256,uint256)": TypedContractEvent<
       ClockDriftToleranceUpdatedEvent.InputTuple,
       ClockDriftToleranceUpdatedEvent.OutputTuple,
@@ -2587,28 +2424,6 @@ export interface TorqueDriftGame extends BaseContract {
       ClockDriftToleranceUpdatedEvent.InputTuple,
       ClockDriftToleranceUpdatedEvent.OutputTuple,
       ClockDriftToleranceUpdatedEvent.OutputObject
-    >;
-
-    "EmergencyPauseResumed(address,uint256)": TypedContractEvent<
-      EmergencyPauseResumedEvent.InputTuple,
-      EmergencyPauseResumedEvent.OutputTuple,
-      EmergencyPauseResumedEvent.OutputObject
-    >;
-    EmergencyPauseResumed: TypedContractEvent<
-      EmergencyPauseResumedEvent.InputTuple,
-      EmergencyPauseResumedEvent.OutputTuple,
-      EmergencyPauseResumedEvent.OutputObject
-    >;
-
-    "EmergencyPauseTriggered(address,string,uint256)": TypedContractEvent<
-      EmergencyPauseTriggeredEvent.InputTuple,
-      EmergencyPauseTriggeredEvent.OutputTuple,
-      EmergencyPauseTriggeredEvent.OutputObject
-    >;
-    EmergencyPauseTriggered: TypedContractEvent<
-      EmergencyPauseTriggeredEvent.InputTuple,
-      EmergencyPauseTriggeredEvent.OutputTuple,
-      EmergencyPauseTriggeredEvent.OutputObject
     >;
 
     "GameStarted(address,uint256,address,uint256)": TypedContractEvent<

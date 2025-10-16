@@ -62,16 +62,10 @@ export interface TorqueDriftTokenInterface extends Interface {
   getEvent(
     nameOrSignatureOrTopic:
       | "Approval"
-      | "MintAuthorityUpdated"
       | "OwnershipTransferred"
       | "Paused"
-      | "TokenPriceUpdated"
-      | "TokenPurchaseToggled"
-      | "TokensBurned"
-      | "TokensMinted"
       | "TokensPurchased"
       | "Transfer"
-      | "TreasuryWalletUpdated"
       | "Unpaused"
   ): EventFragment;
 
@@ -269,22 +263,6 @@ export namespace ApprovalEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
-export namespace MintAuthorityUpdatedEvent {
-  export type InputTuple = [
-    oldAuthority: AddressLike,
-    newAuthority: AddressLike
-  ];
-  export type OutputTuple = [oldAuthority: string, newAuthority: string];
-  export interface OutputObject {
-    oldAuthority: string;
-    newAuthority: string;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
 export namespace OwnershipTransferredEvent {
   export type InputTuple = [previousOwner: AddressLike, newOwner: AddressLike];
   export type OutputTuple = [previousOwner: string, newOwner: string];
@@ -303,57 +281,6 @@ export namespace PausedEvent {
   export type OutputTuple = [account: string];
   export interface OutputObject {
     account: string;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace TokenPriceUpdatedEvent {
-  export type InputTuple = [oldPrice: BigNumberish, newPrice: BigNumberish];
-  export type OutputTuple = [oldPrice: bigint, newPrice: bigint];
-  export interface OutputObject {
-    oldPrice: bigint;
-    newPrice: bigint;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace TokenPurchaseToggledEvent {
-  export type InputTuple = [enabled: boolean];
-  export type OutputTuple = [enabled: boolean];
-  export interface OutputObject {
-    enabled: boolean;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace TokensBurnedEvent {
-  export type InputTuple = [from: AddressLike, amount: BigNumberish];
-  export type OutputTuple = [from: string, amount: bigint];
-  export interface OutputObject {
-    from: string;
-    amount: bigint;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace TokensMintedEvent {
-  export type InputTuple = [to: AddressLike, amount: BigNumberish];
-  export type OutputTuple = [to: string, amount: bigint];
-  export interface OutputObject {
-    to: string;
-    amount: bigint;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -394,19 +321,6 @@ export namespace TransferEvent {
     from: string;
     to: string;
     value: bigint;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace TreasuryWalletUpdatedEvent {
-  export type InputTuple = [oldWallet: AddressLike, newWallet: AddressLike];
-  export type OutputTuple = [oldWallet: string, newWallet: string];
-  export interface OutputObject {
-    oldWallet: string;
-    newWallet: string;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -721,13 +635,6 @@ export interface TorqueDriftToken extends BaseContract {
     ApprovalEvent.OutputObject
   >;
   getEvent(
-    key: "MintAuthorityUpdated"
-  ): TypedContractEvent<
-    MintAuthorityUpdatedEvent.InputTuple,
-    MintAuthorityUpdatedEvent.OutputTuple,
-    MintAuthorityUpdatedEvent.OutputObject
-  >;
-  getEvent(
     key: "OwnershipTransferred"
   ): TypedContractEvent<
     OwnershipTransferredEvent.InputTuple,
@@ -742,34 +649,6 @@ export interface TorqueDriftToken extends BaseContract {
     PausedEvent.OutputObject
   >;
   getEvent(
-    key: "TokenPriceUpdated"
-  ): TypedContractEvent<
-    TokenPriceUpdatedEvent.InputTuple,
-    TokenPriceUpdatedEvent.OutputTuple,
-    TokenPriceUpdatedEvent.OutputObject
-  >;
-  getEvent(
-    key: "TokenPurchaseToggled"
-  ): TypedContractEvent<
-    TokenPurchaseToggledEvent.InputTuple,
-    TokenPurchaseToggledEvent.OutputTuple,
-    TokenPurchaseToggledEvent.OutputObject
-  >;
-  getEvent(
-    key: "TokensBurned"
-  ): TypedContractEvent<
-    TokensBurnedEvent.InputTuple,
-    TokensBurnedEvent.OutputTuple,
-    TokensBurnedEvent.OutputObject
-  >;
-  getEvent(
-    key: "TokensMinted"
-  ): TypedContractEvent<
-    TokensMintedEvent.InputTuple,
-    TokensMintedEvent.OutputTuple,
-    TokensMintedEvent.OutputObject
-  >;
-  getEvent(
     key: "TokensPurchased"
   ): TypedContractEvent<
     TokensPurchasedEvent.InputTuple,
@@ -782,13 +661,6 @@ export interface TorqueDriftToken extends BaseContract {
     TransferEvent.InputTuple,
     TransferEvent.OutputTuple,
     TransferEvent.OutputObject
-  >;
-  getEvent(
-    key: "TreasuryWalletUpdated"
-  ): TypedContractEvent<
-    TreasuryWalletUpdatedEvent.InputTuple,
-    TreasuryWalletUpdatedEvent.OutputTuple,
-    TreasuryWalletUpdatedEvent.OutputObject
   >;
   getEvent(
     key: "Unpaused"
@@ -808,17 +680,6 @@ export interface TorqueDriftToken extends BaseContract {
       ApprovalEvent.InputTuple,
       ApprovalEvent.OutputTuple,
       ApprovalEvent.OutputObject
-    >;
-
-    "MintAuthorityUpdated(address,address)": TypedContractEvent<
-      MintAuthorityUpdatedEvent.InputTuple,
-      MintAuthorityUpdatedEvent.OutputTuple,
-      MintAuthorityUpdatedEvent.OutputObject
-    >;
-    MintAuthorityUpdated: TypedContractEvent<
-      MintAuthorityUpdatedEvent.InputTuple,
-      MintAuthorityUpdatedEvent.OutputTuple,
-      MintAuthorityUpdatedEvent.OutputObject
     >;
 
     "OwnershipTransferred(address,address)": TypedContractEvent<
@@ -843,50 +704,6 @@ export interface TorqueDriftToken extends BaseContract {
       PausedEvent.OutputObject
     >;
 
-    "TokenPriceUpdated(uint256,uint256)": TypedContractEvent<
-      TokenPriceUpdatedEvent.InputTuple,
-      TokenPriceUpdatedEvent.OutputTuple,
-      TokenPriceUpdatedEvent.OutputObject
-    >;
-    TokenPriceUpdated: TypedContractEvent<
-      TokenPriceUpdatedEvent.InputTuple,
-      TokenPriceUpdatedEvent.OutputTuple,
-      TokenPriceUpdatedEvent.OutputObject
-    >;
-
-    "TokenPurchaseToggled(bool)": TypedContractEvent<
-      TokenPurchaseToggledEvent.InputTuple,
-      TokenPurchaseToggledEvent.OutputTuple,
-      TokenPurchaseToggledEvent.OutputObject
-    >;
-    TokenPurchaseToggled: TypedContractEvent<
-      TokenPurchaseToggledEvent.InputTuple,
-      TokenPurchaseToggledEvent.OutputTuple,
-      TokenPurchaseToggledEvent.OutputObject
-    >;
-
-    "TokensBurned(address,uint256)": TypedContractEvent<
-      TokensBurnedEvent.InputTuple,
-      TokensBurnedEvent.OutputTuple,
-      TokensBurnedEvent.OutputObject
-    >;
-    TokensBurned: TypedContractEvent<
-      TokensBurnedEvent.InputTuple,
-      TokensBurnedEvent.OutputTuple,
-      TokensBurnedEvent.OutputObject
-    >;
-
-    "TokensMinted(address,uint256)": TypedContractEvent<
-      TokensMintedEvent.InputTuple,
-      TokensMintedEvent.OutputTuple,
-      TokensMintedEvent.OutputObject
-    >;
-    TokensMinted: TypedContractEvent<
-      TokensMintedEvent.InputTuple,
-      TokensMintedEvent.OutputTuple,
-      TokensMintedEvent.OutputObject
-    >;
-
     "TokensPurchased(address,uint256,uint256)": TypedContractEvent<
       TokensPurchasedEvent.InputTuple,
       TokensPurchasedEvent.OutputTuple,
@@ -907,17 +724,6 @@ export interface TorqueDriftToken extends BaseContract {
       TransferEvent.InputTuple,
       TransferEvent.OutputTuple,
       TransferEvent.OutputObject
-    >;
-
-    "TreasuryWalletUpdated(address,address)": TypedContractEvent<
-      TreasuryWalletUpdatedEvent.InputTuple,
-      TreasuryWalletUpdatedEvent.OutputTuple,
-      TreasuryWalletUpdatedEvent.OutputObject
-    >;
-    TreasuryWalletUpdated: TypedContractEvent<
-      TreasuryWalletUpdatedEvent.InputTuple,
-      TreasuryWalletUpdatedEvent.OutputTuple,
-      TreasuryWalletUpdatedEvent.OutputObject
     >;
 
     "Unpaused(address)": TypedContractEvent<
