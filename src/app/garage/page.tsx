@@ -19,8 +19,6 @@ import {
 } from "@/components/garage";
 import { useInitializeGame } from "@/hooks/useInitializeGame";
 import { useTokenBalances } from "@/hooks/useTokenBalances";
-import { useUserData } from "@/hooks/useUserData";
-import toast from "react-hot-toast";
 import { Button } from "@/components/Button";
 import type { CarInventoryData } from "@/types/cars";
 

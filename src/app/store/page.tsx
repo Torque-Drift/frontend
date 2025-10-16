@@ -125,30 +125,6 @@ export default function StorePage() {
             Buy $TOD tokens and open lootboxes to collect rare NFT cars for your
             garage!
           </p>
-
-          {/* Token Balance Display */}
-          {isConnected && (
-            <div className="mt-6 bg-[#1A191B]/60 backdrop-blur-sm rounded-lg p-4 border border-[#49474E]/50">
-              <div className="flex items-center gap-3">
-                <div className="w-2 h-2 bg-[#00D4FF] rounded-full"></div>
-                <span className="text-[#B5B2BC] text-sm">Your Balance:</span>
-                {balanceLoading ? (
-                  <Loader height={16} width={16} />
-                ) : (
-                  <span className="text-[#EEEEF0] font-semibold">
-                    {tokenBalance}
-                  </span>
-                )}
-                <button
-                  onClick={() => refetchAll()}
-                  disabled={balanceLoading}
-                  className="text-[#00D4FF] hover:text-[#00B4FF] transition-colors ml-2 text-sm"
-                >
-                  Refresh
-                </button>
-              </div>
-            </div>
-          )}
         </div>
       </div>
 
@@ -197,7 +173,7 @@ export default function StorePage() {
                   </div>
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-[#B5B2BC]">Price per token:</span>
-                    <span className="text-[#EEEEF0]">$1.00 USD</span>
+                    <span className="text-[#EEEEF0]">$0.12 USD</span>
                   </div>
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-[#B5B2BC]">BNB required:</span>
@@ -206,7 +182,7 @@ export default function StorePage() {
                   <div className="flex justify-between items-center pt-2 border-t border-[#49474E]/50">
                     <span className="text-[#EEEEF0] font-semibold">Total:</span>
                     <span className="text-[#00D4FF] font-bold">
-                      ${tokenAmount.toFixed(2)} USD
+                      ${Number(tokenAmount * 0.12).toFixed(2)} USD
                     </span>
                   </div>
                 </div>
@@ -222,7 +198,7 @@ export default function StorePage() {
                       Processing...
                     </>
                   ) : (
-                    `Purchase ${tokenAmount} $TOD - ${bnbAmount} BNB`
+                    `Purchase ${tokenAmount} $TOD`
                   )}
                 </Button>
               </div>
@@ -256,7 +232,7 @@ export default function StorePage() {
                 <ul className="text-sm text-[#B5B2BC] space-y-2">
                   <li className="flex items-center">
                     <span className="w-2 h-2 bg-[#00D4FF] rounded-full mr-3"></span>
-                    Price: $1.00 per token (~0.0033 BNB)
+                    Price: $0.12 per token (~0.0001 BNB)
                   </li>
                   <li className="flex items-center">
                     <span className="w-2 h-2 bg-[#00D4FF] rounded-full mr-3"></span>
@@ -294,36 +270,169 @@ export default function StorePage() {
               <div className="bg-[#121113] rounded-md p-4 border border-[#49474E]/50 mb-6">
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-[#B5B2BC]">Cost:</span>
-                  <span className="text-[#EEEEF0] font-semibold">100 $TOD</span>
+                  <span className="text-[#EEEEF0] font-semibold">300 $TOD</span>
                 </div>
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-[#B5B2BC]">Reward:</span>
                   <span className="text-[#EEEEF0]">Random NFT Car</span>
                 </div>
-                <div className="flex justify-between items-center pt-2 border-t border-[#49474E]/50">
-                  <span className="text-[#EEEEF0] font-semibold">
-                    Rarity Odds:
+                <div className="pt-2 border-t border-[#49474E]/50">
+                  <span className="text-[#EEEEF0] font-semibold mb-3 block">
+                    Rarity Chances:
                   </span>
-                  <span className="text-[#00D4FF]">Common: 70%</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span></span>
-                  <span className="text-[#A855F7]">Rare: 25%</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span></span>
-                  <span className="text-[#F59E0B]">Epic: 5%</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span></span>
-                  <span className="text-[#EF4444]">Legendary: 2%</span>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    {/* Common Rarity */}
+                    <div className="border border-[#EEEEF0]/30 rounded-lg p-3">
+                      <div className="flex items-center mb-2">
+                        <div className="w-3 h-3 bg-[#EEEEF0] rounded-full mr-2"></div>
+                        <span className="text-[#EEEEF0] font-semibold text-sm">
+                          Common
+                        </span>
+                      </div>
+                      <div className="space-y-1">
+                        <div className="flex justify-between items-center text-xs">
+                          <span className="text-[#EEEEF0]/70">Vintage</span>
+                          <span className="text-[#EEEEF0] font-medium">
+                            42%
+                          </span>
+                        </div>
+                        <div className="w-full bg-[#49474E]/30 rounded-full h-1.5">
+                          <div
+                            className="bg-[#EEEEF0] h-1.5 rounded-full"
+                            style={{ width: "42%" }}
+                          ></div>
+                        </div>
+                        <div className="flex justify-between items-center text-xs">
+                          <span className="text-[#EEEEF0]/70">Modern</span>
+                          <span className="text-[#EEEEF0] font-medium">
+                            28%
+                          </span>
+                        </div>
+                        <div className="w-full bg-[#49474E]/30 rounded-full h-1.5">
+                          <div
+                            className="bg-[#EEEEF0] h-1.5 rounded-full"
+                            style={{ width: "28%" }}
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Rare Rarity */}
+                    <div className="border border-[#EEEEF0]/30 rounded-lg p-3">
+                      <div className="flex items-center mb-2">
+                        <div className="w-3 h-3 bg-[#EEEEF0] rounded-full mr-2"></div>
+                        <span className="text-[#EEEEF0] font-semibold text-sm">
+                          Rare
+                        </span>
+                      </div>
+                      <div className="space-y-1">
+                        <div className="flex justify-between items-center text-xs">
+                          <span className="text-[#EEEEF0]/70">Vintage</span>
+                          <span className="text-[#EEEEF0] font-medium">
+                            15%
+                          </span>
+                        </div>
+                        <div className="w-full bg-[#49474E]/30 rounded-full h-1.5">
+                          <div
+                            className="bg-[#EEEEF0] h-1.5 rounded-full"
+                            style={{ width: "15%" }}
+                          ></div>
+                        </div>
+                        <div className="flex justify-between items-center text-xs">
+                          <span className="text-[#EEEEF0]/70">Modern</span>
+                          <span className="text-[#EEEEF0] font-medium">
+                            10%
+                          </span>
+                        </div>
+                        <div className="w-full bg-[#49474E]/30 rounded-full h-1.5">
+                          <div
+                            className="bg-[#EEEEF0] h-1.5 rounded-full"
+                            style={{ width: "10%" }}
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Epic Rarity */}
+                    <div className="border border-[#EEEEF0]/30 rounded-lg p-3">
+                      <div className="flex items-center mb-2">
+                        <div className="w-3 h-3 bg-[#EEEEF0] rounded-full mr-2"></div>
+                        <span className="text-[#EEEEF0] font-semibold text-sm">
+                          Epic
+                        </span>
+                      </div>
+                      <div className="space-y-1">
+                        <div className="flex justify-between items-center text-xs">
+                          <span className="text-[#EEEEF0]/70">Vintage</span>
+                          <span className="text-[#EEEEF0] font-medium">
+                            2.7%
+                          </span>
+                        </div>
+                        <div className="w-full bg-[#49474E]/30 rounded-full h-1.5">
+                          <div
+                            className="bg-[#EEEEF0] h-1.5 rounded-full"
+                            style={{ width: "27%" }}
+                          ></div>
+                        </div>
+                        <div className="flex justify-between items-center text-xs">
+                          <span className="text-[#EEEEF0]/70">Modern</span>
+                          <span className="text-[#EEEEF0] font-medium">
+                            1.8%
+                          </span>
+                        </div>
+                        <div className="w-full bg-[#49474E]/30 rounded-full h-1.5">
+                          <div
+                            className="bg-[#EEEEF0] h-1.5 rounded-full"
+                            style={{ width: "18%" }}
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Legendary Rarity */}
+                    <div className="bg-gradient-to-br from-yellow-500/10 to-yellow-500/5 border border-yellow-500/30 rounded-lg p-3">
+                      <div className="flex items-center mb-2">
+                        <div className="w-3 h-3 bg-yellow-500 rounded-full mr-2"></div>
+                        <span className="text-yellow-500 font-semibold text-sm">
+                          Legendary
+                        </span>
+                      </div>
+                      <div className="space-y-1">
+                        <div className="flex justify-between items-center text-xs">
+                          <span className="text-[#EEEEF0]/70">Vintage</span>
+                          <span className="text-yellow-500 font-medium">
+                            0.3%
+                          </span>
+                        </div>
+                        <div className="w-full bg-[#49474E]/30 rounded-full h-1.5">
+                          <div
+                            className="bg-yellow-500 h-1.5 rounded-full"
+                            style={{ width: "30%" }}
+                          ></div>
+                        </div>
+                        <div className="flex justify-between items-center text-xs">
+                          <span className="text-[#EEEEF0]/70">Modern</span>
+                          <span className="text-yellow-500 font-medium">
+                            0.2%
+                          </span>
+                        </div>
+                        <div className="w-full bg-[#49474E]/30 rounded-full h-1.5">
+                          <div
+                            className="bg-yellow-500 h-1.5 rounded-full"
+                            style={{ width: "20%" }}
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
               <Button
                 onClick={handleOpenLootbox}
                 disabled={isOpeningLootbox || !isConnected}
-                className="w-full bg-gradient-to-r from-[#FF6B6B] to-[#FFA500] hover:from-[#FF5252] hover:to-[#FF8C00]"
+                className="w-full"
               >
                 {isOpeningLootbox ? (
                   <>
@@ -479,3 +588,4 @@ export default function StorePage() {
     </div>
   );
 }
+

@@ -245,20 +245,20 @@ export const ClaimSection: React.FC<ClaimSectionProps> = ({ equippedCars }) => {
           <div className="flex justify-between">
             <span className="text-[#B5B2BC]">Lock Boost:</span>
             <span className="text-cyan-400 font-medium">
-              +{previewData?.lockBoost ?? 0}%
+              +{previewData?.lockBoost.toFixed(2) ?? 0}%
             </span>
           </div>
           <div className="flex justify-between">
             <span className="text-[#B5B2BC]">Referral Boost:</span>
             <span className="text-cyan-400 font-medium">
-              +{previewData?.referralBoost.toFixed(2) ?? 0}%
+              +{previewData?.referralBoost?.toFixed(2) ?? 0}%
             </span>
           </div>
           {(previewData?.totalBoost ?? 0) > 0 && (
             <div className="flex justify-between border-t border-[#49474E] pt-2 mt-2">
               <span className="text-[#EEEEF0] font-medium">Total Boost:</span>
               <span className="text-green-400 font-bold">
-                +{previewData?.totalBoost.toFixed(2) ?? 0}%
+                +{previewData?.totalBoost?.toFixed(2) ?? 0}%
               </span>
             </div>
           )}

@@ -4,7 +4,5 @@ export { YourCars } from './YourCars';
 export { EquipmentSlots } from './EquipmentSlots';
 export { EquipmentSlot } from './EquipmentSlot';
 export { DraggableCar } from './DraggableCar';
-export { MaintenanceSection } from './MaintenanceSection';
 export { ClaimSection } from './ClaimSection';
 export { ClaimLockSection } from './ClaimLockSection';
-export { GamblingSection } from './GamblingSection';

@@ -101,4 +101,3 @@ function formatBnbAmount(amount: number): string {
     return `${(amount / 1000).toFixed(2)}K BNB`;
   }
 }
-
