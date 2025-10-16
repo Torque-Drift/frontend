@@ -18,7 +18,7 @@ export const ClaimLockSection: React.FC = () => {
   } = useClaimLock();
 
   const { previewData } = usePreviewClaim();
-  
+
   const lockBoost = previewData?.totalBoost ?? 0;
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
 
@@ -70,7 +70,7 @@ export const ClaimLockSection: React.FC = () => {
                 Lock Active
               </h3>
               <span className="px-2 py-1 bg-[#FF6B6B]/20 text-[#FF6B6B] text-xs font-bold rounded-full">
-                +{lockBoost}% Boost
+                +{lockBoost.toFixed(0)}% Boost
               </span>
             </div>
 
@@ -78,7 +78,11 @@ export const ClaimLockSection: React.FC = () => {
               <div>
                 <span className="text-[#B5B2BC]">Option: </span>
                 <span className="text-[#EEEEF0] font-medium">
-                  {LOCK_OPTIONS.find((opt) => opt.boost === lockBoost)?.label}
+                  {
+                    LOCK_OPTIONS.find(
+                      (opt) => opt.boost === Number(lockBoost.toFixed(0))
+                    )?.label
+                  }
                 </span>
               </div>
               <div>
@@ -202,21 +206,19 @@ export const ClaimLockSection: React.FC = () => {
                 Next activation in {formatTime(lockState?.cooldownTime)}
               </p>
               <p className="text-[#888] text-xs mt-2">
-                Wait 1 hour between activations
+                Wait 6 hours between activations
               </p>
             </div>
           )}
 
-          {/* Information */}
           <div className="border-t border-[#49474E]/50 pt-4 mt-4">
             <h4 className="text-[#EEEEF0] font-medium text-sm mb-3">
               How it works:
             </h4>
             <div className="space-y-2 text-sm text-[#B5B2BC]">
               <p>• Lock your claims for 1, 3 or 7 days</p>
-              <p>• Get 2%, 5% or 10% boost on rewards</p>
-              <p>• 1 hour cooldown between activations</p>
-              <p>• 6 hour cooldown after expiration</p>
+              <p>• Get 5%, 10% or 20% boost on rewards</p>
+              <p>• 6 hours cooldown after expiration</p>
             </div>
           </div>
         </div>

@@ -223,6 +223,7 @@ export default function GaragePage() {
               />
             </div>
 
+            <Street />
             {/* Actions Row */}
             <div className="max-w-7xl mx-auto grid grid-cols-1 xl:grid-cols-2 gap-6">
               {/* Claim */}
@@ -240,4 +241,3 @@ export default function GaragePage() {
     </DndContext>
   );
 }
-

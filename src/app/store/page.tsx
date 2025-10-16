@@ -106,18 +106,10 @@ export default function StorePage() {
   };
 
   return (
-    <div className="flex flex-col bg-[#121113] min-h-screen">
+    <div className="flex flex-col min-h-screen bg-[url('/images/hero_bg.png')] bg-contain bg-no-repeat">
       {/* Header */}
       <div className="flex items-center justify-between relative max-w-7xl mx-auto px-4 sm:px-0 w-full pt-24 pb-8">
         <div className="flex flex-col items-start justify-center max-w-2xl w-full">
-          <Image
-            src="/images/logo_horizontal.png"
-            alt="Logo"
-            width={154}
-            height={36}
-            draggable={false}
-            priority={true}
-          />
           <h1 className="text-[52px] font-bold text-[#EEEEF0] leading-none mt-8">
             Torque Drift Store
           </h1>
@@ -126,6 +118,14 @@ export default function StorePage() {
             garage!
           </p>
         </div>
+        <Image
+          src="/images/big_logo.png"
+          alt="Big Logo"
+          width={154}
+          height={36}
+          draggable={false}
+          priority={true}
+        />
       </div>
 
       {/* Main Content */}
@@ -473,7 +473,7 @@ export default function StorePage() {
                 <ul className="text-sm text-[#B5B2BC] space-y-2">
                   <li className="flex items-center">
                     <span className="w-2 h-2 bg-[#FF6B6B] rounded-full mr-3"></span>
-                    100 $TOD tokens required
+                    300 $TOD tokens required
                   </li>
                   <li className="flex items-center">
                     <span className="w-2 h-2 bg-[#FF6B6B] rounded-full mr-3"></span>
@@ -535,11 +535,11 @@ export default function StorePage() {
                   </li>
                   <li className="flex items-center">
                     <span className="w-2 h-2 bg-[#00D4FF] rounded-full mr-3"></span>
-                    Symbol: $TOD
+                    Ticker: $TOD
                   </li>
                   <li className="flex items-center">
                     <span className="w-2 h-2 bg-[#00D4FF] rounded-full mr-3"></span>
-                    Decimals: 18
+                    Decimals: 9
                   </li>
                   <li className="flex items-center">
                     <span className="w-2 h-2 bg-[#00D4FF] rounded-full mr-3"></span>
@@ -588,4 +588,3 @@ export default function StorePage() {
     </div>
   );
 }
-

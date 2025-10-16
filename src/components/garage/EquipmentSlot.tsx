@@ -39,7 +39,6 @@ export const EquipmentSlot: React.FC<EquipmentSlotProps> = ({
 }) => {
   const { isOver, setNodeRef } = useDroppable({
     id,
-    // Only consider this droppable if the slot is empty
     disabled: car !== null,
   });
 
@@ -104,36 +103,32 @@ export const EquipmentSlot: React.FC<EquipmentSlotProps> = ({
           <div className="space-y-2 flex-1 p-2">
             <div className="flex items-center justify-between">
               <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-1 mb-1">
-                  <span
-                    className={`text-xs ${getRarityColor(
-                      car.rarity
-                    )} font-medium`}
-                  >
+                <div className="flex items-center gap-1 mb-1 text-[10px] sm:text-xs">
+                  <span className={`${getRarityColor(car.rarity)} font-medium`}>
                     {getRarityName(car.rarity)}
                   </span>
-                  <span className="text-xs text-[#B5B2BC]">•</span>
-                  <span className="text-xs text-[#B5B2BC]">
+                  <span className="text-[#B5B2BC]">•</span>
+                  <span className="text-[#B5B2BC]">
                     {getVersionName(car.version)}
                   </span>
                 </div>
-                <h4 className="text-sm font-semibold text-[#EEEEF0] truncate">
+                <h4 className="text-xs sm:text-sm font-semibold text-[#EEEEF0] truncate">
                   {car.name}
                 </h4>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-2 text-xs">
+            <div className="grid grid-cols-2 md:grid-cols-2 gap-2 text-[10px] sm:text-xs">
               <div>
                 <span className="text-[#B5B2BC]">Hash Power:</span>
-                <div className="text-[#EEEEF0] font-medium">
+                <div className="text-[#EEEEF0] font-bold text-sm">
                   {car.hashPower}
                 </div>
               </div>
               <div>
                 <span className="text-[#B5B2BC]">Efficiency:</span>
                 <div
-                  className={`font-medium ${
+                  className={`font-medium text-sm ${
                     car.efficiency >= 90
                       ? "text-green-400"
                       : car.efficiency >= 70
@@ -196,4 +191,3 @@ export const EquipmentSlot: React.FC<EquipmentSlotProps> = ({
     </div>
   );
 };
-

@@ -18,9 +18,9 @@ export interface ClaimLockState {
 
 // Available lock options
 export const LOCK_OPTIONS = [
-  { option: 0, duration: 1, boost: 2, label: "1 Day (+2%)" },
-  { option: 1, duration: 3, boost: 5, label: "3 Days (+5%)" },
-  { option: 2, duration: 7, boost: 10, label: "7 Days (+10%)" },
+  { option: 0, duration: 1, boost: 2, label: "1 Day (+5%)" },
+  { option: 1, duration: 3, boost: 5, label: "3 Days (10%)" },
+  { option: 2, duration: 7, boost: 20, label: "7 Days (+20%)" },
 ];
 
 export const useClaimLock = () => {
@@ -201,11 +201,14 @@ export const useClaimLock = () => {
   const formatTime = (seconds?: number): string => {
     if (!seconds || seconds <= 0) return "0s";
 
-    const hours = Math.floor(seconds / 3600);
+    const days = Math.floor(seconds / 86400);
+    const hours = Math.floor((seconds % 86400) / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
 
-    if (hours > 0) {
+    if (days > 0) {
+      return `${days}d ${hours}h ${minutes}m`;
+    } else if (hours > 0) {
       return `${hours}h ${minutes}m`;
     } else if (minutes > 0) {
       return `${minutes}m ${secs}s`;
@@ -234,4 +237,3 @@ export const useClaimLock = () => {
     lockOptions: LOCK_OPTIONS,
   };
 };
-
