@@ -168,7 +168,7 @@ export default function MusicPlayer() {
         <button
           onClick={toggleMute}
           onMouseEnter={handlePlay}
-          className="bg-[#1A191B] rounded-full p-3 shadow-lg hover:shadow-xl transition-all duration-200 group block"
+          className="bg-[#1A191B] rounded-full p-3 shadow-lg hover:shadow-xl transition-all duration-200 group block cursor-pointer"
           aria-label={isMuted ? "Unmute music" : "Mute music"}
         >
           <div className="relative">
@@ -179,11 +179,6 @@ export default function MusicPlayer() {
                   : "text-[#EEEEF0] group-hover:text-white"
               }`}
             />
-          </div>
-
-          {/* Tooltip */}
-          <div className="absolute bottom-full right-0 mb-2 px-2 py-1 bg-gray-800 text-xs text-gray-300 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-            {isMuted ? "Click to unmute" : "Hover for volume control"}
           </div>
         </button>
       </div>

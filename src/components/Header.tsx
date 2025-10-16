@@ -16,7 +16,6 @@ const Header: React.FC = () => {
     <header className="w-full fixed top-4 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-0">
         <div className="bg-[#1A191B]/80 backdrop-blur-sm rounded-[20px] flex justify-between items-center h-16 px-4 sm:px-6 lg:px-8">
-
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center gap-6">
             <Image

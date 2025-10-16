@@ -62,7 +62,6 @@ function getProvablyFairItem(transactionHash: string): NFTItem {
 
   console.log(`🎲 Provably Fair: hashValue = ${hashValue}`);
 
-  let selectedItem: NFTItem;
   let catalogItem: any;
   let probability: number;
 
@@ -134,7 +133,7 @@ function getProvablyFairItem(transactionHash: string): NFTItem {
     probability = 0.42;
   }
 
-  selectedItem = createNFTItem(catalogItem, probability);
+  const selectedItem = createNFTItem(catalogItem, probability);
   return selectedItem;
 }
 
