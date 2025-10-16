@@ -162,21 +162,15 @@ export const useClaim = () => {
       queryClient.invalidateQueries({
         queryKey: ["carsInventory", address],
       });
-
-      // Invalidar dados do usuário (que inclui claim preview)
       queryClient.invalidateQueries({
         queryKey: ["userData", address],
       });
-
-      // Forçar refetch dos dados mais críticos
       await queryClient.refetchQueries({
         queryKey: ["userData", address],
       });
-
       await queryClient.refetchQueries({
         queryKey: ["claimPreview", address],
       });
-
       toast.success("$TOD tokens claimed successfully!");
     },
     onSettled: () => {

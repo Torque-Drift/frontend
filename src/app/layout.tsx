@@ -1,6 +1,7 @@
 import Providers from "../components/Providers";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import MusicPlayer from "../components/MusicPlayer";
 import type { Metadata } from "next";
 import "./globals.css";
 import { Sora, Be_Vietnam_Pro } from "next/font/google";
@@ -104,6 +105,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
           <Header />
           <main className="flex-1">{children}</main>
           <Footer />
+          <MusicPlayer />
         </Providers>
         <Toaster
           position="bottom-right"
