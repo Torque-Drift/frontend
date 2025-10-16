@@ -40,7 +40,7 @@ export const MiningStats: React.FC<MiningStatsProps> = ({ referrerCode }) => {
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
         <div className="bg-[#121113]/50 rounded-md p-3 text-center">
           <p className="text-xs text-[#B5B2BC] uppercase tracking-wider mb-1">
-            HP Equipped
+            RP Equipped
           </p>
           <p className="text-lg font-bold text-[#EEEEF0]">
             {previewData?.hashPower ?? 0}
@@ -56,20 +56,21 @@ export const MiningStats: React.FC<MiningStatsProps> = ({ referrerCode }) => {
         </div>
         <div className="bg-[#121113]/50 rounded-md p-3 text-center">
           <p className="text-xs text-[#B5B2BC] uppercase tracking-wider mb-1">
+            Daily Reward
+          </p>
+          <p className="text-lg font-bold text-blue-400">
+            {(Number(previewData?.hourlyReward ?? 0) * 24).toFixed(2)}/DAY
+          </p>
+        </div>
+        <div className="bg-[#121113]/50 rounded-md p-3 text-center">
+          <p className="text-xs text-[#B5B2BC] uppercase tracking-wider mb-1">
             Boost
           </p>
           <p className="text-lg font-bold text-green-400">
             +{previewData?.totalBoost.toFixed(2) ?? 0}%
           </p>
         </div>
-        <div className="bg-[#121113]/50 rounded-md p-3 text-center">
-          <p className="text-xs text-[#B5B2BC] uppercase tracking-wider mb-1">
-            Hourly Reward
-          </p>
-          <p className="text-lg font-bold text-blue-400">
-            {previewData?.hourlyReward ?? 0}/h
-          </p>
-        </div>
+
         <div className="bg-[#121113]/50 rounded-md p-3 text-center">
           <p className="text-xs text-[#B5B2BC] uppercase tracking-wider mb-1">
             Total Referrals

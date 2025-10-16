@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ethers } from "ethers";
-import { CONTRACT_ADDRESSES } from "@/constants";
-import {
-  TorqueDriftCars__factory,
-  TorqueDriftGame__factory,
-} from "@/contracts/factories";
+import { CAR_CATALOG, CONTRACT_ADDRESSES } from "@/constants";
+import { TorqueDriftGame__factory } from "@/contracts/factories";
 
 // Enums for NFT items
 enum Rarity {
@@ -28,210 +25,34 @@ interface NFTItem {
   version: Version;
   probability: number;
   hashRange: [number, number];
-  cooldown: number;
   dailyYield: number;
-  roi: number;
 }
 
-const nftCatalog: NFTItem[] = [
-  {
-    id: "common-vintage",
-    name: "Common Vintage Car",
-    symbol: "CVNTG",
-    uri: "https://api.torquedrift.fun/metadata/common-vintage.json",
-    rarity: Rarity.COMMON,
-    version: Version.VINTAGE,
-    probability: 0.42,
-    hashRange: [0, 41], // 42% (0-41)
-    cooldown: 12,
-    dailyYield: 0.931,
-    roi: 12.53,
-  },
-  {
-    id: "common-modern",
-    name: "Common Modern Car",
-    symbol: "CMOD",
-    uri: "https://api.torquedrift.fun/metadata/common-modern.json",
-    rarity: Rarity.COMMON,
-    version: Version.MODERN,
-    probability: 0.28,
-    hashRange: [42, 69], // 28% (42-69)
-    cooldown: 11,
-    dailyYield: 1.33,
-    roi: 8.77,
-  },
-  {
-    id: "rare-vintage",
-    name: "Rare Vintage Car",
-    symbol: "UVNTG",
-    uri: "https://api.torquedrift.fun/metadata/rare-vintage.json",
-    rarity: Rarity.RARE,
-    version: Version.VINTAGE,
-    probability: 0.15,
-    hashRange: [70, 84], // 15% (70-84)
-    cooldown: 9,
-    dailyYield: 2.194,
-    roi: 5.32,
-  },
-  {
-    id: "rare-modern",
-    name: "Rare Modern Car",
-    symbol: "UMOD",
-    uri: "https://api.torquedrift.fun/metadata/rare-modern.json",
-    rarity: Rarity.RARE,
-    version: Version.MODERN,
-    probability: 0.1,
-    hashRange: [85, 94], // 10% (85-94)
-    cooldown: 8,
-    dailyYield: 2.792,
-    roi: 4.18,
-  },
-  {
-    id: "epic-vintage",
-    name: "Epic Vintage Car",
-    symbol: "EVNTG",
-    uri: "https://api.torquedrift.fun/metadata/epic-vintage.json",
-    rarity: Rarity.EPIC,
-    version: Version.VINTAGE,
-    probability: 0.027,
-    hashRange: [95, 96], // ~3% (95-96)
-    cooldown: 6,
-    dailyYield: 3.79,
-    roi: 3.08,
-  },
-  {
-    id: "epic-modern",
-    name: "Epic Modern Car",
-    symbol: "EMOD",
-    uri: "https://api.torquedrift.fun/metadata/epic-modern.json",
-    rarity: Rarity.EPIC,
-    version: Version.MODERN,
-    probability: 0.018,
-    hashRange: [97, 98], // ~2% (97-98)
-    cooldown: 5,
-    dailyYield: 4.488,
-    roi: 2.6,
-  },
-  {
-    id: "legendary-vintage",
-    name: "Legendary Vintage Car",
-    symbol: "LVNTG",
-    uri: "https://api.torquedrift.fun/metadata/legendary-vintage.json",
-    rarity: Rarity.LEGENDARY,
-    version: Version.VINTAGE,
-    probability: 0.003,
-    hashRange: [99, 99], // ~1% (99)
-    cooldown: 4,
-    dailyYield: 5.452,
-    roi: 2.14,
-  },
-  {
-    id: "legendary-modern",
-    name: "Dodge Challenger Black",
-    symbol: "LMOD",
-    uri: "https://api.torquedrift.fun/metadata/legendary-modern.json",
-    rarity: Rarity.LEGENDARY,
-    version: Version.MODERN,
-    probability: 0.002,
-    hashRange: [99, 99], // ~1% (99) - compartilhado para raridade
-    cooldown: 3,
-    dailyYield: 6.117,
-    roi: 1.91,
-  },
-];
-
-// Car catalog data based on rarity and version
-function getCarCatalogData(rarity: number, version: number) {
-  // Mapeamento baseado no nftCatalog do NftDrawService
-  const catalogMap: Record<string, any> = {
-    // Common
-    "0-0": {
-      name: "Chevrolet Bel Air 1955",
-      description:
-        "The classic American beauty from the 1950s. This rock 'n' roll era icon combines vintage elegance with reliable performance. Its aerodynamic design and V8 engine make it a popular choice for those who appreciate automotive history.",
-      image: "/images/common_0.png",
-      hashRange: [10, 18],
-      cooldown: 12,
-      dailyYield: 0.931,
-      roi: 12.53,
-    },
-    "0-1": {
-      name: "UNO With Stairs",
-      description:
-        "A modern and creative take on the classic Fiat Uno. This compact urban vehicle features external stairs for easy rooftop access, perfect for urban adventures and improvised street races.",
-      image: "/images/common_1.png",
-      hashRange: [15, 25],
-      cooldown: 11,
-      dailyYield: 1.33,
-      roi: 8.77,
-    },
-    // Rare
-    "1-0": {
-      name: "Rare Vintage Car",
-      description:
-        "A rare gem from the vintage collection. This classic vehicle has been meticulously restored with attention to original details, maintaining authenticity while offering modern performance. Perfect for collectors and enthusiasts.",
-      image: "/images/rare_0.png",
-      hashRange: [26, 40],
-      cooldown: 9,
-      dailyYield: 2.194,
-      roi: 5.32,
-    },
-    "1-1": {
-      name: "Golf GTI 2025",
-      description:
-        "The ultimate evolution of the sporty hatchback. With cutting-edge technology and aerodynamic design, this Golf GTI 2025 delivers an exceptional driving experience, combining daily comfort with track performance.",
-      image: "/images/rare_1.png",
-      hashRange: [34, 50],
-      cooldown: 8,
-      dailyYield: 2.792,
-      roi: 4.18,
-    },
-    // Epic
-    "2-0": {
-      name: "Epic Vintage Car",
-      description:
-        "A masterpiece of vintage engineering. This legendary vehicle combines classic elegance with modern modifications, creating a unique machine that honors the past while leading the future of racing.",
-      image: "/images/epic_0.png",
-      hashRange: [51, 63],
-      cooldown: 6,
-      dailyYield: 3.79,
-      roi: 3.08,
-    },
-    "2-1": {
-      name: "Red Car",
-      description:
-        "A fiery red speedster that turns heads wherever it goes. Its vibrant color is more than just aesthetic - it symbolizes the passion and speed that this vehicle delivers on every turn and straight of the track.",
-      image: "/images/epic_1.png",
-      hashRange: [60, 75],
-      cooldown: 5,
-      dailyYield: 4.488,
-      roi: 2.6,
-    },
-    // Legendary
-    "3-0": {
-      name: "Chevrolet Impala 1967",
-      description:
-        "The ultimate muscle car from the classic era. This 1967 Impala represents the pinnacle of American power, with its powerful V8 engine and imposing design. A legend on wheels that continues to dominate the tracks.",
-      image: "/images/legendary_0.png",
-      hashRange: [76, 88],
-      cooldown: 4,
-      dailyYield: 5.452,
-      roi: 2.14,
-    },
-    "3-1": {
-      name: "Dodge Challenger Black 2023",
-      description:
-        "Absolute darkness meets maximum speed. This midnight black Challenger combines muscle car heritage with cutting-edge technology, creating an unstoppable machine that leaves legendary trails wherever it goes.",
-      image: "/images/legendary_1.png",
-      hashRange: [84, 100],
-      cooldown: 3,
-      dailyYield: 6.117,
-      roi: 1.91,
-    },
+// Helper function to create NFTItem from catalog item
+function createNFTItem(catalogItem: any, probability: number): NFTItem {
+  const rarityMap: Record<number, Rarity> = {
+    0: Rarity.COMMON,
+    1: Rarity.RARE,
+    2: Rarity.EPIC,
+    3: Rarity.LEGENDARY,
   };
 
-  const key = `${rarity}-${version}`;
-  return catalogMap[key] || catalogMap["0-0"];
+  const versionMap: Record<number, Version> = {
+    0: Version.VINTAGE,
+    1: Version.MODERN,
+  };
+
+  return {
+    id: `${catalogItem.rarity}-${catalogItem.version}`,
+    name: catalogItem.name,
+    symbol: `TD${catalogItem.rarity}${catalogItem.version}`,
+    uri: `/api/metadata/${catalogItem.rarity}/${catalogItem.version}`,
+    rarity: rarityMap[catalogItem.rarity],
+    version: versionMap[catalogItem.version],
+    probability,
+    hashRange: catalogItem.hashRange as [number, number],
+    dailyYield: catalogItem.dailyYield,
+  };
 }
 
 // Provably Fair function to determine NFT reward based on transaction hash
@@ -242,82 +63,78 @@ function getProvablyFairItem(transactionHash: string): NFTItem {
   console.log(`🎲 Provably Fair: hashValue = ${hashValue}`);
 
   let selectedItem: NFTItem;
+  let catalogItem: any;
+  let probability: number;
 
   // Find the item that matches the hash value using probability ranges
   // Common Vintage: 0-41 (42% chance)
   if (hashValue >= 0 && hashValue <= 41) {
-    selectedItem = nftCatalog.find((item) => item.id === "common-vintage")!;
-    console.log(
-      `🎯 Selected: ${selectedItem.name} (${
-        selectedItem.probability * 100
-      }% chance)`
-    );
+    catalogItem = CAR_CATALOG.find(
+      (item) => item.rarity === 0 && item.version === 0
+    )!;
+    probability = 0.42;
+    console.log(`🎯 Selected: ${catalogItem.name} (42% chance)`);
   }
   // Common Modern: 42-69 (28% chance)
   else if (hashValue >= 42 && hashValue <= 69) {
-    selectedItem = nftCatalog.find((item) => item.id === "common-modern")!;
-    console.log(
-      `🎯 Selected: ${selectedItem.name} (${
-        selectedItem.probability * 100
-      }% chance)`
-    );
+    catalogItem = CAR_CATALOG.find(
+      (item) => item.rarity === 0 && item.version === 1
+    )!;
+    probability = 0.28;
+    console.log(`🎯 Selected: ${catalogItem.name} (28% chance)`);
   }
   // Rare Vintage: 70-84 (15% chance)
   else if (hashValue >= 70 && hashValue <= 84) {
-    selectedItem = nftCatalog.find((item) => item.id === "rare-vintage")!;
-    console.log(
-      `🎯 Selected: ${selectedItem.name} (${
-        selectedItem.probability * 100
-      }% chance)`
-    );
+    catalogItem = CAR_CATALOG.find(
+      (item) => item.rarity === 1 && item.version === 0
+    )!;
+    probability = 0.15;
+    console.log(`🎯 Selected: ${catalogItem.name} (15% chance)`);
   }
   // Rare Modern: 85-94 (10% chance)
   else if (hashValue >= 85 && hashValue <= 94) {
-    selectedItem = nftCatalog.find((item) => item.id === "rare-modern")!;
-    console.log(
-      `🎯 Selected: ${selectedItem.name} (${
-        selectedItem.probability * 100
-      }% chance)`
-    );
+    catalogItem = CAR_CATALOG.find(
+      (item) => item.rarity === 1 && item.version === 1
+    )!;
+    probability = 0.1;
+    console.log(`🎯 Selected: ${catalogItem.name} (10% chance)`);
   }
   // Epic Vintage: 95-96 (~3% chance)
   else if (hashValue >= 95 && hashValue <= 96) {
-    selectedItem = nftCatalog.find((item) => item.id === "epic-vintage")!;
-    console.log(
-      `🎯 Selected: ${selectedItem.name} (${
-        selectedItem.probability * 100
-      }% chance)`
-    );
+    catalogItem = CAR_CATALOG.find(
+      (item) => item.rarity === 2 && item.version === 0
+    )!;
+    probability = 0.03;
+    console.log(`🎯 Selected: ${catalogItem.name} (~3% chance)`);
   }
   // Epic Modern: 97-98 (~2% chance)
   else if (hashValue >= 97 && hashValue <= 98) {
-    selectedItem = nftCatalog.find((item) => item.id === "epic-modern")!;
-    console.log(
-      `🎯 Selected: ${selectedItem.name} (${
-        selectedItem.probability * 100
-      }% chance)`
-    );
+    catalogItem = CAR_CATALOG.find(
+      (item) => item.rarity === 2 && item.version === 1
+    )!;
+    probability = 0.02;
+    console.log(`🎯 Selected: ${catalogItem.name} (~2% chance)`);
   }
   // Legendary: 99 (~2% chance total) - alternar entre vintage e modern baseado no último dígito
   else if (hashValue === 99) {
     const lastDigit = parseInt(transactionHash.slice(-1), 16) % 2;
-    selectedItem =
-      lastDigit === 0
-        ? nftCatalog.find((item) => item.id === "legendary-vintage")!
-        : nftCatalog.find((item) => item.id === "legendary-modern")!;
-    console.log(
-      `🎯 Selected: ${selectedItem.name} (Legendary - ${
-        selectedItem.probability * 100
-      }% chance)`
-    );
+    catalogItem = CAR_CATALOG.find(
+      (item) => item.rarity === 3 && item.version === lastDigit
+    )!;
+    probability = 0.02;
+    console.log(`🎯 Selected: ${catalogItem.name} (Legendary - ~2% chance)`);
   } else {
     // Fallback (shouldn't happen with proper ranges 0-99)
     console.warn(
       `⚠️ Unexpected hashValue: ${hashValue}, returning common-vintage`
     );
-    selectedItem = nftCatalog.find((item) => item.id === "common-vintage")!;
+    catalogItem = CAR_CATALOG.find(
+      (item) => item.rarity === 0 && item.version === 0
+    )!;
+    probability = 0.42;
   }
 
+  selectedItem = createNFTItem(catalogItem, probability);
   return selectedItem;
 }
 
@@ -469,7 +286,6 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { userWallet, burnTxSignature } = body;
 
-    // Validate required fields
     if (!userWallet || !burnTxSignature) {
       return NextResponse.json(
         {
@@ -479,10 +295,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Fixed: One lootbox costs exactly 100 tokens
-    const expectedBurnAmount = "100";
-
-    // Validate transaction hash format (basic Ethereum tx hash validation)
+    const expectedBurnAmount = "300";
     if (!/^0x[a-fA-F0-9]{64}$/.test(burnTxSignature)) {
       return NextResponse.json(
         { error: "Invalid transaction hash format" },
@@ -490,12 +303,8 @@ export async function POST(request: NextRequest) {
       );
     }
     const provider = new ethers.JsonRpcProvider(
-      process.env.NEXT_PUBLIC_RPC_URL ||
-        "https://mainnet.infura.io/v3/YOUR_INFURA_KEY"
+      process.env.NEXT_PUBLIC_RPC_URL
     );
-
-    // Validate burn transaction on blockchain
-    console.log(`Validating burn transaction: ${burnTxSignature}`);
     const validation = await validateBurnTransaction(
       burnTxSignature,
       userWallet,
@@ -537,22 +346,21 @@ export async function POST(request: NextRequest) {
 
     await mintCar(userWallet, rewardItem, provider);
 
-    const catalogData = getCarCatalogData(rarity, version);
+    const catalogData = CAR_CATALOG.find(
+      (car) => car.rarity === rarity && car.version === version
+    )!;
 
-    // Return the reward item details with catalog data
     return NextResponse.json({
       rewardItem: {
         id: rewardItem.id,
-        name: catalogData.name, // Use catalog name
+        name: catalogData.name,
         symbol: rewardItem.symbol,
         uri: rewardItem.uri,
         rarity: rewardItem.rarity,
         version: rewardItem.version,
-        image: catalogData.image, // Add catalog image
-        description: catalogData.description, // Add catalog description
-        dailyYield: catalogData.dailyYield, // Use catalog yield
-        cooldown: catalogData.cooldown, // Use catalog cooldown
-        roi: catalogData.roi, // Use catalog ROI
+        image: catalogData.image,
+        description: catalogData.description,
+        dailyYield: catalogData.dailyYield,
         hashValue: parseInt(burnTxSignature.slice(-8), 16) % 100,
       },
       // Include validation details
@@ -602,4 +410,3 @@ async function mintCar(
     throw error;
   }
 }
-

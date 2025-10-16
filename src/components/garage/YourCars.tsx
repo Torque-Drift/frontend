@@ -388,7 +388,7 @@ export const YourCars: React.FC<YourCarsProps> = ({
 
                 <div className="space-y-1">
                   <div className="flex justify-between text-xs">
-                    <span className="text-[#B5B2BC]">Hash Power:</span>
+                    <span className="text-[#B5B2BC]">Race Power:</span>
                     <span className="text-[#EEEEF0] font-medium">
                       {car.hashPower}
                     </span>

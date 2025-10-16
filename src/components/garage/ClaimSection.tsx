@@ -228,9 +228,9 @@ export const ClaimSection: React.FC<ClaimSectionProps> = ({ equippedCars }) => {
           </div>
           {previewData?.hashPower && (
             <div className="flex justify-between">
-              <span className="text-[#B5B2BC]">Hash Power:</span>
+              <span className="text-[#B5B2BC]">Race Power:</span>
               <span className="text-blue-400 font-medium">
-                {previewData.hashPower} HP
+                {previewData.hashPower} RP
               </span>
             </div>
           )}

@@ -18,17 +18,13 @@ import { useTokenBalances } from "@/hooks";
 import { RewardModal } from "@/components/garage/RewardModal";
 
 export default function StorePage() {
-  const { signer, address, isConnected } = useEthers();
+  const { signer, isConnected } = useEthers();
   const { mutateAsync: openLootbox, isLoading: isOpeningLootbox } = useBurn();
-  const {
-    formattedTodBalance: tokenBalance,
-    isLoading: balanceLoading,
-    refetchAll,
-  } = useTokenBalances();
+  const { formattedTodBalance: tokenBalance, refetchAll } = useTokenBalances();
   const { mutateAsync: purchaseTokens, isLoading: isPurchasingTokens } =
     useTokenPurchase();
 
-  const [tokenAmount, setTokenAmount] = useState(100);
+  const [tokenAmount, setTokenAmount] = useState(300);
   const [bnbAmount, setBnbAmount] = useState<string>("0.000000");
   const [showRewardModal, setShowRewardModal] = useState(false);
   const [rewardItem, setRewardItem] = useState(null);
@@ -84,9 +80,9 @@ export default function StorePage() {
       return;
     }
 
-    if (Number(tokenBalance) < 100) {
+    if (Number(tokenBalance) < 300) {
       toast.error(
-        `Insufficient tokens. You have ${tokenBalance} tokens, need 100.`
+        `Insufficient tokens. You have ${tokenBalance} tokens, need 300.`
       );
       return;
     }
@@ -440,7 +436,7 @@ export default function StorePage() {
                     Opening Lootbox...
                   </>
                 ) : (
-                  "Open Lootbox (100 $TOD Tokens)"
+                  "Open Lootbox"
                 )}
               </Button>
             </div>

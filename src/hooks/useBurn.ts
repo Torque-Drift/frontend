@@ -12,16 +12,10 @@ async function burnTokensForLootbox(signer: any) {
     signer
   );
 
-  const tokensToBurn = 100;
+  const tokensToBurn = 300;
   const amountToBurn = BigInt(tokensToBurn) * BigInt(10 ** 9);
 
-  console.log("Burning tokens for lootbox:", {
-    tokensToBurn,
-    amountToBurn: amountToBurn.toString(),
-  });
-
   try {
-    console.log("Checking contract connection...");
     const code = await signer.provider.getCode(
       CONTRACT_ADDRESSES.TorqueDriftToken
     );
@@ -30,15 +24,9 @@ async function burnTokensForLootbox(signer: any) {
         "Token contract not found at the specified address. Please check if it's deployed."
       );
     }
-    console.log("Contract found and accessible");
-
-    // Check token balance
     const address = await signer.getAddress();
     const balance = await tokenContract.balanceOf(address);
-    console.log("Current token balance:", balance.toString(), "wei");
-
     const balanceInTokens = Number(balance) / 10 ** 9;
-    console.log("Current token balance:", balanceInTokens, "tokens");
 
     if (balance < amountToBurn) {
       throw new Error(
@@ -46,12 +34,9 @@ async function burnTokensForLootbox(signer: any) {
       );
     }
 
-    // Check if burn function exists and is callable
-    console.log("Checking if burn function is available...");
     let estimatedGas: bigint;
     try {
       estimatedGas = await tokenContract.burn.estimateGas(amountToBurn);
-      console.log("Estimated gas:", estimatedGas.toString());
     } catch (estimateError: any) {
       console.error("Gas estimation failed:", estimateError);
       if (estimateError.code === "CALL_EXCEPTION") {
@@ -61,21 +46,13 @@ async function burnTokensForLootbox(signer: any) {
       }
       throw estimateError;
     }
-
-    console.log("Calling burn function...");
     const tx = await tokenContract.burn(amountToBurn, {
-      gasLimit: estimatedGas * BigInt(2), // Add some buffer
+      gasLimit: estimatedGas * BigInt(2),
     });
-
-    console.log("Transaction sent:", tx.hash);
     const receipt = await tx.wait();
-
-    console.log("Tokens burned successfully:", receipt?.hash);
     return receipt?.hash;
   } catch (error: any) {
     console.error("Burn transaction failed:", error);
-
-    // Provide more specific error messages
     if (error.code === "CALL_EXCEPTION") {
       throw new Error(
         "Transaction reverted. This might be due to insufficient balance or contract restrictions."
@@ -100,39 +77,24 @@ export const useBurn = () => {
 
   const mutation = useMutation({
     mutationFn: async () => {
-      if (!signer || !isConnected || !address) {
+      if (!signer || !isConnected || !address)
         throw new Error("Wallet not connected");
-      }
-
-      // Burn 100 tokens for one lootbox
       const burnTxSignature = await burnTokensForLootbox(signer);
-
-      if (!burnTxSignature) {
-        throw new Error("Failed to get transaction hash");
-      }
-
-      // Call local API endpoint to determine provably fair reward
+      if (!burnTxSignature) throw new Error("Failed to get transaction hash");
       const response = await fetch("/api/purchase", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userWallet: address,
           burnTxSignature,
-          expectedBurnAmount: "100", // For validation
         }),
       });
-
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || "Failed to open lootbox");
       }
-
       const lootboxResult = await response.json();
-
       const item = lootboxResult.rewardItem;
-      console.log(item);
       return {
         burnTxSignature,
         rewardItem: item,

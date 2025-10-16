@@ -2,7 +2,10 @@ import { useState, useEffect } from "react";
 import { CONTRACT_ADDRESSES } from "@/constants";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { TorqueDriftGame__factory } from "@/contracts";
+import {
+  TorqueDriftGame__factory,
+  TorqueDriftReferral__factory,
+} from "@/contracts";
 import { useEthers } from "./useEthers";
 import { ethers } from "ethers";
 
@@ -22,50 +25,30 @@ export const usePreviewClaim = () => {
         CONTRACT_ADDRESSES.TorqueDriftGame,
         signer
       );
+      const referralContract = TorqueDriftReferral__factory.connect(
+        CONTRACT_ADDRESSES.TorqueDriftReferral,
+        signer
+      );
 
       try {
-        // 1. Pegar preview do contrato (JÁ INCLUI TODOS OS BOOSTS!)
         const preview = await gameContract.previewClaim(address);
-
-        // 2. Pegar estado global para baseRate
         const globalState = await gameContract.globalState();
-
-        console.log("🔍 Preview data (raw):", {
-          claimableAmount: preview.claimableAmount.toString(),
-          baseReward: preview.baseReward.toString(),
-          lockBoost: preview.lockBoost.toString(),
-          referralBoost: preview.referralBoost.toString(),
-          baseRate: globalState.baseRate.toString(),
-        });
-
-        // ✅ CORREÇÃO: Converter de wei para tokens (9 decimais)
+        console.log("previwe data:", Number(preview.claimableAmount));
         const claimableAmount = Number(
           ethers.formatUnits(preview.claimableAmount, 9)
-        ); // Já convertido!
+        );
         console.log("🔍 Claimable amount:", claimableAmount);
         const baseReward = Number(preview.baseReward) / 1e9;
         const lockBoost = Number(preview.lockBoost) / 1e9;
         const referralBoost = Number(preview.referralBoost) / 1e9;
-
-        // 3. Pegar dados do usuário
         const userState = await gameContract.getUserState(address);
-        const referralInfo = await gameContract.getReferralInfo(address);
+        const referralInfo = await referralContract.getReferralInfo(address);
+        console.log("🔍 Referral info:", referralInfo);
 
         const hashPower = Number(userState.totalHashPower) || 0;
         const lastClaim = Number(userState.lastClaim) || 0;
-        const totalClaimed = Number(userState.totalClaimed) / 1e9 || 0; // Também converter
-
-        // ✅ CORREÇÃO: Base rate em tokens por hora
-        const baseRate = Number(globalState.baseRate) / 1e9; // Converter wei para tokens
-
-        console.log("📊 Processed data:", {
-          claimableAmount,
-          hashPower,
-          baseRate,
-          lastClaim: new Date(lastClaim * 1000).toLocaleString(),
-        });
-
-        // 4. Calcular penalidades
+        const totalClaimed = Number(userState.totalClaimed) / 1e9 || 0;
+        const baseRate = Number(globalState.baseRate) / 1e9;
         const now = Math.floor(Date.now() / 1000);
         const timeSinceLastClaim = now - lastClaim;
         const optimalClaimTime = 4 * 3600; // 4 hours
@@ -79,7 +62,6 @@ export const usePreviewClaim = () => {
           penaltyDescription = `Early claim penalty: ${hours}h ${minutes}m remaining`;
         }
 
-        // 5. Calcular porcentagens de boost
         const lockBoostPercent =
           baseReward > 0 ? (lockBoost / baseReward) * 100 : 0;
         const referralBoostPercent =
@@ -88,7 +70,7 @@ export const usePreviewClaim = () => {
 
         // 6. Calcular recompensa por hora (estimativa)
         const hourlyReward =
-          (hashPower * baseRate * (1 + totalBoostPercent / 100)) / 1e9; // Converter de wei para tokens
+          (hashPower * baseRate * (1 + totalBoostPercent / 100)) / 1e9;
 
         // 7. Dados de referral
         const referralCount = Number(referralInfo.referralCount_) || 0;
@@ -102,7 +84,7 @@ export const usePreviewClaim = () => {
           hasPenalty,
           penaltyDescription,
           baseRate,
-          hourlyReward: formatTokenAmount(hourlyReward),
+          hourlyReward: hourlyReward.toFixed(4),
           lockBoost: lockBoostPercent,
           referralBoost: referralBoostPercent,
           totalBoost: totalBoostPercent,
@@ -135,7 +117,9 @@ export const usePreviewClaim = () => {
   );
   const remainingTimeMinutes = Math.floor(remainingTimeSeconds / 60);
 
-  const formattedPotentialReward = formatTokenAmount(previewData?.claimableAmount || 0);
+  const formattedPotentialReward = formatTokenAmount(
+    previewData?.claimableAmount || 0
+  );
 
   return {
     previewData,
@@ -187,6 +171,10 @@ export const useClaim = () => {
       // Forçar refetch dos dados mais críticos
       await queryClient.refetchQueries({
         queryKey: ["userData", address],
+      });
+
+      await queryClient.refetchQueries({
+        queryKey: ["claimPreview", address],
       });
 
       toast.success("$TOD tokens claimed successfully!");
@@ -256,4 +244,3 @@ function formatTokenAmount(amount: number): string {
     })} $TOD`;
   }
 }
-

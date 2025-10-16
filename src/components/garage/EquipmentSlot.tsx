@@ -120,7 +120,7 @@ export const EquipmentSlot: React.FC<EquipmentSlotProps> = ({
 
             <div className="grid grid-cols-2 md:grid-cols-2 gap-2 text-[10px] sm:text-xs">
               <div>
-                <span className="text-[#B5B2BC]">Hash Power:</span>
+                <span className="text-[#B5B2BC]">Race Power:</span>
                 <div className="text-[#EEEEF0] font-bold text-sm">
                   {car.hashPower}
                 </div>

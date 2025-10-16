@@ -312,12 +312,12 @@ export const RewardModal: React.FC<RewardModalProps> = memo(
                         border: `1px solid ${rarityConfig.borderColor}`,
                       }}
                     >
-                      <p className="text-xs text-[#B5B2BC]">Hash Power</p>
+                      <p className="text-xs text-[#B5B2BC]">Race Power</p>
                       <p
                         className="text-lg font-bold"
                         style={{ color: rarityConfig.color }}
                       >
-                        {rewardItem.hashValue}HP
+                        {rewardItem.hashValue} RP
                       </p>
                     </motion.div>
                   </div>
@@ -337,4 +337,3 @@ export const RewardModal: React.FC<RewardModalProps> = memo(
 );
 
 RewardModal.displayName = "RewardModal";
-
