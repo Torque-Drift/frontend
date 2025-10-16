@@ -98,7 +98,7 @@ export const YourCars: React.FC<YourCarsProps> = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.1 }}
-      className="bg-[#1A191B]/80 backdrop-blur-sm rounded-lg p-4 border border-[#49474E]/50"
+      className="bg-[#1A191B]/80 backdrop-blur-sm rounded-lg p-4"
     >
       <div className="flex items-center gap-2 mb-4">
         <div className="w-1 h-4 bg-[#00D4FF] rounded-full"></div>
@@ -306,7 +306,7 @@ export const YourCars: React.FC<YourCarsProps> = ({
                   <p className="text-xs text-[#B5B2BC] uppercase tracking-wider mb-1">
                     Legendary
                   </p>
-                  <p className="text-sm font-bold text-purple-400">
+                  <p className="text-sm font-bold text-yellow-400">
                     {carStats.rarityCount[3] || 0}
                   </p>
                 </div>

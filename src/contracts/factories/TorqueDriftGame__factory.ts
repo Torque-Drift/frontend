@@ -23,7 +23,7 @@ const _abi = [
       },
       {
         internalType: "uint256",
-        name: "maxSupply",
+        name: "_maxSupply",
         type: "uint256",
       },
       {
@@ -251,6 +251,31 @@ const _abi = [
       {
         indexed: true,
         internalType: "address",
+        name: "admin",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint8",
+        name: "breakerType",
+        type: "uint8",
+      },
+      {
+        indexed: false,
+        internalType: "bool",
+        name: "paused",
+        type: "bool",
+      },
+    ],
+    name: "CircuitBreakerToggled",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
         name: "user",
         type: "address",
       },
@@ -314,29 +339,42 @@ const _abi = [
       {
         indexed: true,
         internalType: "address",
-        name: "user",
+        name: "admin",
         type: "address",
       },
       {
         indexed: false,
-        internalType: "uint8",
-        name: "gamblePercent",
-        type: "uint8",
+        internalType: "uint256",
+        name: "timestamp",
+        type: "uint256",
+      },
+    ],
+    name: "EmergencyPauseResumed",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "admin",
+        type: "address",
       },
       {
         indexed: false,
-        internalType: "bool",
-        name: "success",
-        type: "bool",
+        internalType: "string",
+        name: "reason",
+        type: "string",
       },
       {
         indexed: false,
         internalType: "uint256",
-        name: "discount",
+        name: "timestamp",
         type: "uint256",
       },
     ],
-    name: "GambleResult",
+    name: "EmergencyPauseTriggered",
     type: "event",
   },
   {
@@ -805,6 +843,35 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [
+      {
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "elapsedSeconds",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "currentTimestamp",
+        type: "uint256",
+      },
+    ],
+    name: "calculateTotalReward",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "carsContract",
     outputs: [
@@ -947,24 +1014,6 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "uint8",
-        name: "gamblePercent",
-        type: "uint8",
-      },
-      {
-        internalType: "uint256",
-        name: "serverRandomness",
-        type: "uint256",
-      },
-    ],
-    name: "gambleDiscount",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         internalType: "address",
         name: "user",
         type: "address",
@@ -1004,6 +1053,19 @@ const _abi = [
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getContractVersion",
+    outputs: [
+      {
+        internalType: "string",
+        name: "",
+        type: "string",
+      },
+    ],
+    stateMutability: "pure",
     type: "function",
   },
   {
@@ -1172,6 +1234,11 @@ const _abi = [
         type: "uint256",
       },
       {
+        internalType: "uint256",
+        name: "referralEarningsLevel2_",
+        type: "uint256",
+      },
+      {
         internalType: "uint32",
         name: "referralCount_",
         type: "uint32",
@@ -1268,6 +1335,25 @@ const _abi = [
         type: "address",
       },
     ],
+    name: "getUserEquippedCar",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+    ],
     name: "getUserEquippedCars",
     outputs: [
       {
@@ -1327,6 +1413,44 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [
+      {
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+    ],
+    name: "getUserGameStarted",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+    ],
+    name: "getUserHashPower",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "getUserInfo",
     outputs: [
@@ -1364,6 +1488,63 @@ const _abi = [
         internalType: "uint8",
         name: "equippedCount",
         type: "uint8",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+    ],
+    name: "getUserLastClaim",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+    ],
+    name: "getUserReferralCount",
+    outputs: [
+      {
+        internalType: "uint32",
+        name: "",
+        type: "uint32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+    ],
+    name: "getUserReferrer",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
       },
     ],
     stateMutability: "view",
@@ -1438,6 +1619,11 @@ const _abi = [
           },
           {
             internalType: "uint256",
+            name: "referralEarningsLevel2",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
             name: "cachedEffectiveHashPower",
             type: "uint256",
           },
@@ -1474,6 +1660,11 @@ const _abi = [
             type: "address",
           },
           {
+            internalType: "address",
+            name: "referrerLevel2",
+            type: "address",
+          },
+          {
             internalType: "address[5]",
             name: "slots",
             type: "address[5]",
@@ -1507,6 +1698,44 @@ const _abi = [
         internalType: "struct ITorqueDriftStructs.UserState",
         name: "",
         type: "tuple",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+    ],
+    name: "getUserTotalClaimed",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+    ],
+    name: "getUserTotalEarned",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
       },
     ],
     stateMutability: "view",
@@ -1685,6 +1914,32 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "string",
+        name: "referrerCode",
+        type: "string",
+      },
+    ],
+    name: "initializeStartGame",
+    outputs: [],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "owner",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "address",
         name: "carAddress",
         type: "address",
@@ -1743,36 +1998,11 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    name: "referralCounts",
+    inputs: [],
+    name: "referralContract",
     outputs: [
       {
-        internalType: "uint32",
-        name: "",
-        type: "uint32",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    name: "referrals",
-    outputs: [
-      {
-        internalType: "address",
+        internalType: "contract TorqueDriftReferral",
         name: "",
         type: "address",
       },
@@ -1783,6 +2013,13 @@ const _abi = [
   {
     inputs: [],
     name: "resetExpiredBoosts",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "resumeEmergencyPause",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -1814,6 +2051,228 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_carsContract",
+        type: "address",
+      },
+    ],
+    name: "setCarsContract",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_referralContract",
+        type: "address",
+      },
+    ],
+    name: "setReferralContract",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_tokenContract",
+        type: "address",
+      },
+    ],
+    name: "setTokenContract",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+      {
+        components: [
+          {
+            internalType: "uint256",
+            name: "lastClaim",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "totalHashPower",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "discount",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "boostPercent",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "boostStartTime",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "boostDuration",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "lastGambleTime",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "lastGambleDay",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "lastLockTime",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "totalClaimed",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "referralEarnings",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "referralEarningsLevel2",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "cachedEffectiveHashPower",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "lastEffectiveHashPowerUpdate",
+            type: "uint256",
+          },
+          {
+            components: [
+              {
+                internalType: "uint256",
+                name: "amount",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "unlockTime",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "boostPercent",
+                type: "uint256",
+              },
+            ],
+            internalType: "struct ITorqueDriftStructs.LockInfo",
+            name: "lock",
+            type: "tuple",
+          },
+          {
+            internalType: "address",
+            name: "referrer",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "referrerLevel2",
+            type: "address",
+          },
+          {
+            internalType: "address[5]",
+            name: "slots",
+            type: "address[5]",
+          },
+          {
+            internalType: "uint32",
+            name: "referralCount",
+            type: "uint32",
+          },
+          {
+            internalType: "uint8",
+            name: "gambleCountToday",
+            type: "uint8",
+          },
+          {
+            internalType: "bool",
+            name: "gambleUsed",
+            type: "bool",
+          },
+          {
+            internalType: "bool",
+            name: "equippedCar",
+            type: "bool",
+          },
+          {
+            internalType: "bool",
+            name: "gameStarted",
+            type: "bool",
+          },
+        ],
+        internalType: "struct ITorqueDriftStructs.UserState",
+        name: "newState",
+        type: "tuple",
+      },
+    ],
+    name: "syncUserState",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint8",
+        name: "breakerType",
+        type: "uint8",
+      },
+      {
+        internalType: "bool",
+        name: "pause",
+        type: "bool",
+      },
+    ],
+    name: "toggleCircuitBreaker",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bool",
+        name: "pause",
+        type: "bool",
+      },
+    ],
+    name: "toggleMinting",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "tokenContract",
     outputs: [
@@ -1821,6 +2280,45 @@ const _abi = [
         internalType: "contract IMintableToken",
         name: "",
         type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "totalMinted",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "totalTokensClaimed",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "totalUsers",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
       },
     ],
     stateMutability: "view",
@@ -1842,6 +2340,19 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "string",
+        name: "reason",
+        type: "string",
+      },
+    ],
+    name: "triggerEmergencyPause",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "address",
         name: "carAddress",
         type: "address",
@@ -1853,6 +2364,19 @@ const _abi = [
       },
     ],
     name: "unequipCar",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "newTokenMint",
+        type: "address",
+      },
+    ],
+    name: "updateTokenMint",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -1924,6 +2448,11 @@ const _abi = [
       },
       {
         internalType: "uint256",
+        name: "referralEarningsLevel2",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
         name: "cachedEffectiveHashPower",
         type: "uint256",
       },
@@ -1957,6 +2486,11 @@ const _abi = [
       {
         internalType: "address",
         name: "referrer",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "referrerLevel2",
         type: "address",
       },
       {

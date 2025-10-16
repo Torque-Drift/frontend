@@ -4,6 +4,7 @@ import { Lock, Unlock } from "lucide-react";
 import { useClaimLock, LOCK_OPTIONS } from "@/hooks/useClaimLock";
 import { Button } from "../Button";
 import { Loader } from "@/components/Loader";
+import { usePreviewClaim } from "@/hooks";
 
 export const ClaimLockSection: React.FC = () => {
   const {
@@ -15,6 +16,10 @@ export const ClaimLockSection: React.FC = () => {
     deactivateLock,
     formatTime,
   } = useClaimLock();
+
+  const { previewData } = usePreviewClaim();
+  
+  const lockBoost = previewData?.totalBoost ?? 0;
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
 
   const handleActivateLock = (option: number) => {
@@ -34,7 +39,7 @@ export const ClaimLockSection: React.FC = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
-        className="bg-[#1A191B]/80 backdrop-blur-sm rounded-lg p-4 border border-[#49474E]/50"
+        className="bg-[#1A191B]/80 backdrop-blur-sm rounded-lg p-4"
       >
         <div className="flex items-center justify-center py-8">
           <Loader height={32} width={32} className="text-[#6C28FF]" />
@@ -49,7 +54,7 @@ export const ClaimLockSection: React.FC = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.4 }}
-      className="bg-[#1A191B]/80 backdrop-blur-sm rounded-lg p-4 border border-[#49474E]/50"
+      className="bg-[#1A191B]/80 backdrop-blur-sm rounded-lg p-4"
     >
       <div className="flex items-center gap-2 mb-4">
         <div className="w-1 h-4 bg-[#FF6B6B] rounded-full"></div>
@@ -65,7 +70,7 @@ export const ClaimLockSection: React.FC = () => {
                 Lock Active
               </h3>
               <span className="px-2 py-1 bg-[#FF6B6B]/20 text-[#FF6B6B] text-xs font-bold rounded-full">
-                +{lockState.boostPercent}% Boost
+                +{lockBoost}% Boost
               </span>
             </div>
 
@@ -73,11 +78,7 @@ export const ClaimLockSection: React.FC = () => {
               <div>
                 <span className="text-[#B5B2BC]">Option: </span>
                 <span className="text-[#EEEEF0] font-medium">
-                  {
-                    LOCK_OPTIONS.find(
-                      (opt) => opt.option === lockState.lockOption
-                    )?.label
-                  }
+                  {LOCK_OPTIONS.find((opt) => opt.boost === lockBoost)?.label}
                 </span>
               </div>
               <div>
@@ -142,7 +143,7 @@ export const ClaimLockSection: React.FC = () => {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => setSelectedOption(option.option)}
-                    className={`w-full p-4 rounded-lg border-2 transition-all ${
+                    className={`w-full p-4 rounded-lg border transition-all cursor-pointer ${
                       selectedOption === option.option
                         ? "border-[#6C28FF] bg-[#6C28FF]/10"
                         : "border-[#49474E] bg-[#121113]/50 hover:border-[#6C28FF]/50"
@@ -223,4 +224,3 @@ export const ClaimLockSection: React.FC = () => {
     </motion.div>
   );
 };
-

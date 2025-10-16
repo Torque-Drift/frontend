@@ -8,6 +8,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useAccount } from "wagmi";
 import type { CarInventoryData } from "@/types/cars";
 import Image from "next/image";
+import { X } from "lucide-react";
 
 // Função auxiliar para formatar valores de token
 function formatTokenAmount(amount: number): string {
@@ -17,7 +18,6 @@ function formatTokenAmount(amount: number): string {
 
 interface ClaimSectionProps {
   todBalance: number;
-  setTodBalance: (balance: number | ((prev: number) => number)) => void;
   equippedCars: CarInventoryData[];
 }
 
@@ -41,7 +41,6 @@ export const ClaimSection: React.FC<ClaimSectionProps> = ({ equippedCars }) => {
 
   const { lockState } = useClaimLock();
 
-  // Estimativa ao vivo que aumenta com o tempo
   React.useEffect(() => {
     if (!previewData?.hashPower || !previewData?.lastClaim) return;
 
@@ -61,16 +60,10 @@ export const ClaimSection: React.FC<ClaimSectionProps> = ({ equippedCars }) => {
   }, [previewData?.hashPower, previewData?.lastClaim]);
 
   const { onClaim, isLoading: claimLoading, isClaiming } = useClaim();
-
-  // Controle de claim lock
   const hasActiveLock = lockState?.hasActiveLock ?? false;
   const isClaimDisabled = isClaiming || hasActiveLock;
-
-  // Informações de penalidade
   const hasPenalty = previewData?.hasPenalty ?? false;
-  const penaltyDescription = previewData?.penaltyDescription ?? "";
 
-  // Function to refresh claim data
   const handleRefreshData = async () => {
     if (!address) return;
 
@@ -100,24 +93,13 @@ export const ClaimSection: React.FC<ClaimSectionProps> = ({ equippedCars }) => {
     }
   };
 
-  // Mostrar sucesso temporário após claim
-  React.useEffect(() => {
-    if (!isClaiming && !claimLoading && showSuccess) {
-      const timer = setTimeout(() => {
-        setShowSuccess(false);
-        setClaimedAmount("");
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [isClaiming, claimLoading, showSuccess]);
-
   if (previewLoading) {
     return (
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
-        className="bg-[#1A191B]/80 backdrop-blur-sm rounded-lg p-4 border border-[#49474E]/50"
+        className="bg-[#1A191B]/80 backdrop-blur-sm rounded-lg p-4"
       >
         <div className="flex items-center gap-2 mb-4">
           <div className="w-1 h-4 bg-[#00D4FF] rounded-full"></div>
@@ -136,7 +118,7 @@ export const ClaimSection: React.FC<ClaimSectionProps> = ({ equippedCars }) => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
-        className="bg-[#1A191B]/80 backdrop-blur-sm rounded-lg p-4 border border-[#49474E]/50"
+        className="bg-[#1A191B]/80 backdrop-blur-sm rounded-lg p-4"
       >
         <div className="flex items-center gap-2 mb-4">
           <div className="w-1 h-4 bg-[#00D4FF] rounded-full"></div>
@@ -149,7 +131,6 @@ export const ClaimSection: React.FC<ClaimSectionProps> = ({ equippedCars }) => {
     );
   }
 
-  // Texto do cooldown considerando penalidades
   const getCooldownText = () => {
     if (remainingTimeMinutes) {
       return `${Math.floor(remainingTimeMinutes / 60)}h ${
@@ -166,11 +147,10 @@ export const ClaimSection: React.FC<ClaimSectionProps> = ({ equippedCars }) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.5 }}
-      className={`bg-[#1A191B]/80 backdrop-blur-sm rounded-lg p-4 border border-[#49474E]/50 relative ${
+      className={`bg-[#1A191B]/80 backdrop-blur-sm rounded-lg p-4 relative ${
         isClaiming ? "opacity-75" : ""
       }`}
     >
-      {/* Loading overlay */}
       {isClaiming && (
         <div className="absolute inset-0 bg-[#121113]/90 backdrop-blur-sm rounded-lg flex items-center justify-center z-10">
           <div className="flex flex-col items-center gap-3">
@@ -186,8 +166,7 @@ export const ClaimSection: React.FC<ClaimSectionProps> = ({ equippedCars }) => {
         <h2 className="text-lg font-semibold text-[#EEEEF0]">Claim & Mint</h2>
       </div>
 
-      {/* Claim Info */}
-      <div className="bg-[#121113]/50 rounded-md p-3">
+      <div className="">
         <div className="flex items-center justify-between mb-3">
           <span className="text-sm font-medium text-[#EEEEF0]">Claim $TOD</span>
           <span
@@ -210,7 +189,7 @@ export const ClaimSection: React.FC<ClaimSectionProps> = ({ equippedCars }) => {
           <div className="flex justify-between">
             <span className="text-[#B5B2BC]">Available Now:</span>
             <span className="text-green-400 font-medium">
-              {formatTokenAmount(liveEstimate)}
+              {formatTokenAmount(liveEstimate >= 0 ? liveEstimate : 0)}
             </span>
           </div>
           <div className="flex justify-between">
@@ -252,7 +231,7 @@ export const ClaimSection: React.FC<ClaimSectionProps> = ({ equippedCars }) => {
           <div className="flex justify-between">
             <span className="text-[#B5B2BC]">Referral Boost:</span>
             <span className="text-cyan-400 font-medium">
-              +{previewData?.referralBoost ?? 0}%
+              +{previewData?.referralBoost.toFixed(2) ?? 0}%
             </span>
           </div>
           {(previewData?.totalBoost ?? 0) > 0 && (
@@ -268,9 +247,8 @@ export const ClaimSection: React.FC<ClaimSectionProps> = ({ equippedCars }) => {
         {/* Mensagem explicativa quando há lock ativo */}
         {hasActiveLock && (
           <div className="mb-3 p-3 bg-[#ff6b6b]/10 border border-[#ff6b6b]/30 rounded-lg">
-            <p className="text-sm text-[#ff6b6b]">
-              Claim is locked due to active Claim Lock. Normal claims are
-              disabled during lock period.
+            <p className="text-sm text-[#ff6b6b] text-center">
+              Claim is locked due to active Claim Lock.
             </p>
           </div>
         )}
@@ -286,7 +264,9 @@ export const ClaimSection: React.FC<ClaimSectionProps> = ({ equippedCars }) => {
                   formattedPotentialReward &&
                   formattedPotentialReward !== "0 $TOD"
                 ) {
-                  setClaimedAmount(formattedPotentialReward);
+                  setClaimedAmount(
+                    formatTokenAmount(liveEstimate >= 0 ? liveEstimate : 0)
+                  );
                   setShowSuccess(true);
                 }
               } catch (error) {
@@ -332,14 +312,13 @@ export const ClaimSection: React.FC<ClaimSectionProps> = ({ equippedCars }) => {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8, y: -10 }}
             transition={{ duration: 0.3 }}
-            className="mb-4 p-3 bg-green-500/10 border border-green-500/20 rounded-md text-center"
+            className="mb-4 p-3 bg-green-500/10 rounded-md text-center relative"
           >
-            <div className="flex items-center justify-center gap-2 mb-1">
-              <span className="text-green-400 text-lg">✅</span>
-              <span className="text-green-400 font-medium">
-                Claim Successful!
-              </span>
-            </div>
+            <X
+              size={20}
+              onClick={() => setShowSuccess(false)}
+              className="text-green-300 absolute right-2 cursor-pointer"
+            />
             <p className="text-green-300 text-sm">
               You claimed <span className="font-semibold">{claimedAmount}</span>
             </p>
@@ -395,14 +374,6 @@ export const ClaimSection: React.FC<ClaimSectionProps> = ({ equippedCars }) => {
                   </span>
                 </div>
               )}
-            {previewData?.gambleCountToday !== undefined && (
-              <div className="flex justify-between">
-                <span className="text-[#888]">Gambles Today:</span>
-                <span className="text-[#EEEEF0]">
-                  {previewData.gambleCountToday}
-                </span>
-              </div>
-            )}
             <div className="flex justify-between">
               <span className="text-[#888]">Equipped Cars:</span>
               <span className="text-[#EEEEF0]">
@@ -415,4 +386,3 @@ export const ClaimSection: React.FC<ClaimSectionProps> = ({ equippedCars }) => {
     </motion.div>
   );
 };
-

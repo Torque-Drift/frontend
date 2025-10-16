@@ -222,7 +222,11 @@ export declare namespace ITorqueDriftStructs {
     referrer: AddressLike;
     referralCount: BigNumberish;
     referralEarnings: BigNumberish;
-    hasActiveReferralBoost: boolean;
+    referralEarningsLevel2: BigNumberish;
+    discount: BigNumberish;
+    boostPercent: BigNumberish;
+    boostStartTime: BigNumberish;
+    boostDuration: BigNumberish;
     currentTimestamp: BigNumberish;
   };
 
@@ -231,14 +235,22 @@ export declare namespace ITorqueDriftStructs {
     referrer: string,
     referralCount: bigint,
     referralEarnings: bigint,
-    hasActiveReferralBoost: boolean,
+    referralEarningsLevel2: bigint,
+    discount: bigint,
+    boostPercent: bigint,
+    boostStartTime: bigint,
+    boostDuration: bigint,
     currentTimestamp: bigint
   ] & {
     user: string;
     referrer: string;
     referralCount: bigint;
     referralEarnings: bigint;
-    hasActiveReferralBoost: boolean;
+    referralEarningsLevel2: bigint;
+    discount: bigint;
+    boostPercent: bigint;
+    boostStartTime: bigint;
+    boostDuration: bigint;
     currentTimestamp: bigint;
   };
 

@@ -52,6 +52,8 @@ export declare namespace ITorqueDriftStructs {
   export type CarInfoStruct = {
     mint: AddressLike;
     hashPower: BigNumberish;
+    efficiency: BigNumberish;
+    lastMaintenance: BigNumberish;
     rarity: BigNumberish;
     version: BigNumberish;
     slotIndex: BigNumberish;
@@ -60,12 +62,16 @@ export declare namespace ITorqueDriftStructs {
   export type CarInfoStructOutput = [
     mint: string,
     hashPower: bigint,
+    efficiency: bigint,
+    lastMaintenance: bigint,
     rarity: bigint,
     version: bigint,
     slotIndex: bigint
   ] & {
     mint: string;
     hashPower: bigint;
+    efficiency: bigint;
+    lastMaintenance: bigint;
     rarity: bigint;
     version: bigint;
     slotIndex: bigint;
@@ -75,6 +81,7 @@ export declare namespace ITorqueDriftStructs {
 export interface TorqueDriftCarsInterface extends Interface {
   getFunction(
     nameOrSignature:
+      | "authorizedContracts"
       | "carStates"
       | "createGameCar"
       | "gameContract"
@@ -83,10 +90,10 @@ export interface TorqueDriftCarsInterface extends Interface {
       | "getCooldownSeconds"
       | "getUserCarAddresses"
       | "getUserCarCount"
-      | "getUserCars"
       | "getUserInventory"
       | "owner"
       | "renounceOwnership"
+      | "setAuthorizedContract"
       | "setGameContract"
       | "transferOwnership"
       | "userCars"
@@ -97,6 +104,10 @@ export interface TorqueDriftCarsInterface extends Interface {
     nameOrSignatureOrTopic: "CarCreated" | "OwnershipTransferred"
   ): EventFragment;
 
+  encodeFunctionData(
+    functionFragment: "authorizedContracts",
+    values: [AddressLike]
+  ): string;
   encodeFunctionData(
     functionFragment: "carStates",
     values: [AddressLike]
@@ -130,10 +141,6 @@ export interface TorqueDriftCarsInterface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "getUserCars",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
     functionFragment: "getUserInventory",
     values: [AddressLike]
   ): string;
@@ -141,6 +148,10 @@ export interface TorqueDriftCarsInterface extends Interface {
   encodeFunctionData(
     functionFragment: "renounceOwnership",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setAuthorizedContract",
+    values: [AddressLike, boolean]
   ): string;
   encodeFunctionData(
     functionFragment: "setGameContract",
@@ -159,6 +170,10 @@ export interface TorqueDriftCarsInterface extends Interface {
     values: [AddressLike, AddressLike]
   ): string;
 
+  decodeFunctionResult(
+    functionFragment: "authorizedContracts",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "carStates", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "createGameCar",
@@ -189,16 +204,16 @@ export interface TorqueDriftCarsInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getUserCars",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "getUserInventory",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "renounceOwnership",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setAuthorizedContract",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -303,6 +318,12 @@ export interface TorqueDriftCars extends BaseContract {
     event?: TCEvent
   ): Promise<this>;
 
+  authorizedContracts: TypedContractMethod<
+    [arg0: AddressLike],
+    [boolean],
+    "view"
+  >;
+
   carStates: TypedContractMethod<
     [arg0: AddressLike],
     [
@@ -357,34 +378,6 @@ export interface TorqueDriftCars extends BaseContract {
 
   getUserCarCount: TypedContractMethod<[user: AddressLike], [bigint], "view">;
 
-  getUserCars: TypedContractMethod<
-    [user: AddressLike],
-    [
-      [
-        [
-          ITorqueDriftStructs.CarInfoStructOutput,
-          ITorqueDriftStructs.CarInfoStructOutput,
-          ITorqueDriftStructs.CarInfoStructOutput,
-          ITorqueDriftStructs.CarInfoStructOutput,
-          ITorqueDriftStructs.CarInfoStructOutput
-        ],
-        bigint,
-        bigint
-      ] & {
-        equippedCars: [
-          ITorqueDriftStructs.CarInfoStructOutput,
-          ITorqueDriftStructs.CarInfoStructOutput,
-          ITorqueDriftStructs.CarInfoStructOutput,
-          ITorqueDriftStructs.CarInfoStructOutput,
-          ITorqueDriftStructs.CarInfoStructOutput
-        ];
-        totalEquipped: bigint;
-        totalHashPower: bigint;
-      }
-    ],
-    "view"
-  >;
-
   getUserInventory: TypedContractMethod<
     [user: AddressLike],
     [
@@ -406,6 +399,12 @@ export interface TorqueDriftCars extends BaseContract {
   owner: TypedContractMethod<[], [string], "view">;
 
   renounceOwnership: TypedContractMethod<[], [void], "nonpayable">;
+
+  setAuthorizedContract: TypedContractMethod<
+    [_contract: AddressLike, _authorized: boolean],
+    [void],
+    "nonpayable"
+  >;
 
   setGameContract: TypedContractMethod<
     [_gameContract: AddressLike],
@@ -435,6 +434,9 @@ export interface TorqueDriftCars extends BaseContract {
     key: string | FunctionFragment
   ): T;
 
+  getFunction(
+    nameOrSignature: "authorizedContracts"
+  ): TypedContractMethod<[arg0: AddressLike], [boolean], "view">;
   getFunction(
     nameOrSignature: "carStates"
   ): TypedContractMethod<
@@ -494,35 +496,6 @@ export interface TorqueDriftCars extends BaseContract {
     nameOrSignature: "getUserCarCount"
   ): TypedContractMethod<[user: AddressLike], [bigint], "view">;
   getFunction(
-    nameOrSignature: "getUserCars"
-  ): TypedContractMethod<
-    [user: AddressLike],
-    [
-      [
-        [
-          ITorqueDriftStructs.CarInfoStructOutput,
-          ITorqueDriftStructs.CarInfoStructOutput,
-          ITorqueDriftStructs.CarInfoStructOutput,
-          ITorqueDriftStructs.CarInfoStructOutput,
-          ITorqueDriftStructs.CarInfoStructOutput
-        ],
-        bigint,
-        bigint
-      ] & {
-        equippedCars: [
-          ITorqueDriftStructs.CarInfoStructOutput,
-          ITorqueDriftStructs.CarInfoStructOutput,
-          ITorqueDriftStructs.CarInfoStructOutput,
-          ITorqueDriftStructs.CarInfoStructOutput,
-          ITorqueDriftStructs.CarInfoStructOutput
-        ];
-        totalEquipped: bigint;
-        totalHashPower: bigint;
-      }
-    ],
-    "view"
-  >;
-  getFunction(
     nameOrSignature: "getUserInventory"
   ): TypedContractMethod<
     [user: AddressLike],
@@ -547,6 +520,13 @@ export interface TorqueDriftCars extends BaseContract {
   getFunction(
     nameOrSignature: "renounceOwnership"
   ): TypedContractMethod<[], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "setAuthorizedContract"
+  ): TypedContractMethod<
+    [_contract: AddressLike, _authorized: boolean],
+    [void],
+    "nonpayable"
+  >;
   getFunction(
     nameOrSignature: "setGameContract"
   ): TypedContractMethod<[_gameContract: AddressLike], [void], "nonpayable">;

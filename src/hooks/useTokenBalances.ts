@@ -77,7 +77,6 @@ function formatTodAmount(amount: number): string {
   if (amount === 0) return "0 $TOD";
 
   const absAmount = Math.abs(amount);
-  console.log("absAmount", absAmount);
   if (absAmount < 1e-9) {
     return `${(amount * 1_000_000_000).toFixed(4)} n$TOD`;
   } else if (absAmount < 1e-6) {
@@ -108,4 +107,3 @@ function formatBnbAmount(amount: number): string {
     return `${(amount / 1000).toFixed(2)}K BNB`;
   }
 }
-

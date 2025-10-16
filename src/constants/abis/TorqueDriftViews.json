@@ -512,9 +512,29 @@
             "type": "uint256"
           },
           {
-            "internalType": "bool",
-            "name": "hasActiveReferralBoost",
-            "type": "bool"
+            "internalType": "uint256",
+            "name": "referralEarningsLevel2",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "discount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "boostPercent",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "boostStartTime",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "boostDuration",
+            "type": "uint256"
           },
           {
             "internalType": "uint256",

@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "generate": "npx typechain --target ethers-v6 --out-dir src/contracts src/constants/abis/*.json"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

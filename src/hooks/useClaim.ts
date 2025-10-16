@@ -62,6 +62,8 @@ export const useClaim = () => {
 
       if (errorMessage.includes("User not connected")) {
         toast.error("Please connect your wallet first.");
+      } else if (errorMessage.includes("user rejected action")) {
+        toast.error("User rejected action");
       } else {
         toast.error(`Failed to claim tokens: ${errorMessage}`);
       }
@@ -110,51 +112,38 @@ export const usePreviewClaim = () => {
         CONTRACT_ADDRESSES.TorqueDriftViews,
         signer
       );
+      const gameContract = TorqueDriftGame__factory.connect(
+        CONTRACT_ADDRESSES.TorqueDriftGame,
+        signer
+      );
 
       try {
-        // Get claim preview from contract - CORRECTED FORMAT
-        const claimPreview = await viewsContract.getClaimPreview(address);
-
+        const preview = await viewsContract.getClaimPreview(address);
+        const baseReward = Number(preview.baseReward) / 1_000_000_000;
+        const lockBoost = Number(preview.lockBoost) / 1_000_000_000;
+        const referralBoost = Number(preview.referralBoost) / 1_000_000_000;
         const userInfo = await viewsContract.getUserInfo(address);
-        // Get referral info
-        const referralInfo = await viewsContract.getReferralInfo(address);
-
+        const referralInfo = await gameContract.getReferralInfo(address);
         const hashPower = Number(userInfo.totalHashPower) || 0;
         const lastClaim = Number(userInfo.lastClaim) || 0;
-        const totalClaimed = 0; // Not available in contract, set to 0 for now
-
+        const totalClaimed = Number(userInfo.totalClaimed) || 0;
         const now = Math.floor(Date.now() / 1000);
         const timeSinceLastClaim = now - lastClaim;
-        const hoursSinceLastClaim = timeSinceLastClaim / 3600;
+        const baseHourlyReward = (1.8941952918 / 24) * hashPower;
+        const baseRewardValue = baseReward;
+        const lockBoostValue = lockBoost;
+        const referralBoostValue = referralBoost;
 
-        // Calculate base hourly reward (simplified calculation)
-        const baseRate = 291667; // Base rate per hash power unit
-        const baseHourlyReward = (hashPower * baseRate) / 100_000_000;
-
-        // CORRECTED: Format values from contract (9 decimals for TOD)
-        const baseReward = Number(
-          ethers.formatUnits(claimPreview.baseReward, 9)
-        );
-        const lockBoostValue = Number(
-          ethers.formatUnits(claimPreview.lockBoost, 9)
-        );
-        const referralBoostValue = Number(
-          ethers.formatUnits(claimPreview.referralBoost, 9)
-        );
-
-        // Calculate boost percentages correctly
         const lockBoostPercent =
-          baseReward > 0 ? (lockBoostValue / baseReward) * 100 : 0;
+          baseRewardValue > 0 ? (lockBoostValue / baseRewardValue) * 100 : 0;
         const referralBoostPercent =
-          baseReward > 0 ? (referralBoostValue / baseReward) * 100 : 0;
+          baseRewardValue > 0
+            ? (referralBoostValue / baseRewardValue) * 100
+            : 0;
         const totalBoostPercent = lockBoostPercent + referralBoostPercent;
-
-        // Calculate boosted hourly reward
         const boostedHourlyReward =
           baseHourlyReward * (1 + totalBoostPercent / 100);
-
-        // Check for penalty (claiming too early - before 4 hours)
-        const optimalClaimTime = 4 * 3600; // 4 hours in seconds
+        const optimalClaimTime = 4 * 3600;
         const hasPenalty = timeSinceLastClaim < optimalClaimTime;
 
         let penaltyDescription = "";
@@ -164,14 +153,10 @@ export const usePreviewClaim = () => {
           const minutes = Math.floor((remainingTime % 3600) / 60);
           penaltyDescription = `Early claim penalty: ${hours}h ${minutes}m remaining`;
         }
-
-        // Referral data
-        const referralCount = Number(referralInfo.referralCount) || 0;
-        const referralEarnings = Number(referralInfo.referralEarnings) || 0;
-
-        // Activity counts (these would need to be tracked separately, using placeholder values for now)
-        const equipCountToday = 0; // TODO: Implement daily activity tracking
-        const gambleCountToday = 0; // TODO: Implement daily activity tracking
+        const referralCount = Number(referralInfo.referralCount_) || 0;
+        const referralEarnings = Number(referralInfo.referralEarnings_) || 0;
+        const equipCountToday = 0;
+        const gambleCountToday = 0;
 
         return {
           hashPower,
@@ -213,16 +198,13 @@ export const usePreviewClaim = () => {
   const remainingTimeMinutes = Math.floor(remainingTimeSeconds / 60);
 
   // Calculate potential reward
-  const baseRate = 291667;
+  const baseRate = 2916700000000000;
+
   const hoursSinceLastClaim = timeSinceLastClaim / 3600;
   const potentialReward = previewData
-    ? (previewData.hashPower *
-        baseRate *
-        hoursSinceLastClaim *
-        (1 + previewData.totalBoost / 100)) /
-      100_000_000
+    ? ((previewData.hashPower * baseRate * hoursSinceLastClaim) / 1e9) *
+      (1 + previewData.totalBoost / 100)
     : 0;
-
   const formattedPotentialReward = formatTokenAmount(potentialReward);
 
   return {
@@ -250,4 +232,3 @@ function formatTokenAmount(amount: number): string {
     return `${amount.toFixed(2)} $TOD`;
   }
 }
-

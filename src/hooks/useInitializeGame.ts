@@ -2,7 +2,11 @@ import { useState, useEffect } from "react";
 import { CONTRACT_ADDRESSES } from "@/constants";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { TorqueDriftGame__factory } from "@/contracts";
+import {
+  TorqueDriftGame__factory,
+  TorqueDriftViews__factory,
+  TorqueDriftReferral__factory,
+} from "@/contracts";
 import { useEthers } from "./useEthers";
 import { ethers } from "ethers";
 
@@ -10,24 +14,77 @@ interface InitializeGameParams {
   referrerPubkey?: string;
 }
 
+async function checkReferralCode(
+  referralCode: string,
+  provider: ethers.Provider
+) {
+  if (!referralCode || referralCode.trim() === "") {
+    return {
+      isValid: false,
+      hasDiscount: false,
+      requiredPayment: ethers.parseEther("0.1"),
+    };
+  }
+
+  try {
+    const referralContract = TorqueDriftReferral__factory.connect(
+      CONTRACT_ADDRESSES.TorqueDriftReferral,
+      provider
+    );
+
+    const isValid = await referralContract.isValidReferralCode(referralCode);
+
+    if (!isValid) {
+      return {
+        isValid: false,
+        hasDiscount: false,
+        requiredPayment: ethers.parseEther("0.1"),
+        error: "Código de referral inválido",
+      };
+    }
+    const hasDiscount = await referralContract.discountReferralCodes(
+      referralCode
+    );
+
+    return {
+      isValid: true,
+      hasDiscount,
+      requiredPayment: hasDiscount
+        ? ethers.parseEther("0.09")
+        : ethers.parseEther("0.1"),
+    };
+  } catch (error) {
+    console.error("Erro ao verificar código:", error);
+    return {
+      isValid: false,
+      hasDiscount: false,
+      requiredPayment: ethers.parseEther("0.1"),
+      error: "Erro ao verificar código",
+    };
+  }
+}
+
 export const useInitializeGame = () => {
   const { signer, address, isConnected, provider } = useEthers();
-  const queryClient = useQueryClient();
   const [isInitializing, setIsInitializing] = useState(false);
 
   // Query to check if user exists
   const {
-    data: userExists,
+    data: userExistsData,
     isLoading: checkingUser,
     error: checkError,
+    refetch: refetchUserExists,
   } = useQuery({
     queryKey: ["userExists", address],
-    queryFn: async (): Promise<boolean> => {
+    queryFn: async (): Promise<{
+      hasGameStarted: boolean;
+      referrerCode: string;
+    }> => {
       if (!address || !provider) {
         console.warn(
           "Address or provider not available for user existence check"
         );
-        return false;
+        return { hasGameStarted: false, referrerCode: "" };
       }
 
       try {
@@ -35,13 +92,21 @@ export const useInitializeGame = () => {
           CONTRACT_ADDRESSES.TorqueDriftGame,
           provider
         );
+        const referralContract = TorqueDriftReferral__factory.connect(
+          CONTRACT_ADDRESSES.TorqueDriftReferral,
+          provider
+        );
 
         const userState = await gameContract.getUserState(address);
         console.log("userState", userState);
-        return Boolean(userState[20]) || false; // Index 20 is gameStarted
+        let referrerCode = "";
+        if (userState.gameStarted) {
+          referrerCode = await referralContract.getUserReferralCode(address);
+        }
+        return { hasGameStarted: userState.gameStarted, referrerCode };
       } catch (error) {
         console.error("Error checking user existence:", error);
-        return false;
+        return { hasGameStarted: false, referrerCode: "" };
       }
     },
     enabled: !!address && isConnected && !!provider,
@@ -50,58 +115,27 @@ export const useInitializeGame = () => {
     retryDelay: 1000,
   });
 
-  // Mutation to initialize game
   const initializeMutation = useMutation({
     mutationFn: async (params: InitializeGameParams) => {
-      if (!signer || !isConnected || !address) {
+      if (!signer || !isConnected || !address || !provider) {
         throw new Error("Wallet not connected or signer not available");
       }
-
-      console.log(`👤 Initializing game for user: ${address}`);
-
       const gameContract = TorqueDriftGame__factory.connect(
         CONTRACT_ADDRESSES.TorqueDriftGame,
         signer
       );
-
-      let referrerAddress = "0x1111111111111111111111111111111111111112";
-
-      if (params.referrerPubkey) {
-        if (
-          params.referrerPubkey.startsWith("0x") &&
-          params.referrerPubkey.length === 42
-        ) {
-          referrerAddress = params.referrerPubkey;
-        }
+      const referrerCode = params.referrerPubkey ? params.referrerPubkey : "";
+      const referralData = await checkReferralCode(referrerCode, provider);
+      if (referrerCode && !referralData.isValid) {
+        throw new Error("Invalid referral code");
       }
-
-      const tx = await gameContract.initializeStartGame(referrerAddress, {
-        value: ethers.parseEther("0.1"),
-      });
+      const value = referralData.requiredPayment;
+      const tx = await gameContract["initializeStartGame(string)"](
+        referrerCode,
+        { value }
+      );
       await tx.wait();
-
-      return { success: true };
-    },
-    onMutate: () => {
-      setIsInitializing(true);
-    },
-    onSuccess: async () => {
-      // Invalidate user existence check
-      queryClient.invalidateQueries({
-        queryKey: ["userExists", address],
-      });
-
-      // Invalidate user data
-      queryClient.invalidateQueries({
-        queryKey: ["userData", address],
-      });
-
-      // Force refetch of user data
-      await queryClient.refetchQueries({
-        queryKey: ["userData", address],
-      });
-
-      toast.success("Game initialized successfully!");
+      await refetchUserExists();
     },
     onSettled: () => {
       setIsInitializing(false);
@@ -116,9 +150,18 @@ export const useInitializeGame = () => {
         toast.error("Your account is already initialized!");
       } else if (errorMessage.includes("insufficient funds")) {
         toast.error("Insufficient funds to initialize game");
+      } else if (errorMessage.includes("user rejected action")) {
+        toast.error("User rejected action");
+      } else if (errorMessage.includes("GAME_STARTED")) {
+        toast.error("Game already started");
       } else {
         toast.error(`Failed to initialize game: ${errorMessage}`);
       }
+    },
+    onSuccess: () => {
+      toast.success(
+        "Welcome to Torque Drift! Your account has been initialized successfully!"
+      );
     },
   });
 
@@ -127,7 +170,8 @@ export const useInitializeGame = () => {
   };
 
   return {
-    userExists: userExists || false,
+    userExists: userExistsData?.hasGameStarted || false,
+    referrerCode: userExistsData?.referrerCode || "",
     checkingUser,
     initializeGame,
     isInitializing,

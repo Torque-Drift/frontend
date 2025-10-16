@@ -12,7 +12,6 @@ async function burnTokensForLootbox(signer: any) {
     signer
   );
 
-  // Burn exactly 100 tokens for one lootbox
   const tokensToBurn = 100;
   const amountToBurn = BigInt(tokensToBurn) * BigInt(10 ** 9);
 
@@ -22,7 +21,6 @@ async function burnTokensForLootbox(signer: any) {
   });
 
   try {
-    // First, check if contract exists and is accessible
     console.log("Checking contract connection...");
     const code = await signer.provider.getCode(
       CONTRACT_ADDRESSES.TorqueDriftToken
@@ -86,6 +84,9 @@ async function burnTokensForLootbox(signer: any) {
     if (error.code === "INSUFFICIENT_FUNDS") {
       throw new Error("Insufficient BNB for gas fees.");
     }
+    if (error.message.includes("user rejected action")) {
+      throw new Error("User rejected action");
+    }
     if (error.message.includes("ERC20: burn amount exceeds balance")) {
       throw new Error("You don't have enough $TOD tokens to burn.");
     }
@@ -131,7 +132,7 @@ export const useBurn = () => {
       const lootboxResult = await response.json();
 
       const item = lootboxResult.rewardItem;
-      console.log(item)
+      console.log(item);
       return {
         burnTxSignature,
         rewardItem: item,
@@ -164,4 +165,3 @@ export const useBurn = () => {
     mutateAsync: mutation.mutateAsync,
   };
 };
-

@@ -117,6 +117,25 @@ const _abi = [
         type: "address",
       },
     ],
+    name: "authorizedContracts",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
     name: "carStates",
     outputs: [
       {
@@ -350,62 +369,6 @@ const _abi = [
         type: "address",
       },
     ],
-    name: "getUserCars",
-    outputs: [
-      {
-        components: [
-          {
-            internalType: "address",
-            name: "mint",
-            type: "address",
-          },
-          {
-            internalType: "uint256",
-            name: "hashPower",
-            type: "uint256",
-          },
-          {
-            internalType: "uint8",
-            name: "rarity",
-            type: "uint8",
-          },
-          {
-            internalType: "uint8",
-            name: "version",
-            type: "uint8",
-          },
-          {
-            internalType: "uint8",
-            name: "slotIndex",
-            type: "uint8",
-          },
-        ],
-        internalType: "struct ITorqueDriftStructs.CarInfo[5]",
-        name: "equippedCars",
-        type: "tuple[5]",
-      },
-      {
-        internalType: "uint8",
-        name: "totalEquipped",
-        type: "uint8",
-      },
-      {
-        internalType: "uint256",
-        name: "totalHashPower",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "user",
-        type: "address",
-      },
-    ],
     name: "getUserInventory",
     outputs: [
       {
@@ -419,6 +382,16 @@ const _abi = [
             internalType: "uint256",
             name: "hashPower",
             type: "uint256",
+          },
+          {
+            internalType: "uint32",
+            name: "efficiency",
+            type: "uint32",
+          },
+          {
+            internalType: "uint32",
+            name: "lastMaintenance",
+            type: "uint32",
           },
           {
             internalType: "uint8",
@@ -475,6 +448,24 @@ const _abi = [
   {
     inputs: [],
     name: "renounceOwnership",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_contract",
+        type: "address",
+      },
+      {
+        internalType: "bool",
+        name: "_authorized",
+        type: "bool",
+      },
+    ],
+    name: "setAuthorizedContract",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

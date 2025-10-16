@@ -161,10 +161,12 @@ export declare namespace ITorqueDriftStructs {
     lastLockTime: BigNumberish;
     totalClaimed: BigNumberish;
     referralEarnings: BigNumberish;
+    referralEarningsLevel2: BigNumberish;
     cachedEffectiveHashPower: BigNumberish;
     lastEffectiveHashPowerUpdate: BigNumberish;
     lock: ITorqueDriftStructs.LockInfoStruct;
     referrer: AddressLike;
+    referrerLevel2: AddressLike;
     slots: [AddressLike, AddressLike, AddressLike, AddressLike, AddressLike];
     referralCount: BigNumberish;
     gambleCountToday: BigNumberish;
@@ -185,10 +187,12 @@ export declare namespace ITorqueDriftStructs {
     lastLockTime: bigint,
     totalClaimed: bigint,
     referralEarnings: bigint,
+    referralEarningsLevel2: bigint,
     cachedEffectiveHashPower: bigint,
     lastEffectiveHashPowerUpdate: bigint,
     lock: ITorqueDriftStructs.LockInfoStructOutput,
     referrer: string,
+    referrerLevel2: string,
     slots: [string, string, string, string, string],
     referralCount: bigint,
     gambleCountToday: bigint,
@@ -207,10 +211,12 @@ export declare namespace ITorqueDriftStructs {
     lastLockTime: bigint;
     totalClaimed: bigint;
     referralEarnings: bigint;
+    referralEarningsLevel2: bigint;
     cachedEffectiveHashPower: bigint;
     lastEffectiveHashPowerUpdate: bigint;
     lock: ITorqueDriftStructs.LockInfoStructOutput;
     referrer: string;
+    referrerLevel2: string;
     slots: [string, string, string, string, string];
     referralCount: bigint;
     gambleCountToday: bigint;
@@ -220,7 +226,7 @@ export declare namespace ITorqueDriftStructs {
   };
 }
 
-export interface TorqueDriftGameCoreInterface extends Interface {
+export interface TorqueDriftReferralInterface extends Interface {
   getFunction(
     nameOrSignature:
       | "DEFAULT_TIMELOCK_DURATION"
@@ -238,29 +244,60 @@ export interface TorqueDriftGameCoreInterface extends Interface {
       | "SECONDS_PER_HOUR"
       | "activateClaimLock"
       | "advancedContract"
+      | "calculateMaintenanceCost"
       | "carsContract"
       | "claimTokens"
       | "deactivateClaimLock"
+      | "discountReferralCodes"
       | "emergencyRescueTokens"
       | "equipCar"
       | "equippedCars"
-      | "gambleDiscount"
+      | "gameContract"
+      | "getCarEfficiencyInfo"
+      | "getContractVersion"
+      | "getDiscountReferralCodesStatus"
       | "getGlobalState"
+      | "getReferralDiscountInfo"
+      | "getReferralInfo"
       | "getUserCars"
+      | "getUserEquippedCar"
       | "getUserEquippedCars"
+      | "getUserGameStarted"
+      | "getUserHashPower"
       | "getUserInfo"
+      | "getUserLastClaim"
+      | "getUserReferralCode"
+      | "getUserReferralCount"
+      | "getUserReferrer"
       | "getUserState"
+      | "getUserTotalClaimed"
+      | "getUserTotalEarned"
       | "globalState"
       | "hasActiveClaimLock"
       | "initializeStartGame"
+      | "initializeStartGameWithReferral"
+      | "isValidReferralCode"
+      | "owner"
+      | "payMaintenance"
+      | "performMaintenance"
       | "previewClaim"
+      | "referralCodeToAddress"
       | "referralCounts"
+      | "referralDiscountBalance"
       | "referrals"
       | "setAdvancedContract"
+      | "setCarsContract"
+      | "setDiscountReferralCodes"
+      | "setGameContract"
+      | "setTokenContract"
+      | "specialReferralCount"
       | "tokenContract"
+      | "totalTokensClaimed"
+      | "totalUsers"
       | "treasuryWallet"
       | "unequipCar"
       | "userStates"
+      | "withdrawReferralDiscounts"
   ): FunctionFragment;
 
   getEvent(
@@ -273,11 +310,15 @@ export interface TorqueDriftGameCoreInterface extends Interface {
       | "CarMaintenance"
       | "CarUnequipped"
       | "ClockDriftToleranceUpdated"
+      | "DiscountReferralApplied"
+      | "DiscountReferralCodeUpdated"
       | "GameStarted"
       | "HalvingTriggered"
       | "MinClaimCooldownUpdated"
       | "ReferralApplied"
       | "ReferralBoostDurationUpdated"
+      | "ReferralCodeCreated"
+      | "ReferralDiscountWithdrawn"
       | "TokensClaimed"
       | "TreasuryWalletUpdated"
   ): EventFragment;
@@ -343,6 +384,10 @@ export interface TorqueDriftGameCoreInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "calculateMaintenanceCost",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "carsContract",
     values?: undefined
   ): string;
@@ -353,6 +398,10 @@ export interface TorqueDriftGameCoreInterface extends Interface {
   encodeFunctionData(
     functionFragment: "deactivateClaimLock",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "discountReferralCodes",
+    values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "emergencyRescueTokens",
@@ -367,19 +416,51 @@ export interface TorqueDriftGameCoreInterface extends Interface {
     values: [AddressLike, BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "gambleDiscount",
-    values: [BigNumberish, BigNumberish]
+    functionFragment: "gameContract",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getCarEfficiencyInfo",
+    values: [AddressLike, AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getContractVersion",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getDiscountReferralCodesStatus",
+    values: [string[]]
   ): string;
   encodeFunctionData(
     functionFragment: "getGlobalState",
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "getReferralDiscountInfo",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getReferralInfo",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "getUserCars",
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "getUserEquippedCar",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "getUserEquippedCars",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getUserGameStarted",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getUserHashPower",
     values: [AddressLike]
   ): string;
   encodeFunctionData(
@@ -387,7 +468,31 @@ export interface TorqueDriftGameCoreInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "getUserLastClaim",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getUserReferralCode",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getUserReferralCount",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getUserReferrer",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "getUserState",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getUserTotalClaimed",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getUserTotalEarned",
     values: [AddressLike]
   ): string;
   encodeFunctionData(
@@ -403,11 +508,36 @@ export interface TorqueDriftGameCoreInterface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(
+    functionFragment: "initializeStartGameWithReferral",
+    values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isValidReferralCode",
+    values: [string]
+  ): string;
+  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "payMaintenance",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "performMaintenance",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "previewClaim",
     values: [AddressLike]
   ): string;
   encodeFunctionData(
+    functionFragment: "referralCodeToAddress",
+    values: [string]
+  ): string;
+  encodeFunctionData(
     functionFragment: "referralCounts",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "referralDiscountBalance",
     values: [AddressLike]
   ): string;
   encodeFunctionData(
@@ -419,7 +549,35 @@ export interface TorqueDriftGameCoreInterface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(
+    functionFragment: "setCarsContract",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setDiscountReferralCodes",
+    values: [string[], boolean]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setGameContract",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setTokenContract",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "specialReferralCount",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "tokenContract",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "totalTokensClaimed",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "totalUsers",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -433,6 +591,10 @@ export interface TorqueDriftGameCoreInterface extends Interface {
   encodeFunctionData(
     functionFragment: "userStates",
     values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "withdrawReferralDiscounts",
+    values?: undefined
   ): string;
 
   decodeFunctionResult(
@@ -496,6 +658,10 @@ export interface TorqueDriftGameCoreInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "calculateMaintenanceCost",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "carsContract",
     data: BytesLike
   ): Result;
@@ -508,6 +674,10 @@ export interface TorqueDriftGameCoreInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "discountReferralCodes",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "emergencyRescueTokens",
     data: BytesLike
   ): Result;
@@ -517,7 +687,19 @@ export interface TorqueDriftGameCoreInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "gambleDiscount",
+    functionFragment: "gameContract",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getCarEfficiencyInfo",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getContractVersion",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getDiscountReferralCodesStatus",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -525,7 +707,19 @@ export interface TorqueDriftGameCoreInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "getReferralDiscountInfo",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getReferralInfo",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "getUserCars",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getUserEquippedCar",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -533,11 +727,43 @@ export interface TorqueDriftGameCoreInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "getUserGameStarted",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getUserHashPower",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "getUserInfo",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "getUserLastClaim",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getUserReferralCode",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getUserReferralCount",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getUserReferrer",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "getUserState",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getUserTotalClaimed",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getUserTotalEarned",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -553,11 +779,36 @@ export interface TorqueDriftGameCoreInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "initializeStartGameWithReferral",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isValidReferralCode",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "payMaintenance",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "performMaintenance",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "previewClaim",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "referralCodeToAddress",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "referralCounts",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "referralDiscountBalance",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "referrals", data: BytesLike): Result;
@@ -566,15 +817,44 @@ export interface TorqueDriftGameCoreInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "setCarsContract",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setDiscountReferralCodes",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setGameContract",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setTokenContract",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "specialReferralCount",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "tokenContract",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "totalTokensClaimed",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "totalUsers", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "treasuryWallet",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "unequipCar", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "userStates", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "withdrawReferralDiscounts",
+    data: BytesLike
+  ): Result;
 }
 
 export namespace AdvancedContractUpdatedEvent {
@@ -755,6 +1035,56 @@ export namespace ClockDriftToleranceUpdatedEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
+export namespace DiscountReferralAppliedEvent {
+  export type InputTuple = [
+    referrer: AddressLike,
+    referee: AddressLike,
+    discountAmount: BigNumberish,
+    timestamp: BigNumberish
+  ];
+  export type OutputTuple = [
+    referrer: string,
+    referee: string,
+    discountAmount: bigint,
+    timestamp: bigint
+  ];
+  export interface OutputObject {
+    referrer: string;
+    referee: string;
+    discountAmount: bigint;
+    timestamp: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace DiscountReferralCodeUpdatedEvent {
+  export type InputTuple = [
+    code: string,
+    referrer: AddressLike,
+    enabled: boolean,
+    timestamp: BigNumberish
+  ];
+  export type OutputTuple = [
+    code: string,
+    referrer: string,
+    enabled: boolean,
+    timestamp: bigint
+  ];
+  export interface OutputObject {
+    code: string;
+    referrer: string;
+    enabled: boolean;
+    timestamp: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
 export namespace GameStartedEvent {
   export type InputTuple = [
     user: AddressLike,
@@ -862,6 +1192,49 @@ export namespace ReferralBoostDurationUpdatedEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
+export namespace ReferralCodeCreatedEvent {
+  export type InputTuple = [
+    user: AddressLike,
+    code: BytesLike,
+    timestamp: BigNumberish
+  ];
+  export type OutputTuple = [user: string, code: string, timestamp: bigint];
+  export interface OutputObject {
+    user: string;
+    code: string;
+    timestamp: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace ReferralDiscountWithdrawnEvent {
+  export type InputTuple = [
+    referrer: AddressLike,
+    amount: BigNumberish,
+    specialReferralCount: BigNumberish,
+    timestamp: BigNumberish
+  ];
+  export type OutputTuple = [
+    referrer: string,
+    amount: bigint,
+    specialReferralCount: bigint,
+    timestamp: bigint
+  ];
+  export interface OutputObject {
+    referrer: string;
+    amount: bigint;
+    specialReferralCount: bigint;
+    timestamp: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
 export namespace TokensClaimedEvent {
   export type InputTuple = [
     user: AddressLike,
@@ -893,11 +1266,11 @@ export namespace TreasuryWalletUpdatedEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
-export interface TorqueDriftGameCore extends BaseContract {
-  connect(runner?: ContractRunner | null): TorqueDriftGameCore;
+export interface TorqueDriftReferral extends BaseContract {
+  connect(runner?: ContractRunner | null): TorqueDriftReferral;
   waitForDeployment(): Promise<this>;
 
-  interface: TorqueDriftGameCoreInterface;
+  interface: TorqueDriftReferralInterface;
 
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
@@ -970,11 +1343,19 @@ export interface TorqueDriftGameCore extends BaseContract {
 
   advancedContract: TypedContractMethod<[], [string], "view">;
 
+  calculateMaintenanceCost: TypedContractMethod<
+    [carAddress: AddressLike],
+    [[bigint, boolean] & { cost: bigint; canMaintain: boolean }],
+    "view"
+  >;
+
   carsContract: TypedContractMethod<[], [string], "view">;
 
   claimTokens: TypedContractMethod<[], [void], "payable">;
 
   deactivateClaimLock: TypedContractMethod<[], [void], "nonpayable">;
+
+  discountReferralCodes: TypedContractMethod<[arg0: string], [boolean], "view">;
 
   emergencyRescueTokens: TypedContractMethod<
     [token: AddressLike, amount: BigNumberish],
@@ -1004,15 +1385,63 @@ export interface TorqueDriftGameCore extends BaseContract {
     "view"
   >;
 
-  gambleDiscount: TypedContractMethod<
-    [gamblePercent: BigNumberish, serverRandomness: BigNumberish],
-    [void],
-    "nonpayable"
+  gameContract: TypedContractMethod<[], [string], "view">;
+
+  getCarEfficiencyInfo: TypedContractMethod<
+    [user: AddressLike, carAddress: AddressLike],
+    [
+      [bigint, bigint, bigint, bigint, bigint] & {
+        currentEfficiency: bigint;
+        effectiveHashPower: bigint;
+        maintenanceCost: bigint;
+        timeUntilNextMaintenance: bigint;
+        currentDailyYield: bigint;
+      }
+    ],
+    "view"
+  >;
+
+  getContractVersion: TypedContractMethod<[], [string], "view">;
+
+  getDiscountReferralCodesStatus: TypedContractMethod<
+    [codes: string[]],
+    [boolean[]],
+    "view"
   >;
 
   getGlobalState: TypedContractMethod<
     [],
     [ITorqueDriftStructs.GlobalStateStructOutput],
+    "view"
+  >;
+
+  getReferralDiscountInfo: TypedContractMethod<
+    [user: AddressLike],
+    [
+      [bigint, bigint, boolean, bigint] & {
+        balance: bigint;
+        specialCount: bigint;
+        canWithdraw: boolean;
+        totalDiscountEarned: bigint;
+      }
+    ],
+    "view"
+  >;
+
+  getReferralInfo: TypedContractMethod<
+    [user: AddressLike],
+    [
+      [string, bigint, bigint, bigint, bigint, bigint, bigint, bigint] & {
+        referrer_: string;
+        referralEarnings_: bigint;
+        referralEarningsLevel2_: bigint;
+        referralCount_: bigint;
+        discount_: bigint;
+        boostPercent_: bigint;
+        boostStartTime_: bigint;
+        boostDuration_: bigint;
+      }
+    ],
     "view"
   >;
 
@@ -1044,6 +1473,12 @@ export interface TorqueDriftGameCore extends BaseContract {
     "view"
   >;
 
+  getUserEquippedCar: TypedContractMethod<
+    [user: AddressLike],
+    [boolean],
+    "view"
+  >;
+
   getUserEquippedCars: TypedContractMethod<
     [user: AddressLike],
     [
@@ -1072,6 +1507,14 @@ export interface TorqueDriftGameCore extends BaseContract {
     "view"
   >;
 
+  getUserGameStarted: TypedContractMethod<
+    [user: AddressLike],
+    [boolean],
+    "view"
+  >;
+
+  getUserHashPower: TypedContractMethod<[user: AddressLike], [bigint], "view">;
+
   getUserInfo: TypedContractMethod<
     [],
     [
@@ -1088,9 +1531,37 @@ export interface TorqueDriftGameCore extends BaseContract {
     "view"
   >;
 
+  getUserLastClaim: TypedContractMethod<[user: AddressLike], [bigint], "view">;
+
+  getUserReferralCode: TypedContractMethod<
+    [user: AddressLike],
+    [string],
+    "view"
+  >;
+
+  getUserReferralCount: TypedContractMethod<
+    [user: AddressLike],
+    [bigint],
+    "view"
+  >;
+
+  getUserReferrer: TypedContractMethod<[user: AddressLike], [string], "view">;
+
   getUserState: TypedContractMethod<
     [user: AddressLike],
     [ITorqueDriftStructs.UserStateStructOutput],
+    "view"
+  >;
+
+  getUserTotalClaimed: TypedContractMethod<
+    [user: AddressLike],
+    [bigint],
+    "view"
+  >;
+
+  getUserTotalEarned: TypedContractMethod<
+    [user: AddressLike],
+    [bigint],
     "view"
   >;
 
@@ -1168,6 +1639,28 @@ export interface TorqueDriftGameCore extends BaseContract {
     "payable"
   >;
 
+  initializeStartGameWithReferral: TypedContractMethod<
+    [referrerCode: string],
+    [void],
+    "payable"
+  >;
+
+  isValidReferralCode: TypedContractMethod<[code: string], [boolean], "view">;
+
+  owner: TypedContractMethod<[], [string], "view">;
+
+  payMaintenance: TypedContractMethod<
+    [carAddress: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
+  performMaintenance: TypedContractMethod<
+    [carAddress: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
   previewClaim: TypedContractMethod<
     [user: AddressLike],
     [
@@ -1181,7 +1674,15 @@ export interface TorqueDriftGameCore extends BaseContract {
     "view"
   >;
 
+  referralCodeToAddress: TypedContractMethod<[arg0: string], [string], "view">;
+
   referralCounts: TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
+
+  referralDiscountBalance: TypedContractMethod<
+    [arg0: AddressLike],
+    [bigint],
+    "view"
+  >;
 
   referrals: TypedContractMethod<[arg0: AddressLike], [string], "view">;
 
@@ -1191,7 +1692,41 @@ export interface TorqueDriftGameCore extends BaseContract {
     "nonpayable"
   >;
 
+  setCarsContract: TypedContractMethod<
+    [_carsContract: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
+  setDiscountReferralCodes: TypedContractMethod<
+    [codes: string[], enabled: boolean],
+    [void],
+    "nonpayable"
+  >;
+
+  setGameContract: TypedContractMethod<
+    [_gameContract: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
+  setTokenContract: TypedContractMethod<
+    [_tokenContract: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
+  specialReferralCount: TypedContractMethod<
+    [arg0: AddressLike],
+    [bigint],
+    "view"
+  >;
+
   tokenContract: TypedContractMethod<[], [string], "view">;
+
+  totalTokensClaimed: TypedContractMethod<[], [bigint], "view">;
+
+  totalUsers: TypedContractMethod<[], [bigint], "view">;
 
   treasuryWallet: TypedContractMethod<[], [string], "view">;
 
@@ -1218,7 +1753,9 @@ export interface TorqueDriftGameCore extends BaseContract {
         bigint,
         bigint,
         bigint,
+        bigint,
         ITorqueDriftStructs.LockInfoStructOutput,
+        string,
         string,
         bigint,
         bigint,
@@ -1237,10 +1774,12 @@ export interface TorqueDriftGameCore extends BaseContract {
         lastLockTime: bigint;
         totalClaimed: bigint;
         referralEarnings: bigint;
+        referralEarningsLevel2: bigint;
         cachedEffectiveHashPower: bigint;
         lastEffectiveHashPowerUpdate: bigint;
         lock: ITorqueDriftStructs.LockInfoStructOutput;
         referrer: string;
+        referrerLevel2: string;
         referralCount: bigint;
         gambleCountToday: bigint;
         gambleUsed: boolean;
@@ -1250,6 +1789,8 @@ export interface TorqueDriftGameCore extends BaseContract {
     ],
     "view"
   >;
+
+  withdrawReferralDiscounts: TypedContractMethod<[], [void], "nonpayable">;
 
   getFunction<T extends ContractMethod = ContractMethod>(
     key: string | FunctionFragment
@@ -1301,6 +1842,13 @@ export interface TorqueDriftGameCore extends BaseContract {
     nameOrSignature: "advancedContract"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
+    nameOrSignature: "calculateMaintenanceCost"
+  ): TypedContractMethod<
+    [carAddress: AddressLike],
+    [[bigint, boolean] & { cost: bigint; canMaintain: boolean }],
+    "view"
+  >;
+  getFunction(
     nameOrSignature: "carsContract"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
@@ -1309,6 +1857,9 @@ export interface TorqueDriftGameCore extends BaseContract {
   getFunction(
     nameOrSignature: "deactivateClaimLock"
   ): TypedContractMethod<[], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "discountReferralCodes"
+  ): TypedContractMethod<[arg0: string], [boolean], "view">;
   getFunction(
     nameOrSignature: "emergencyRescueTokens"
   ): TypedContractMethod<
@@ -1341,17 +1892,66 @@ export interface TorqueDriftGameCore extends BaseContract {
     "view"
   >;
   getFunction(
-    nameOrSignature: "gambleDiscount"
+    nameOrSignature: "gameContract"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "getCarEfficiencyInfo"
   ): TypedContractMethod<
-    [gamblePercent: BigNumberish, serverRandomness: BigNumberish],
-    [void],
-    "nonpayable"
+    [user: AddressLike, carAddress: AddressLike],
+    [
+      [bigint, bigint, bigint, bigint, bigint] & {
+        currentEfficiency: bigint;
+        effectiveHashPower: bigint;
+        maintenanceCost: bigint;
+        timeUntilNextMaintenance: bigint;
+        currentDailyYield: bigint;
+      }
+    ],
+    "view"
   >;
+  getFunction(
+    nameOrSignature: "getContractVersion"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "getDiscountReferralCodesStatus"
+  ): TypedContractMethod<[codes: string[]], [boolean[]], "view">;
   getFunction(
     nameOrSignature: "getGlobalState"
   ): TypedContractMethod<
     [],
     [ITorqueDriftStructs.GlobalStateStructOutput],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "getReferralDiscountInfo"
+  ): TypedContractMethod<
+    [user: AddressLike],
+    [
+      [bigint, bigint, boolean, bigint] & {
+        balance: bigint;
+        specialCount: bigint;
+        canWithdraw: boolean;
+        totalDiscountEarned: bigint;
+      }
+    ],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "getReferralInfo"
+  ): TypedContractMethod<
+    [user: AddressLike],
+    [
+      [string, bigint, bigint, bigint, bigint, bigint, bigint, bigint] & {
+        referrer_: string;
+        referralEarnings_: bigint;
+        referralEarningsLevel2_: bigint;
+        referralCount_: bigint;
+        discount_: bigint;
+        boostPercent_: bigint;
+        boostStartTime_: bigint;
+        boostDuration_: bigint;
+      }
+    ],
     "view"
   >;
   getFunction(
@@ -1384,6 +1984,9 @@ export interface TorqueDriftGameCore extends BaseContract {
     "view"
   >;
   getFunction(
+    nameOrSignature: "getUserEquippedCar"
+  ): TypedContractMethod<[user: AddressLike], [boolean], "view">;
+  getFunction(
     nameOrSignature: "getUserEquippedCars"
   ): TypedContractMethod<
     [user: AddressLike],
@@ -1413,6 +2016,12 @@ export interface TorqueDriftGameCore extends BaseContract {
     "view"
   >;
   getFunction(
+    nameOrSignature: "getUserGameStarted"
+  ): TypedContractMethod<[user: AddressLike], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "getUserHashPower"
+  ): TypedContractMethod<[user: AddressLike], [bigint], "view">;
+  getFunction(
     nameOrSignature: "getUserInfo"
   ): TypedContractMethod<
     [],
@@ -1430,12 +2039,30 @@ export interface TorqueDriftGameCore extends BaseContract {
     "view"
   >;
   getFunction(
+    nameOrSignature: "getUserLastClaim"
+  ): TypedContractMethod<[user: AddressLike], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "getUserReferralCode"
+  ): TypedContractMethod<[user: AddressLike], [string], "view">;
+  getFunction(
+    nameOrSignature: "getUserReferralCount"
+  ): TypedContractMethod<[user: AddressLike], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "getUserReferrer"
+  ): TypedContractMethod<[user: AddressLike], [string], "view">;
+  getFunction(
     nameOrSignature: "getUserState"
   ): TypedContractMethod<
     [user: AddressLike],
     [ITorqueDriftStructs.UserStateStructOutput],
     "view"
   >;
+  getFunction(
+    nameOrSignature: "getUserTotalClaimed"
+  ): TypedContractMethod<[user: AddressLike], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "getUserTotalEarned"
+  ): TypedContractMethod<[user: AddressLike], [bigint], "view">;
   getFunction(
     nameOrSignature: "globalState"
   ): TypedContractMethod<
@@ -1506,6 +2133,21 @@ export interface TorqueDriftGameCore extends BaseContract {
     nameOrSignature: "initializeStartGame"
   ): TypedContractMethod<[referrer: AddressLike], [void], "payable">;
   getFunction(
+    nameOrSignature: "initializeStartGameWithReferral"
+  ): TypedContractMethod<[referrerCode: string], [void], "payable">;
+  getFunction(
+    nameOrSignature: "isValidReferralCode"
+  ): TypedContractMethod<[code: string], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "owner"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "payMaintenance"
+  ): TypedContractMethod<[carAddress: AddressLike], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "performMaintenance"
+  ): TypedContractMethod<[carAddress: AddressLike], [void], "nonpayable">;
+  getFunction(
     nameOrSignature: "previewClaim"
   ): TypedContractMethod<
     [user: AddressLike],
@@ -1520,7 +2162,13 @@ export interface TorqueDriftGameCore extends BaseContract {
     "view"
   >;
   getFunction(
+    nameOrSignature: "referralCodeToAddress"
+  ): TypedContractMethod<[arg0: string], [string], "view">;
+  getFunction(
     nameOrSignature: "referralCounts"
+  ): TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "referralDiscountBalance"
   ): TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
   getFunction(
     nameOrSignature: "referrals"
@@ -1533,8 +2181,33 @@ export interface TorqueDriftGameCore extends BaseContract {
     "nonpayable"
   >;
   getFunction(
+    nameOrSignature: "setCarsContract"
+  ): TypedContractMethod<[_carsContract: AddressLike], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "setDiscountReferralCodes"
+  ): TypedContractMethod<
+    [codes: string[], enabled: boolean],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "setGameContract"
+  ): TypedContractMethod<[_gameContract: AddressLike], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "setTokenContract"
+  ): TypedContractMethod<[_tokenContract: AddressLike], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "specialReferralCount"
+  ): TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
+  getFunction(
     nameOrSignature: "tokenContract"
   ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "totalTokensClaimed"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "totalUsers"
+  ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "treasuryWallet"
   ): TypedContractMethod<[], [string], "view">;
@@ -1564,7 +2237,9 @@ export interface TorqueDriftGameCore extends BaseContract {
         bigint,
         bigint,
         bigint,
+        bigint,
         ITorqueDriftStructs.LockInfoStructOutput,
+        string,
         string,
         bigint,
         bigint,
@@ -1583,10 +2258,12 @@ export interface TorqueDriftGameCore extends BaseContract {
         lastLockTime: bigint;
         totalClaimed: bigint;
         referralEarnings: bigint;
+        referralEarningsLevel2: bigint;
         cachedEffectiveHashPower: bigint;
         lastEffectiveHashPowerUpdate: bigint;
         lock: ITorqueDriftStructs.LockInfoStructOutput;
         referrer: string;
+        referrerLevel2: string;
         referralCount: bigint;
         gambleCountToday: bigint;
         gambleUsed: boolean;
@@ -1596,6 +2273,9 @@ export interface TorqueDriftGameCore extends BaseContract {
     ],
     "view"
   >;
+  getFunction(
+    nameOrSignature: "withdrawReferralDiscounts"
+  ): TypedContractMethod<[], [void], "nonpayable">;
 
   getEvent(
     key: "AdvancedContractUpdated"
@@ -1654,6 +2334,20 @@ export interface TorqueDriftGameCore extends BaseContract {
     ClockDriftToleranceUpdatedEvent.OutputObject
   >;
   getEvent(
+    key: "DiscountReferralApplied"
+  ): TypedContractEvent<
+    DiscountReferralAppliedEvent.InputTuple,
+    DiscountReferralAppliedEvent.OutputTuple,
+    DiscountReferralAppliedEvent.OutputObject
+  >;
+  getEvent(
+    key: "DiscountReferralCodeUpdated"
+  ): TypedContractEvent<
+    DiscountReferralCodeUpdatedEvent.InputTuple,
+    DiscountReferralCodeUpdatedEvent.OutputTuple,
+    DiscountReferralCodeUpdatedEvent.OutputObject
+  >;
+  getEvent(
     key: "GameStarted"
   ): TypedContractEvent<
     GameStartedEvent.InputTuple,
@@ -1687,6 +2381,20 @@ export interface TorqueDriftGameCore extends BaseContract {
     ReferralBoostDurationUpdatedEvent.InputTuple,
     ReferralBoostDurationUpdatedEvent.OutputTuple,
     ReferralBoostDurationUpdatedEvent.OutputObject
+  >;
+  getEvent(
+    key: "ReferralCodeCreated"
+  ): TypedContractEvent<
+    ReferralCodeCreatedEvent.InputTuple,
+    ReferralCodeCreatedEvent.OutputTuple,
+    ReferralCodeCreatedEvent.OutputObject
+  >;
+  getEvent(
+    key: "ReferralDiscountWithdrawn"
+  ): TypedContractEvent<
+    ReferralDiscountWithdrawnEvent.InputTuple,
+    ReferralDiscountWithdrawnEvent.OutputTuple,
+    ReferralDiscountWithdrawnEvent.OutputObject
   >;
   getEvent(
     key: "TokensClaimed"
@@ -1792,6 +2500,28 @@ export interface TorqueDriftGameCore extends BaseContract {
       ClockDriftToleranceUpdatedEvent.OutputObject
     >;
 
+    "DiscountReferralApplied(address,address,uint256,uint256)": TypedContractEvent<
+      DiscountReferralAppliedEvent.InputTuple,
+      DiscountReferralAppliedEvent.OutputTuple,
+      DiscountReferralAppliedEvent.OutputObject
+    >;
+    DiscountReferralApplied: TypedContractEvent<
+      DiscountReferralAppliedEvent.InputTuple,
+      DiscountReferralAppliedEvent.OutputTuple,
+      DiscountReferralAppliedEvent.OutputObject
+    >;
+
+    "DiscountReferralCodeUpdated(string,address,bool,uint256)": TypedContractEvent<
+      DiscountReferralCodeUpdatedEvent.InputTuple,
+      DiscountReferralCodeUpdatedEvent.OutputTuple,
+      DiscountReferralCodeUpdatedEvent.OutputObject
+    >;
+    DiscountReferralCodeUpdated: TypedContractEvent<
+      DiscountReferralCodeUpdatedEvent.InputTuple,
+      DiscountReferralCodeUpdatedEvent.OutputTuple,
+      DiscountReferralCodeUpdatedEvent.OutputObject
+    >;
+
     "GameStarted(address,uint256,address,uint256)": TypedContractEvent<
       GameStartedEvent.InputTuple,
       GameStartedEvent.OutputTuple,
@@ -1845,6 +2575,28 @@ export interface TorqueDriftGameCore extends BaseContract {
       ReferralBoostDurationUpdatedEvent.InputTuple,
       ReferralBoostDurationUpdatedEvent.OutputTuple,
       ReferralBoostDurationUpdatedEvent.OutputObject
+    >;
+
+    "ReferralCodeCreated(address,bytes32,uint256)": TypedContractEvent<
+      ReferralCodeCreatedEvent.InputTuple,
+      ReferralCodeCreatedEvent.OutputTuple,
+      ReferralCodeCreatedEvent.OutputObject
+    >;
+    ReferralCodeCreated: TypedContractEvent<
+      ReferralCodeCreatedEvent.InputTuple,
+      ReferralCodeCreatedEvent.OutputTuple,
+      ReferralCodeCreatedEvent.OutputObject
+    >;
+
+    "ReferralDiscountWithdrawn(address,uint256,uint32,uint256)": TypedContractEvent<
+      ReferralDiscountWithdrawnEvent.InputTuple,
+      ReferralDiscountWithdrawnEvent.OutputTuple,
+      ReferralDiscountWithdrawnEvent.OutputObject
+    >;
+    ReferralDiscountWithdrawn: TypedContractEvent<
+      ReferralDiscountWithdrawnEvent.InputTuple,
+      ReferralDiscountWithdrawnEvent.OutputTuple,
+      ReferralDiscountWithdrawnEvent.OutputObject
     >;
 
     "TokensClaimed(address,uint256,uint256)": TypedContractEvent<

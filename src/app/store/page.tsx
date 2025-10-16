@@ -23,7 +23,7 @@ export default function StorePage() {
   const {
     formattedTodBalance: tokenBalance,
     isLoading: balanceLoading,
-    refetchTodBalance,
+    refetchAll,
   } = useTokenBalances();
   const { mutateAsync: purchaseTokens, isLoading: isPurchasingTokens } =
     useTokenPurchase();
@@ -47,7 +47,7 @@ export default function StorePage() {
     try {
       const result = await purchaseTokens({ tokenAmount });
       console.log("Purchase result:", result);
-      setTimeout(() => refetchTodBalance(), 2000);
+      refetchAll();
     } catch (error) {
       console.error("Failed to purchase tokens:", error);
       // Error is already handled by the hook
@@ -98,7 +98,7 @@ export default function StorePage() {
         setShowRewardModal(true);
       }
       // Refresh balance after opening lootbox
-      setTimeout(() => refetchTodBalance(), 2000);
+      refetchAll();
     } catch (error) {
       console.error("Failed to open lootbox:", error);
       // Error is already handled by the hook
@@ -140,7 +140,7 @@ export default function StorePage() {
                   </span>
                 )}
                 <button
-                  onClick={() => refetchTodBalance()}
+                  onClick={() => refetchAll()}
                   disabled={balanceLoading}
                   className="text-[#00D4FF] hover:text-[#00B4FF] transition-colors ml-2 text-sm"
                 >
@@ -458,7 +458,7 @@ export default function StorePage() {
                   </li>
                   <li className="flex items-center">
                     <span className="w-2 h-2 bg-[#00D4FF] rounded-full mr-3"></span>
-                    Token Price: $1.00 USD
+                    Token Price: $0.12 USD
                   </li>
                 </ul>
               </div>
@@ -479,4 +479,3 @@ export default function StorePage() {
     </div>
   );
 }
-

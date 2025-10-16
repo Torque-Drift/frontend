@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEthers } from "./useEthers";
-import { TorqueDriftGame__factory, TorqueDriftViews__factory } from "@/contracts";
+import {
+  TorqueDriftGame__factory,
+  TorqueDriftViews__factory,
+} from "@/contracts";
 import { CONTRACT_ADDRESSES } from "@/constants";
 import toast from "react-hot-toast";
 import { ethers } from "ethers";
@@ -15,6 +18,7 @@ export interface ClaimLockState {
   canDeactivate: boolean;
   timeRemaining?: number;
   cooldownTime?: number;
+  amount?: number;
 }
 
 // Available lock options
@@ -45,12 +49,6 @@ export const useClaimLock = () => {
         CONTRACT_ADDRESSES.TorqueDriftGame,
         signer
       );
-
-      const viewsContract = TorqueDriftViews__factory.connect(
-        CONTRACT_ADDRESSES.TorqueDriftViews,
-        signer
-      );
-
       try {
         // Check if has active lock
         const hasActiveLock = await gameContract.hasActiveClaimLock(address);
@@ -71,34 +69,33 @@ export const useClaimLock = () => {
           };
         }
 
-        // Has active lock - get details from both contracts
         const userState = await gameContract.getUserState(address);
-        const claimPreview = await viewsContract.getClaimPreview(address);
+        const now = Math.floor(Date.now() / 1000);
+        const isLockActive = Number(userState.lock.unlockTime) > now;
+        const amount = Number(userState.lock.amount);
+        const unlockTime = Number(userState.lock.unlockTime);
+        const boostPercent = Number(userState.lock.boostPercent);
+        const timeRemaining = isLockActive
+          ? Number(userState.lock.unlockTime) - now
+          : 0;
 
-        
-        const unlockTime = Number(userState[7]); // lock.unlockTime
         const currentTime = Math.floor(Date.now() / 1000);
-
-        // Get current boost from preview claim (CORRECTED)
-        const baseReward = Number(ethers.formatUnits(claimPreview.baseReward, 9));
-        const lockBoostValue = Number(ethers.formatUnits(claimPreview.lockBoost, 9));
-        const boostPercent = baseReward > 0 ? (lockBoostValue / baseReward) * 100 : 0;
-
         // Determine option based on boost
         let lockOption: number = 0;
         if (boostPercent >= 1.5 && boostPercent <= 2.5) lockOption = 0; // ~2%
-        else if (boostPercent >= 4.5 && boostPercent <= 5.5) lockOption = 1; // ~5%
+        else if (boostPercent >= 4.5 && boostPercent <= 5.5)
+          lockOption = 1; // ~5%
         else if (boostPercent >= 9.5 && boostPercent <= 10.5) lockOption = 2; // ~10%
-
 
         return {
           hasActiveLock: true,
-          lockOption,
+          amount,
+          boostPercent,
           unlockTime,
-          boostPercent: Math.round(boostPercent * 100) / 100, // Round to 2 decimal places
+          lockOption,
           canActivate: false,
           canDeactivate: currentTime >= unlockTime,
-          timeRemaining: Math.max(0, unlockTime - currentTime),
+          timeRemaining,
         };
       } catch (error) {
         console.error("Error checking claim lock:", error);
@@ -242,4 +239,3 @@ export const useClaimLock = () => {
     lockOptions: LOCK_OPTIONS,
   };
 };
-

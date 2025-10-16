@@ -3,28 +3,20 @@
 // ============================================================================
 
 // Rarity enum values
-export type CarRarity = "Common" | "Uncommon" | "Epic" | "Legendary";
-export type CarRarityNumber = 0 | 1 | 2 | 3; // Common, Uncommon, Epic, Legendary
+export type CarRarity = "Common" | "Rare" | "Epic" | "Legendary";
+export type CarRarityNumber = 0 | 1 | 2 | 3; // Common, Rare, Epic, Legendary
 
 // Version enum values
 export type CarVersion = "Vintage" | "Modern";
 export type CarVersionNumber = 0 | 1; // Vintage, Modern
 
-// ============================================================================
-// BLOCKCHAIN TYPES (from Solana program)
-// ============================================================================
-
 export interface CarState {
-  mint: any; // PublicKey from Solana
+  mint: any;
   rarity: CarRarityNumber;
   version: CarVersionNumber;
   hashPower: number;
-  owner: any; // PublicKey from Solana
+  owner: any;
 }
-
-// ============================================================================
-// UI TYPES (simplified for frontend)
-// ============================================================================
 
 export interface CarInventoryData {
   mint: string;
@@ -163,7 +155,7 @@ export interface UseCarsInventoryReturn {
 // ============================================================================
 
 export const getRarityName = (rarity: CarRarityNumber): CarRarity => {
-  const rarityNames: CarRarity[] = ["Common", "Uncommon", "Epic", "Legendary"];
+  const rarityNames: CarRarity[] = ["Common", "Rare", "Epic", "Legendary"];
   return rarityNames[rarity] || "Common";
 };
 
