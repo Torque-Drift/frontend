@@ -96,13 +96,12 @@ export const useInitializeGame = () => {
           provider
         );
 
-        const userState = await gameContract.getUserState(address);
-        console.log("userState", userState);
+        const started = await gameContract.getUserGameStarted(address);
         let referrerCode = "";
-        if (userState.gameStarted) {
+        if (started) {
           referrerCode = await referralContract.getUserReferralCode(address);
         }
-        return { hasGameStarted: userState.gameStarted, referrerCode };
+        return { hasGameStarted: started, referrerCode };
       } catch (error) {
         console.error("Error checking user existence:", error);
         return { hasGameStarted: false, referrerCode: "" };
@@ -129,8 +128,6 @@ export const useInitializeGame = () => {
         throw new Error("Invalid referral code");
       }
       const value = referralData.requiredPayment;
-      console.log("value", value);
-      console.log("referrerCode", referrerCode);
       const code = referrerCode ? referrerCode : "";
       const tx = await gameContract["initializeStartGame(string)"](code, {
         value,
@@ -179,4 +176,3 @@ export const useInitializeGame = () => {
     initializeError: initializeMutation.error || checkError,
   };
 };
-

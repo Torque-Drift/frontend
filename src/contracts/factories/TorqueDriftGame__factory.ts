@@ -48,6 +48,11 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "DailyCarCreationLimitReached",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "GameNotStarted",
     type: "error",
   },
@@ -260,6 +265,37 @@ const _abi = [
       },
     ],
     name: "CarEquipped",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "carAddress",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint8",
+        name: "slotIndex",
+        type: "uint8",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "timestamp",
+        type: "uint256",
+      },
+    ],
+    name: "CarMaintained",
     type: "event",
   },
   {
@@ -756,94 +792,6 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "effectiveHashPower",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "lockUnlockTime",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "lockBoostPercent",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "referralBoostPercent",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "referralBoostStartTime",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "referralBoostDuration",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "baseRate",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "elapsedTime",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "currentTime",
-        type: "uint256",
-      },
-    ],
-    name: "calculateTotalReward",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "pure",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "user",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "elapsedSeconds",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "currentTimestamp",
-        type: "uint256",
-      },
-    ],
-    name: "calculateTotalReward",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
     inputs: [],
     name: "carsContract",
     outputs: [
@@ -978,50 +926,6 @@ const _abi = [
         internalType: "uint8",
         name: "slotIndex",
         type: "uint8",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "user",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "carAddress",
-        type: "address",
-      },
-    ],
-    name: "getCarEfficiencyInfo",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "currentEfficiency",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "effectiveHashPower",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "maintenanceCost",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "timeUntilNextMaintenance",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "currentDailyYield",
-        type: "uint256",
       },
     ],
     stateMutability: "view",
@@ -1168,11 +1072,6 @@ const _abi = [
           },
           {
             internalType: "bool",
-            name: "gamblePaused",
-            type: "bool",
-          },
-          {
-            internalType: "bool",
             name: "lockPaused",
             type: "bool",
           },
@@ -1307,12 +1206,22 @@ const _abi = [
         type: "address",
       },
     ],
-    name: "getUserEquippedCar",
+    name: "getUserDailyCarCreationInfo",
     outputs: [
       {
-        internalType: "bool",
-        name: "",
-        type: "bool",
+        internalType: "uint8",
+        name: "dailyCarCreationCount",
+        type: "uint8",
+      },
+      {
+        internalType: "uint8",
+        name: "maxDailyCarCreations",
+        type: "uint8",
+      },
+      {
+        internalType: "uint256",
+        name: "nextResetTime",
+        type: "uint256",
       },
     ],
     stateMutability: "view",
@@ -1404,25 +1313,6 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "address",
-        name: "user",
-        type: "address",
-      },
-    ],
-    name: "getUserHashPower",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
     inputs: [],
     name: "getUserInfo",
     outputs: [
@@ -1460,25 +1350,6 @@ const _abi = [
         internalType: "uint8",
         name: "equippedCount",
         type: "uint8",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "user",
-        type: "address",
-      },
-    ],
-    name: "getUserLastClaim",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
       },
     ],
     stateMutability: "view",
@@ -1566,18 +1437,28 @@ const _abi = [
           },
           {
             internalType: "uint256",
-            name: "lastGambleTime",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "lastGambleDay",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
             name: "lastLockTime",
             type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "farmingPausedTime",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "farmingLastPaused",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "lastCarCreationDay",
+            type: "uint256",
+          },
+          {
+            internalType: "uint8",
+            name: "dailyCarCreationCount",
+            type: "uint8",
           },
           {
             internalType: "uint256",
@@ -1645,16 +1526,6 @@ const _abi = [
             internalType: "uint32",
             name: "referralCount",
             type: "uint32",
-          },
-          {
-            internalType: "uint8",
-            name: "gambleCountToday",
-            type: "uint8",
-          },
-          {
-            internalType: "bool",
-            name: "gambleUsed",
-            type: "bool",
           },
           {
             internalType: "bool",
@@ -1839,11 +1710,6 @@ const _abi = [
       },
       {
         internalType: "bool",
-        name: "gamblePaused",
-        type: "bool",
-      },
-      {
-        internalType: "bool",
         name: "lockPaused",
         type: "bool",
       },
@@ -1925,6 +1791,19 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "uint8",
+        name: "slotIndex",
+        type: "uint8",
+      },
+    ],
+    name: "performMaintenance",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "address",
         name: "carAddress",
         type: "address",
@@ -1963,6 +1842,11 @@ const _abi = [
       {
         internalType: "uint256",
         name: "referralBoost",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "hourlyReward",
         type: "uint256",
       },
     ],
@@ -2071,6 +1955,80 @@ const _abi = [
       {
         components: [
           {
+            internalType: "address",
+            name: "mint",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "hashPower",
+            type: "uint256",
+          },
+          {
+            internalType: "uint32",
+            name: "efficiency",
+            type: "uint32",
+          },
+          {
+            internalType: "uint32",
+            name: "lastMaintenance",
+            type: "uint32",
+          },
+          {
+            internalType: "uint8",
+            name: "rarity",
+            type: "uint8",
+          },
+          {
+            internalType: "uint8",
+            name: "version",
+            type: "uint8",
+          },
+          {
+            internalType: "uint8",
+            name: "slotIndex",
+            type: "uint8",
+          },
+        ],
+        internalType: "struct ITorqueDriftStructs.CarInfo[5]",
+        name: "equippedCars_",
+        type: "tuple[5]",
+      },
+    ],
+    name: "syncEquippedCars",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+    ],
+    name: "syncUserHashPower",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+      {
+        components: [
+          {
             internalType: "uint256",
             name: "lastClaim",
             type: "uint256",
@@ -2102,18 +2060,28 @@ const _abi = [
           },
           {
             internalType: "uint256",
-            name: "lastGambleTime",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "lastGambleDay",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
             name: "lastLockTime",
             type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "farmingPausedTime",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "farmingLastPaused",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "lastCarCreationDay",
+            type: "uint256",
+          },
+          {
+            internalType: "uint8",
+            name: "dailyCarCreationCount",
+            type: "uint8",
           },
           {
             internalType: "uint256",
@@ -2181,16 +2149,6 @@ const _abi = [
             internalType: "uint32",
             name: "referralCount",
             type: "uint32",
-          },
-          {
-            internalType: "uint8",
-            name: "gambleCountToday",
-            type: "uint8",
-          },
-          {
-            internalType: "bool",
-            name: "gambleUsed",
-            type: "bool",
           },
           {
             internalType: "bool",
@@ -2395,18 +2353,28 @@ const _abi = [
       },
       {
         internalType: "uint256",
-        name: "lastGambleTime",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "lastGambleDay",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
         name: "lastLockTime",
         type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "farmingPausedTime",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "farmingLastPaused",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "lastCarCreationDay",
+        type: "uint256",
+      },
+      {
+        internalType: "uint8",
+        name: "dailyCarCreationCount",
+        type: "uint8",
       },
       {
         internalType: "uint256",
@@ -2469,16 +2437,6 @@ const _abi = [
         internalType: "uint32",
         name: "referralCount",
         type: "uint32",
-      },
-      {
-        internalType: "uint8",
-        name: "gambleCountToday",
-        type: "uint8",
-      },
-      {
-        internalType: "bool",
-        name: "gambleUsed",
-        type: "bool",
       },
       {
         internalType: "bool",

@@ -49,7 +49,6 @@ export declare namespace ITorqueDriftStructs {
     emergencyPause: boolean;
     claimPaused: boolean;
     equipPaused: boolean;
-    gamblePaused: boolean;
     lockPaused: boolean;
   };
 
@@ -78,7 +77,6 @@ export declare namespace ITorqueDriftStructs {
     emergencyPause: boolean,
     claimPaused: boolean,
     equipPaused: boolean,
-    gamblePaused: boolean,
     lockPaused: boolean
   ] & {
     totalMinted: bigint;
@@ -105,36 +103,7 @@ export declare namespace ITorqueDriftStructs {
     emergencyPause: boolean;
     claimPaused: boolean;
     equipPaused: boolean;
-    gamblePaused: boolean;
     lockPaused: boolean;
-  };
-
-  export type CarInfoStruct = {
-    mint: AddressLike;
-    hashPower: BigNumberish;
-    efficiency: BigNumberish;
-    lastMaintenance: BigNumberish;
-    rarity: BigNumberish;
-    version: BigNumberish;
-    slotIndex: BigNumberish;
-  };
-
-  export type CarInfoStructOutput = [
-    mint: string,
-    hashPower: bigint,
-    efficiency: bigint,
-    lastMaintenance: bigint,
-    rarity: bigint,
-    version: bigint,
-    slotIndex: bigint
-  ] & {
-    mint: string;
-    hashPower: bigint;
-    efficiency: bigint;
-    lastMaintenance: bigint;
-    rarity: bigint;
-    version: bigint;
-    slotIndex: bigint;
   };
 
   export type LockInfoStruct = {
@@ -156,9 +125,11 @@ export declare namespace ITorqueDriftStructs {
     boostPercent: BigNumberish;
     boostStartTime: BigNumberish;
     boostDuration: BigNumberish;
-    lastGambleTime: BigNumberish;
-    lastGambleDay: BigNumberish;
     lastLockTime: BigNumberish;
+    farmingPausedTime: BigNumberish;
+    farmingLastPaused: BigNumberish;
+    lastCarCreationDay: BigNumberish;
+    dailyCarCreationCount: BigNumberish;
     totalClaimed: BigNumberish;
     referralEarnings: BigNumberish;
     referralEarningsLevel2: BigNumberish;
@@ -169,8 +140,6 @@ export declare namespace ITorqueDriftStructs {
     referrerLevel2: AddressLike;
     slots: [AddressLike, AddressLike, AddressLike, AddressLike, AddressLike];
     referralCount: BigNumberish;
-    gambleCountToday: BigNumberish;
-    gambleUsed: boolean;
     equippedCar: boolean;
     gameStarted: boolean;
   };
@@ -182,9 +151,11 @@ export declare namespace ITorqueDriftStructs {
     boostPercent: bigint,
     boostStartTime: bigint,
     boostDuration: bigint,
-    lastGambleTime: bigint,
-    lastGambleDay: bigint,
     lastLockTime: bigint,
+    farmingPausedTime: bigint,
+    farmingLastPaused: bigint,
+    lastCarCreationDay: bigint,
+    dailyCarCreationCount: bigint,
     totalClaimed: bigint,
     referralEarnings: bigint,
     referralEarningsLevel2: bigint,
@@ -195,8 +166,6 @@ export declare namespace ITorqueDriftStructs {
     referrerLevel2: string,
     slots: [string, string, string, string, string],
     referralCount: bigint,
-    gambleCountToday: bigint,
-    gambleUsed: boolean,
     equippedCar: boolean,
     gameStarted: boolean
   ] & {
@@ -206,9 +175,11 @@ export declare namespace ITorqueDriftStructs {
     boostPercent: bigint;
     boostStartTime: bigint;
     boostDuration: bigint;
-    lastGambleTime: bigint;
-    lastGambleDay: bigint;
     lastLockTime: bigint;
+    farmingPausedTime: bigint;
+    farmingLastPaused: bigint;
+    lastCarCreationDay: bigint;
+    dailyCarCreationCount: bigint;
     totalClaimed: bigint;
     referralEarnings: bigint;
     referralEarningsLevel2: bigint;
@@ -219,8 +190,6 @@ export declare namespace ITorqueDriftStructs {
     referrerLevel2: string;
     slots: [string, string, string, string, string];
     referralCount: bigint;
-    gambleCountToday: bigint;
-    gambleUsed: boolean;
     equippedCar: boolean;
     gameStarted: boolean;
   };
@@ -247,25 +216,21 @@ export interface TorqueDriftReferralInterface extends Interface {
       | "calculateMaintenanceCost"
       | "carsContract"
       | "claimTokens"
+      | "createReferralCode"
       | "deactivateClaimLock"
       | "discountReferralCodes"
       | "emergencyRescueTokens"
       | "equipCar"
       | "equippedCars"
       | "gameContract"
-      | "getCarEfficiencyInfo"
       | "getContractVersion"
       | "getDiscountReferralCodesStatus"
       | "getGlobalState"
       | "getReferralDiscountInfo"
       | "getReferralInfo"
-      | "getUserCars"
-      | "getUserEquippedCar"
-      | "getUserEquippedCars"
+      | "getUserDailyCarCreationInfo"
       | "getUserGameStarted"
-      | "getUserHashPower"
       | "getUserInfo"
-      | "getUserLastClaim"
       | "getUserReferralCode"
       | "getUserReferralCount"
       | "getUserReferrer"
@@ -279,7 +244,8 @@ export interface TorqueDriftReferralInterface extends Interface {
       | "isValidReferralCode"
       | "owner"
       | "payMaintenance"
-      | "performMaintenance"
+      | "performMaintenance(uint8)"
+      | "performMaintenance(address)"
       | "previewClaim"
       | "referralCodeToAddress"
       | "referralCounts"
@@ -291,6 +257,7 @@ export interface TorqueDriftReferralInterface extends Interface {
       | "setGameContract"
       | "setTokenContract"
       | "specialReferralCount"
+      | "syncUserHashPower"
       | "tokenContract"
       | "totalTokensClaimed"
       | "totalUsers"
@@ -307,9 +274,11 @@ export interface TorqueDriftReferralInterface extends Interface {
       | "BurnPenaltyUpdated"
       | "CarCreated"
       | "CarEquipped"
+      | "CarMaintained"
       | "CarMaintenance"
       | "CarUnequipped"
       | "ClockDriftToleranceUpdated"
+      | "DebugInitialize"
       | "DiscountReferralApplied"
       | "DiscountReferralCodeUpdated"
       | "GameStarted"
@@ -396,6 +365,10 @@ export interface TorqueDriftReferralInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "createReferralCode",
+    values: [string]
+  ): string;
+  encodeFunctionData(
     functionFragment: "deactivateClaimLock",
     values?: undefined
   ): string;
@@ -420,10 +393,6 @@ export interface TorqueDriftReferralInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "getCarEfficiencyInfo",
-    values: [AddressLike, AddressLike]
-  ): string;
-  encodeFunctionData(
     functionFragment: "getContractVersion",
     values?: undefined
   ): string;
@@ -444,15 +413,7 @@ export interface TorqueDriftReferralInterface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "getUserCars",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getUserEquippedCar",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getUserEquippedCars",
+    functionFragment: "getUserDailyCarCreationInfo",
     values: [AddressLike]
   ): string;
   encodeFunctionData(
@@ -460,16 +421,8 @@ export interface TorqueDriftReferralInterface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "getUserHashPower",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
     functionFragment: "getUserInfo",
     values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getUserLastClaim",
-    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "getUserReferralCode",
@@ -521,7 +474,11 @@ export interface TorqueDriftReferralInterface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "performMaintenance",
+    functionFragment: "performMaintenance(uint8)",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "performMaintenance(address)",
     values: [AddressLike]
   ): string;
   encodeFunctionData(
@@ -566,6 +523,10 @@ export interface TorqueDriftReferralInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "specialReferralCount",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "syncUserHashPower",
     values: [AddressLike]
   ): string;
   encodeFunctionData(
@@ -670,6 +631,10 @@ export interface TorqueDriftReferralInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "createReferralCode",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "deactivateClaimLock",
     data: BytesLike
   ): Result;
@@ -688,10 +653,6 @@ export interface TorqueDriftReferralInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "gameContract",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getCarEfficiencyInfo",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -715,15 +676,7 @@ export interface TorqueDriftReferralInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getUserCars",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getUserEquippedCar",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getUserEquippedCars",
+    functionFragment: "getUserDailyCarCreationInfo",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -731,15 +684,7 @@ export interface TorqueDriftReferralInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getUserHashPower",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "getUserInfo",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getUserLastClaim",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -792,7 +737,11 @@ export interface TorqueDriftReferralInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "performMaintenance",
+    functionFragment: "performMaintenance(uint8)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "performMaintenance(address)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -834,6 +783,10 @@ export interface TorqueDriftReferralInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "specialReferralCount",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "syncUserHashPower",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -969,6 +922,31 @@ export namespace CarEquippedEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
+export namespace CarMaintainedEvent {
+  export type InputTuple = [
+    user: AddressLike,
+    carAddress: AddressLike,
+    slotIndex: BigNumberish,
+    timestamp: BigNumberish
+  ];
+  export type OutputTuple = [
+    user: string,
+    carAddress: string,
+    slotIndex: bigint,
+    timestamp: bigint
+  ];
+  export interface OutputObject {
+    user: string;
+    carAddress: string;
+    slotIndex: bigint;
+    timestamp: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
 export namespace CarMaintenanceEvent {
   export type InputTuple = [
     user: AddressLike,
@@ -1028,6 +1006,31 @@ export namespace ClockDriftToleranceUpdatedEvent {
   export interface OutputObject {
     oldValue: bigint;
     newValue: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace DebugInitializeEvent {
+  export type InputTuple = [
+    msgSender: AddressLike,
+    txOrigin: AddressLike,
+    gameContract: AddressLike,
+    thisContract: AddressLike
+  ];
+  export type OutputTuple = [
+    msgSender: string,
+    txOrigin: string,
+    gameContract: string,
+    thisContract: string
+  ];
+  export interface OutputObject {
+    msgSender: string;
+    txOrigin: string;
+    gameContract: string;
+    thisContract: string;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -1353,6 +1356,8 @@ export interface TorqueDriftReferral extends BaseContract {
 
   claimTokens: TypedContractMethod<[], [void], "payable">;
 
+  createReferralCode: TypedContractMethod<[code: string], [void], "nonpayable">;
+
   deactivateClaimLock: TypedContractMethod<[], [void], "nonpayable">;
 
   discountReferralCodes: TypedContractMethod<[arg0: string], [boolean], "view">;
@@ -1386,20 +1391,6 @@ export interface TorqueDriftReferral extends BaseContract {
   >;
 
   gameContract: TypedContractMethod<[], [string], "view">;
-
-  getCarEfficiencyInfo: TypedContractMethod<
-    [user: AddressLike, carAddress: AddressLike],
-    [
-      [bigint, bigint, bigint, bigint, bigint] & {
-        currentEfficiency: bigint;
-        effectiveHashPower: bigint;
-        maintenanceCost: bigint;
-        timeUntilNextMaintenance: bigint;
-        currentDailyYield: bigint;
-      }
-    ],
-    "view"
-  >;
 
   getContractVersion: TypedContractMethod<[], [string], "view">;
 
@@ -1445,63 +1436,13 @@ export interface TorqueDriftReferral extends BaseContract {
     "view"
   >;
 
-  getUserCars: TypedContractMethod<
-    [],
-    [
-      [
-        [
-          ITorqueDriftStructs.CarInfoStructOutput,
-          ITorqueDriftStructs.CarInfoStructOutput,
-          ITorqueDriftStructs.CarInfoStructOutput,
-          ITorqueDriftStructs.CarInfoStructOutput,
-          ITorqueDriftStructs.CarInfoStructOutput
-        ],
-        bigint,
-        bigint
-      ] & {
-        userEquippedCars: [
-          ITorqueDriftStructs.CarInfoStructOutput,
-          ITorqueDriftStructs.CarInfoStructOutput,
-          ITorqueDriftStructs.CarInfoStructOutput,
-          ITorqueDriftStructs.CarInfoStructOutput,
-          ITorqueDriftStructs.CarInfoStructOutput
-        ];
-        totalEquipped: bigint;
-        totalHashPower: bigint;
-      }
-    ],
-    "view"
-  >;
-
-  getUserEquippedCar: TypedContractMethod<
-    [user: AddressLike],
-    [boolean],
-    "view"
-  >;
-
-  getUserEquippedCars: TypedContractMethod<
+  getUserDailyCarCreationInfo: TypedContractMethod<
     [user: AddressLike],
     [
-      [
-        [
-          ITorqueDriftStructs.CarInfoStructOutput,
-          ITorqueDriftStructs.CarInfoStructOutput,
-          ITorqueDriftStructs.CarInfoStructOutput,
-          ITorqueDriftStructs.CarInfoStructOutput,
-          ITorqueDriftStructs.CarInfoStructOutput
-        ],
-        bigint,
-        bigint
-      ] & {
-        userEquippedCars: [
-          ITorqueDriftStructs.CarInfoStructOutput,
-          ITorqueDriftStructs.CarInfoStructOutput,
-          ITorqueDriftStructs.CarInfoStructOutput,
-          ITorqueDriftStructs.CarInfoStructOutput,
-          ITorqueDriftStructs.CarInfoStructOutput
-        ];
-        totalEquipped: bigint;
-        totalHashPower: bigint;
+      [bigint, bigint, bigint] & {
+        dailyCarCreationCount: bigint;
+        maxDailyCarCreations: bigint;
+        nextResetTime: bigint;
       }
     ],
     "view"
@@ -1512,8 +1453,6 @@ export interface TorqueDriftReferral extends BaseContract {
     [boolean],
     "view"
   >;
-
-  getUserHashPower: TypedContractMethod<[user: AddressLike], [bigint], "view">;
 
   getUserInfo: TypedContractMethod<
     [],
@@ -1530,8 +1469,6 @@ export interface TorqueDriftReferral extends BaseContract {
     ],
     "view"
   >;
-
-  getUserLastClaim: TypedContractMethod<[user: AddressLike], [bigint], "view">;
 
   getUserReferralCode: TypedContractMethod<
     [user: AddressLike],
@@ -1593,7 +1530,6 @@ export interface TorqueDriftReferral extends BaseContract {
         boolean,
         boolean,
         boolean,
-        boolean,
         boolean
       ] & {
         totalMinted: bigint;
@@ -1620,7 +1556,6 @@ export interface TorqueDriftReferral extends BaseContract {
         emergencyPause: boolean;
         claimPaused: boolean;
         equipPaused: boolean;
-        gamblePaused: boolean;
         lockPaused: boolean;
       }
     ],
@@ -1655,7 +1590,13 @@ export interface TorqueDriftReferral extends BaseContract {
     "nonpayable"
   >;
 
-  performMaintenance: TypedContractMethod<
+  "performMaintenance(uint8)": TypedContractMethod<
+    [slotIndex: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+
+  "performMaintenance(address)": TypedContractMethod<
     [carAddress: AddressLike],
     [void],
     "nonpayable"
@@ -1664,11 +1605,12 @@ export interface TorqueDriftReferral extends BaseContract {
   previewClaim: TypedContractMethod<
     [user: AddressLike],
     [
-      [bigint, bigint, bigint, bigint] & {
+      [bigint, bigint, bigint, bigint, bigint] & {
         claimableAmount: bigint;
         baseReward: bigint;
         lockBoost: bigint;
         referralBoost: bigint;
+        hourlyReward: bigint;
       }
     ],
     "view"
@@ -1722,6 +1664,12 @@ export interface TorqueDriftReferral extends BaseContract {
     "view"
   >;
 
+  syncUserHashPower: TypedContractMethod<
+    [user: AddressLike],
+    [bigint],
+    "nonpayable"
+  >;
+
   tokenContract: TypedContractMethod<[], [string], "view">;
 
   totalTokensClaimed: TypedContractMethod<[], [bigint], "view">;
@@ -1754,12 +1702,12 @@ export interface TorqueDriftReferral extends BaseContract {
         bigint,
         bigint,
         bigint,
+        bigint,
+        bigint,
         ITorqueDriftStructs.LockInfoStructOutput,
         string,
         string,
         bigint,
-        bigint,
-        boolean,
         boolean,
         boolean
       ] & {
@@ -1769,9 +1717,11 @@ export interface TorqueDriftReferral extends BaseContract {
         boostPercent: bigint;
         boostStartTime: bigint;
         boostDuration: bigint;
-        lastGambleTime: bigint;
-        lastGambleDay: bigint;
         lastLockTime: bigint;
+        farmingPausedTime: bigint;
+        farmingLastPaused: bigint;
+        lastCarCreationDay: bigint;
+        dailyCarCreationCount: bigint;
         totalClaimed: bigint;
         referralEarnings: bigint;
         referralEarningsLevel2: bigint;
@@ -1781,8 +1731,6 @@ export interface TorqueDriftReferral extends BaseContract {
         referrer: string;
         referrerLevel2: string;
         referralCount: bigint;
-        gambleCountToday: bigint;
-        gambleUsed: boolean;
         equippedCar: boolean;
         gameStarted: boolean;
       }
@@ -1855,6 +1803,9 @@ export interface TorqueDriftReferral extends BaseContract {
     nameOrSignature: "claimTokens"
   ): TypedContractMethod<[], [void], "payable">;
   getFunction(
+    nameOrSignature: "createReferralCode"
+  ): TypedContractMethod<[code: string], [void], "nonpayable">;
+  getFunction(
     nameOrSignature: "deactivateClaimLock"
   ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
@@ -1894,21 +1845,6 @@ export interface TorqueDriftReferral extends BaseContract {
   getFunction(
     nameOrSignature: "gameContract"
   ): TypedContractMethod<[], [string], "view">;
-  getFunction(
-    nameOrSignature: "getCarEfficiencyInfo"
-  ): TypedContractMethod<
-    [user: AddressLike, carAddress: AddressLike],
-    [
-      [bigint, bigint, bigint, bigint, bigint] & {
-        currentEfficiency: bigint;
-        effectiveHashPower: bigint;
-        maintenanceCost: bigint;
-        timeUntilNextMaintenance: bigint;
-        currentDailyYield: bigint;
-      }
-    ],
-    "view"
-  >;
   getFunction(
     nameOrSignature: "getContractVersion"
   ): TypedContractMethod<[], [string], "view">;
@@ -1955,62 +1891,14 @@ export interface TorqueDriftReferral extends BaseContract {
     "view"
   >;
   getFunction(
-    nameOrSignature: "getUserCars"
-  ): TypedContractMethod<
-    [],
-    [
-      [
-        [
-          ITorqueDriftStructs.CarInfoStructOutput,
-          ITorqueDriftStructs.CarInfoStructOutput,
-          ITorqueDriftStructs.CarInfoStructOutput,
-          ITorqueDriftStructs.CarInfoStructOutput,
-          ITorqueDriftStructs.CarInfoStructOutput
-        ],
-        bigint,
-        bigint
-      ] & {
-        userEquippedCars: [
-          ITorqueDriftStructs.CarInfoStructOutput,
-          ITorqueDriftStructs.CarInfoStructOutput,
-          ITorqueDriftStructs.CarInfoStructOutput,
-          ITorqueDriftStructs.CarInfoStructOutput,
-          ITorqueDriftStructs.CarInfoStructOutput
-        ];
-        totalEquipped: bigint;
-        totalHashPower: bigint;
-      }
-    ],
-    "view"
-  >;
-  getFunction(
-    nameOrSignature: "getUserEquippedCar"
-  ): TypedContractMethod<[user: AddressLike], [boolean], "view">;
-  getFunction(
-    nameOrSignature: "getUserEquippedCars"
+    nameOrSignature: "getUserDailyCarCreationInfo"
   ): TypedContractMethod<
     [user: AddressLike],
     [
-      [
-        [
-          ITorqueDriftStructs.CarInfoStructOutput,
-          ITorqueDriftStructs.CarInfoStructOutput,
-          ITorqueDriftStructs.CarInfoStructOutput,
-          ITorqueDriftStructs.CarInfoStructOutput,
-          ITorqueDriftStructs.CarInfoStructOutput
-        ],
-        bigint,
-        bigint
-      ] & {
-        userEquippedCars: [
-          ITorqueDriftStructs.CarInfoStructOutput,
-          ITorqueDriftStructs.CarInfoStructOutput,
-          ITorqueDriftStructs.CarInfoStructOutput,
-          ITorqueDriftStructs.CarInfoStructOutput,
-          ITorqueDriftStructs.CarInfoStructOutput
-        ];
-        totalEquipped: bigint;
-        totalHashPower: bigint;
+      [bigint, bigint, bigint] & {
+        dailyCarCreationCount: bigint;
+        maxDailyCarCreations: bigint;
+        nextResetTime: bigint;
       }
     ],
     "view"
@@ -2018,9 +1906,6 @@ export interface TorqueDriftReferral extends BaseContract {
   getFunction(
     nameOrSignature: "getUserGameStarted"
   ): TypedContractMethod<[user: AddressLike], [boolean], "view">;
-  getFunction(
-    nameOrSignature: "getUserHashPower"
-  ): TypedContractMethod<[user: AddressLike], [bigint], "view">;
   getFunction(
     nameOrSignature: "getUserInfo"
   ): TypedContractMethod<
@@ -2038,9 +1923,6 @@ export interface TorqueDriftReferral extends BaseContract {
     ],
     "view"
   >;
-  getFunction(
-    nameOrSignature: "getUserLastClaim"
-  ): TypedContractMethod<[user: AddressLike], [bigint], "view">;
   getFunction(
     nameOrSignature: "getUserReferralCode"
   ): TypedContractMethod<[user: AddressLike], [string], "view">;
@@ -2093,7 +1975,6 @@ export interface TorqueDriftReferral extends BaseContract {
         boolean,
         boolean,
         boolean,
-        boolean,
         boolean
       ] & {
         totalMinted: bigint;
@@ -2120,7 +2001,6 @@ export interface TorqueDriftReferral extends BaseContract {
         emergencyPause: boolean;
         claimPaused: boolean;
         equipPaused: boolean;
-        gamblePaused: boolean;
         lockPaused: boolean;
       }
     ],
@@ -2145,18 +2025,22 @@ export interface TorqueDriftReferral extends BaseContract {
     nameOrSignature: "payMaintenance"
   ): TypedContractMethod<[carAddress: AddressLike], [void], "nonpayable">;
   getFunction(
-    nameOrSignature: "performMaintenance"
+    nameOrSignature: "performMaintenance(uint8)"
+  ): TypedContractMethod<[slotIndex: BigNumberish], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "performMaintenance(address)"
   ): TypedContractMethod<[carAddress: AddressLike], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "previewClaim"
   ): TypedContractMethod<
     [user: AddressLike],
     [
-      [bigint, bigint, bigint, bigint] & {
+      [bigint, bigint, bigint, bigint, bigint] & {
         claimableAmount: bigint;
         baseReward: bigint;
         lockBoost: bigint;
         referralBoost: bigint;
+        hourlyReward: bigint;
       }
     ],
     "view"
@@ -2200,6 +2084,9 @@ export interface TorqueDriftReferral extends BaseContract {
     nameOrSignature: "specialReferralCount"
   ): TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
   getFunction(
+    nameOrSignature: "syncUserHashPower"
+  ): TypedContractMethod<[user: AddressLike], [bigint], "nonpayable">;
+  getFunction(
     nameOrSignature: "tokenContract"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
@@ -2238,12 +2125,12 @@ export interface TorqueDriftReferral extends BaseContract {
         bigint,
         bigint,
         bigint,
+        bigint,
+        bigint,
         ITorqueDriftStructs.LockInfoStructOutput,
         string,
         string,
         bigint,
-        bigint,
-        boolean,
         boolean,
         boolean
       ] & {
@@ -2253,9 +2140,11 @@ export interface TorqueDriftReferral extends BaseContract {
         boostPercent: bigint;
         boostStartTime: bigint;
         boostDuration: bigint;
-        lastGambleTime: bigint;
-        lastGambleDay: bigint;
         lastLockTime: bigint;
+        farmingPausedTime: bigint;
+        farmingLastPaused: bigint;
+        lastCarCreationDay: bigint;
+        dailyCarCreationCount: bigint;
         totalClaimed: bigint;
         referralEarnings: bigint;
         referralEarningsLevel2: bigint;
@@ -2265,8 +2154,6 @@ export interface TorqueDriftReferral extends BaseContract {
         referrer: string;
         referrerLevel2: string;
         referralCount: bigint;
-        gambleCountToday: bigint;
-        gambleUsed: boolean;
         equippedCar: boolean;
         gameStarted: boolean;
       }
@@ -2313,6 +2200,13 @@ export interface TorqueDriftReferral extends BaseContract {
     CarEquippedEvent.OutputObject
   >;
   getEvent(
+    key: "CarMaintained"
+  ): TypedContractEvent<
+    CarMaintainedEvent.InputTuple,
+    CarMaintainedEvent.OutputTuple,
+    CarMaintainedEvent.OutputObject
+  >;
+  getEvent(
     key: "CarMaintenance"
   ): TypedContractEvent<
     CarMaintenanceEvent.InputTuple,
@@ -2332,6 +2226,13 @@ export interface TorqueDriftReferral extends BaseContract {
     ClockDriftToleranceUpdatedEvent.InputTuple,
     ClockDriftToleranceUpdatedEvent.OutputTuple,
     ClockDriftToleranceUpdatedEvent.OutputObject
+  >;
+  getEvent(
+    key: "DebugInitialize"
+  ): TypedContractEvent<
+    DebugInitializeEvent.InputTuple,
+    DebugInitializeEvent.OutputTuple,
+    DebugInitializeEvent.OutputObject
   >;
   getEvent(
     key: "DiscountReferralApplied"
@@ -2467,6 +2368,17 @@ export interface TorqueDriftReferral extends BaseContract {
       CarEquippedEvent.OutputObject
     >;
 
+    "CarMaintained(address,address,uint8,uint256)": TypedContractEvent<
+      CarMaintainedEvent.InputTuple,
+      CarMaintainedEvent.OutputTuple,
+      CarMaintainedEvent.OutputObject
+    >;
+    CarMaintained: TypedContractEvent<
+      CarMaintainedEvent.InputTuple,
+      CarMaintainedEvent.OutputTuple,
+      CarMaintainedEvent.OutputObject
+    >;
+
     "CarMaintenance(address,address,uint256,uint256,uint256,uint256)": TypedContractEvent<
       CarMaintenanceEvent.InputTuple,
       CarMaintenanceEvent.OutputTuple,
@@ -2498,6 +2410,17 @@ export interface TorqueDriftReferral extends BaseContract {
       ClockDriftToleranceUpdatedEvent.InputTuple,
       ClockDriftToleranceUpdatedEvent.OutputTuple,
       ClockDriftToleranceUpdatedEvent.OutputObject
+    >;
+
+    "DebugInitialize(address,address,address,address)": TypedContractEvent<
+      DebugInitializeEvent.InputTuple,
+      DebugInitializeEvent.OutputTuple,
+      DebugInitializeEvent.OutputObject
+    >;
+    DebugInitialize: TypedContractEvent<
+      DebugInitializeEvent.InputTuple,
+      DebugInitializeEvent.OutputTuple,
+      DebugInitializeEvent.OutputObject
     >;
 
     "DiscountReferralApplied(address,address,uint256,uint256)": TypedContractEvent<

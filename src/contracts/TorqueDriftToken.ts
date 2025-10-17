@@ -33,8 +33,6 @@ export interface TorqueDriftTokenInterface extends Interface {
       | "balanceOf"
       | "burn"
       | "burnFrom"
-      | "calculateBnbForTokens"
-      | "calculateTokensForBnb"
       | "decimals"
       | "mint"
       | "mintAuthority"
@@ -47,10 +45,12 @@ export interface TorqueDriftTokenInterface extends Interface {
       | "setTokenPrice"
       | "symbol"
       | "toggleTokenPurchase"
+      | "toggleTransfer"
       | "tokenPriceInBnb"
       | "tokenPurchaseEnabled"
       | "totalSupply"
       | "transfer"
+      | "transferEnabled"
       | "transferFrom"
       | "transferOwnership"
       | "treasuryWallet"
@@ -66,6 +66,7 @@ export interface TorqueDriftTokenInterface extends Interface {
       | "Paused"
       | "TokensPurchased"
       | "Transfer"
+      | "TransferToggled"
       | "Unpaused"
   ): EventFragment;
 
@@ -90,14 +91,6 @@ export interface TorqueDriftTokenInterface extends Interface {
   encodeFunctionData(
     functionFragment: "burnFrom",
     values: [AddressLike, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "calculateBnbForTokens",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "calculateTokensForBnb",
-    values: [BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
   encodeFunctionData(
@@ -130,6 +123,10 @@ export interface TorqueDriftTokenInterface extends Interface {
     values: [boolean]
   ): string;
   encodeFunctionData(
+    functionFragment: "toggleTransfer",
+    values: [boolean]
+  ): string;
+  encodeFunctionData(
     functionFragment: "tokenPriceInBnb",
     values?: undefined
   ): string;
@@ -144,6 +141,10 @@ export interface TorqueDriftTokenInterface extends Interface {
   encodeFunctionData(
     functionFragment: "transfer",
     values: [AddressLike, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "transferEnabled",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "transferFrom",
@@ -174,14 +175,6 @@ export interface TorqueDriftTokenInterface extends Interface {
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "burn", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "burnFrom", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "calculateBnbForTokens",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "calculateTokensForBnb",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
   decodeFunctionResult(
@@ -210,6 +203,10 @@ export interface TorqueDriftTokenInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "toggleTransfer",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "tokenPriceInBnb",
     data: BytesLike
   ): Result;
@@ -222,6 +219,10 @@ export interface TorqueDriftTokenInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "transfer", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "transferEnabled",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "transferFrom",
     data: BytesLike
@@ -328,6 +329,18 @@ export namespace TransferEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
+export namespace TransferToggledEvent {
+  export type InputTuple = [enabled: boolean];
+  export type OutputTuple = [enabled: boolean];
+  export interface OutputObject {
+    enabled: boolean;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
 export namespace UnpausedEvent {
   export type InputTuple = [account: AddressLike];
   export type OutputTuple = [account: string];
@@ -409,18 +422,6 @@ export interface TorqueDriftToken extends BaseContract {
     "nonpayable"
   >;
 
-  calculateBnbForTokens: TypedContractMethod<
-    [tokenAmount: BigNumberish],
-    [bigint],
-    "view"
-  >;
-
-  calculateTokensForBnb: TypedContractMethod<
-    [bnbAmount: BigNumberish],
-    [bigint],
-    "view"
-  >;
-
   decimals: TypedContractMethod<[], [bigint], "view">;
 
   mint: TypedContractMethod<
@@ -461,6 +462,8 @@ export interface TorqueDriftToken extends BaseContract {
     "nonpayable"
   >;
 
+  toggleTransfer: TypedContractMethod<[enabled: boolean], [void], "nonpayable">;
+
   tokenPriceInBnb: TypedContractMethod<[], [bigint], "view">;
 
   tokenPurchaseEnabled: TypedContractMethod<[], [boolean], "view">;
@@ -472,6 +475,8 @@ export interface TorqueDriftToken extends BaseContract {
     [boolean],
     "nonpayable"
   >;
+
+  transferEnabled: TypedContractMethod<[], [boolean], "view">;
 
   transferFrom: TypedContractMethod<
     [from: AddressLike, to: AddressLike, value: BigNumberish],
@@ -539,12 +544,6 @@ export interface TorqueDriftToken extends BaseContract {
     "nonpayable"
   >;
   getFunction(
-    nameOrSignature: "calculateBnbForTokens"
-  ): TypedContractMethod<[tokenAmount: BigNumberish], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "calculateTokensForBnb"
-  ): TypedContractMethod<[bnbAmount: BigNumberish], [bigint], "view">;
-  getFunction(
     nameOrSignature: "decimals"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
@@ -585,6 +584,9 @@ export interface TorqueDriftToken extends BaseContract {
     nameOrSignature: "toggleTokenPurchase"
   ): TypedContractMethod<[enabled: boolean], [void], "nonpayable">;
   getFunction(
+    nameOrSignature: "toggleTransfer"
+  ): TypedContractMethod<[enabled: boolean], [void], "nonpayable">;
+  getFunction(
     nameOrSignature: "tokenPriceInBnb"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
@@ -600,6 +602,9 @@ export interface TorqueDriftToken extends BaseContract {
     [boolean],
     "nonpayable"
   >;
+  getFunction(
+    nameOrSignature: "transferEnabled"
+  ): TypedContractMethod<[], [boolean], "view">;
   getFunction(
     nameOrSignature: "transferFrom"
   ): TypedContractMethod<
@@ -663,6 +668,13 @@ export interface TorqueDriftToken extends BaseContract {
     TransferEvent.OutputObject
   >;
   getEvent(
+    key: "TransferToggled"
+  ): TypedContractEvent<
+    TransferToggledEvent.InputTuple,
+    TransferToggledEvent.OutputTuple,
+    TransferToggledEvent.OutputObject
+  >;
+  getEvent(
     key: "Unpaused"
   ): TypedContractEvent<
     UnpausedEvent.InputTuple,
@@ -724,6 +736,17 @@ export interface TorqueDriftToken extends BaseContract {
       TransferEvent.InputTuple,
       TransferEvent.OutputTuple,
       TransferEvent.OutputObject
+    >;
+
+    "TransferToggled(bool)": TypedContractEvent<
+      TransferToggledEvent.InputTuple,
+      TransferToggledEvent.OutputTuple,
+      TransferToggledEvent.OutputObject
+    >;
+    TransferToggled: TypedContractEvent<
+      TransferToggledEvent.InputTuple,
+      TransferToggledEvent.OutputTuple,
+      TransferToggledEvent.OutputObject
     >;
 
     "Unpaused(address)": TypedContractEvent<

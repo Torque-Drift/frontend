@@ -31,6 +31,7 @@ export declare namespace ITorqueDriftStructs {
     version: BigNumberish;
     hashPower: BigNumberish;
     cooldownSeconds: BigNumberish;
+    lastMaintenance: BigNumberish;
   };
 
   export type CarStateStructOutput = [
@@ -39,7 +40,8 @@ export declare namespace ITorqueDriftStructs {
     rarity: bigint,
     version: bigint,
     hashPower: bigint,
-    cooldownSeconds: bigint
+    cooldownSeconds: bigint,
+    lastMaintenance: bigint
   ] & {
     owner: string;
     mint: string;
@@ -47,6 +49,7 @@ export declare namespace ITorqueDriftStructs {
     version: bigint;
     hashPower: bigint;
     cooldownSeconds: bigint;
+    lastMaintenance: bigint;
   };
 
   export type CarInfoStruct = {
@@ -96,6 +99,7 @@ export interface TorqueDriftCarsInterface extends Interface {
       | "setAuthorizedContract"
       | "setGameContract"
       | "transferOwnership"
+      | "updateCarMaintenance"
       | "userCars"
       | "userOwnsCar"
   ): FunctionFragment;
@@ -162,6 +166,10 @@ export interface TorqueDriftCarsInterface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(
+    functionFragment: "updateCarMaintenance",
+    values: [AddressLike, BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "userCars",
     values: [AddressLike, BigNumberish]
   ): string;
@@ -222,6 +230,10 @@ export interface TorqueDriftCarsInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "transferOwnership",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "updateCarMaintenance",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "userCars", data: BytesLike): Result;
@@ -327,13 +339,14 @@ export interface TorqueDriftCars extends BaseContract {
   carStates: TypedContractMethod<
     [arg0: AddressLike],
     [
-      [string, string, bigint, bigint, bigint, bigint] & {
+      [string, string, bigint, bigint, bigint, bigint, bigint] & {
         owner: string;
         mint: string;
         rarity: bigint;
         version: bigint;
         hashPower: bigint;
         cooldownSeconds: bigint;
+        lastMaintenance: bigint;
       }
     ],
     "view"
@@ -418,6 +431,12 @@ export interface TorqueDriftCars extends BaseContract {
     "nonpayable"
   >;
 
+  updateCarMaintenance: TypedContractMethod<
+    [carAddress: AddressLike, newMaintenanceTime: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+
   userCars: TypedContractMethod<
     [arg0: AddressLike, arg1: BigNumberish],
     [string],
@@ -442,13 +461,14 @@ export interface TorqueDriftCars extends BaseContract {
   ): TypedContractMethod<
     [arg0: AddressLike],
     [
-      [string, string, bigint, bigint, bigint, bigint] & {
+      [string, string, bigint, bigint, bigint, bigint, bigint] & {
         owner: string;
         mint: string;
         rarity: bigint;
         version: bigint;
         hashPower: bigint;
         cooldownSeconds: bigint;
+        lastMaintenance: bigint;
       }
     ],
     "view"
@@ -533,6 +553,13 @@ export interface TorqueDriftCars extends BaseContract {
   getFunction(
     nameOrSignature: "transferOwnership"
   ): TypedContractMethod<[newOwner: AddressLike], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "updateCarMaintenance"
+  ): TypedContractMethod<
+    [carAddress: AddressLike, newMaintenanceTime: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
   getFunction(
     nameOrSignature: "userCars"
   ): TypedContractMethod<

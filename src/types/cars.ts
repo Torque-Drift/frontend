@@ -113,6 +113,13 @@ export interface UseCarsInventoryReturn {
   equippedSlotsData?: EquippedSlotsData | null;
   inventoryData?: InventoryData | null;
 
+  // Validation data (for debugging contract consistency)
+  equippedCarsData?: {
+    equippedCars: any[];
+    totalEquipped: number;
+    equippedHashPower: number;
+  } | null;
+
   // Legacy compatibility (to be removed after migration)
   totalOwned: number;
   totalInventoryHashPower: number;

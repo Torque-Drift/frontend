@@ -5,10 +5,7 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { useEthers } from "@/hooks/useEthers";
 import { useBurn } from "@/hooks/useBurn";
-import {
-  useTokenPurchase,
-  calculateBnbForTokens,
-} from "@/hooks/useTokenPurchase";
+import { useTokenPurchase } from "@/hooks/useTokenPurchase";
 import { CONTRACT_ADDRESSES } from "@/constants";
 import { Button } from "@/components/Button";
 import { Loader } from "@/components/Loader";
@@ -16,6 +13,7 @@ import { Street } from "@/components/Street";
 import toast from "react-hot-toast";
 import { useTokenBalances } from "@/hooks";
 import { RewardModal } from "@/components/garage/RewardModal";
+import { TorqueDriftToken__factory } from "@/contracts";
 
 export default function StorePage() {
   const { signer, isConnected } = useEthers();
@@ -58,14 +56,15 @@ export default function StorePage() {
     }
 
     try {
-      const requiredBnb = await calculateBnbForTokens(tokens, signer);
+      const tokenContract = TorqueDriftToken__factory.connect(
+        CONTRACT_ADDRESSES.TorqueDriftToken,
+        signer
+      );
+      const requiredBnb = await tokenContract.tokenPriceInBnb();
       const bnbEther = Number(requiredBnb) / 10 ** 18;
       setBnbAmount(bnbEther.toFixed(6));
     } catch (error) {
       console.error("Failed to calculate BNB amount:", error);
-      // Fallback calculation
-      const bnbPricePerToken = 1 / 300;
-      setBnbAmount((tokens * bnbPricePerToken).toFixed(6));
     }
   };
 

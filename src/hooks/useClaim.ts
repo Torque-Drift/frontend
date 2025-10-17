@@ -33,7 +33,8 @@ export const usePreviewClaim = () => {
       try {
         const preview = await gameContract.previewClaim(address);
         const globalState = await gameContract.globalState();
-        console.log("previwe data:", Number(preview.claimableAmount));
+        console.log("preview data:", preview);
+        console.log("preview hourlyReward:", preview.hourlyReward);
         const claimableAmount = Number(
           ethers.formatUnits(preview.claimableAmount, 9)
         );
@@ -67,18 +68,42 @@ export const usePreviewClaim = () => {
         const referralBoostPercent =
           baseReward > 0 ? (referralBoost / baseReward) * 100 : 0;
         const totalBoostPercent = lockBoostPercent + referralBoostPercent;
-
-        // 6. Calcular recompensa por hora (estimativa)
-        const hourlyReward =
-          (hashPower * baseRate * (1 + totalBoostPercent / 100)) / 1e9;
-
-        // 7. Dados de referral
+        const hourlyReward = Number(preview.hourlyReward) / 1e9;
+        console.log("🔍 Hourly reward:", hourlyReward);
         const referralCount = Number(referralInfo.referralCount_) || 0;
         const referralEarnings =
           Number(referralInfo.referralEarnings_) / 1e9 || 0;
 
+        // Calcular penalidades baseado no tempo que FALTA até poder claim sem penalidade
+        const hoursSinceLastClaim = timeSinceLastClaim / 3600;
+        const hoursUntilNoPenalty = Math.max(0, 4 - hoursSinceLastClaim);
+        let penaltyBnb = 0;
+        let penaltyBurnPercent = 0;
+        let canClaimWithoutPenalty = hoursSinceLastClaim >= 4; // 4 horas mínimo
+
+        if (!canClaimWithoutPenalty) {
+          // Penalidades baseadas no tempo que FALTA para completar o cooldown de 4h
+          if (hoursUntilNoPenalty > 3) {
+            // Faltam mais de 3 horas (se passaram menos de 1 hora) - PENALTY_4H
+            penaltyBnb = 0.05; // 0.05 BNB
+            penaltyBurnPercent = 10; // 10% burn
+          } else if (hoursUntilNoPenalty > 2) {
+            // Faltam 2-3 horas (se passaram 1-2 horas) - PENALTY_3H
+            penaltyBnb = 0.04; // 0.04 BNB
+            penaltyBurnPercent = 7.5; // 7.5% burn
+          } else if (hoursUntilNoPenalty > 1) {
+            // Faltam 1-2 horas (se passaram 2-3 horas) - PENALTY_2H
+            penaltyBnb = 0.025; // 0.025 BNB
+            penaltyBurnPercent = 5; // 5% burn
+          } else {
+            // Faltam 0-1 hora (se passaram 3-4 horas) - PENALTY_1H
+            penaltyBnb = 0.01; // 0.01 BNB
+            penaltyBurnPercent = 2.5; // 2.5% burn
+          }
+        }
+
         return {
-          claimableAmount, // ✅ JÁ CONVERTIDO PARA TOKENS!
+          claimableAmount,
           hashPower,
           lastClaim,
           hasPenalty,
@@ -93,6 +118,10 @@ export const usePreviewClaim = () => {
           referralEarnings,
           equipCountToday: 0,
           gambleCountToday: 0,
+          canClaimWithoutPenalty,
+          penaltyBnb,
+          penaltyBurnPercent,
+          hoursUntilNoPenalty,
         };
       } catch (error) {
         console.error("Error fetching claim preview:", error);
@@ -105,12 +134,10 @@ export const usePreviewClaim = () => {
     retry: 2,
     retryDelay: 1000,
   });
-  // Calculate derived values
   const canClaim = previewData ? !previewData.hasPenalty : false;
-
   const now = Math.floor(Date.now() / 1000);
   const timeSinceLastClaim = previewData ? now - previewData.lastClaim : 0;
-  const optimalClaimTime = 4 * 3600; // 4 hours
+  const optimalClaimTime = 4 * 3600;
   const remainingTimeSeconds = Math.max(
     0,
     optimalClaimTime - timeSinceLastClaim
@@ -137,20 +164,18 @@ export const useClaim = () => {
   const [isClaiming, setIsClaiming] = useState(false);
 
   const claimMutation = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (penaltyBnb: number) => {
       if (!signer || !isConnected || !address) {
         throw new Error("Wallet not connected or signer not available");
       }
 
-      console.log(`👤 Usuário: ${address}`);
-      console.log(`📋 Contract: ${CONTRACT_ADDRESSES.TorqueDriftGame}`);
-
+      const penaltyAmount = ethers.parseEther(penaltyBnb.toString());
       const gameContract = TorqueDriftGame__factory.connect(
         CONTRACT_ADDRESSES.TorqueDriftGame,
         signer
       );
 
-      const tx = await gameContract.claimTokens();
+      const tx = await gameContract.claimTokens({ value: penaltyAmount });
       await tx.wait();
 
       return { success: true };
@@ -216,6 +241,11 @@ export interface PreviewClaimData {
   baseRate: number;
   equipCountToday: number;
   gambleCountToday: number;
+  // Novos campos de penalidade
+  canClaimWithoutPenalty: boolean;
+  penaltyBnb: number;
+  penaltyBurnPercent: number;
+  hoursUntilNoPenalty: number;
 }
 
 // Helper function for formatting token amounts

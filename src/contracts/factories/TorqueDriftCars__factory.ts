@@ -42,6 +42,11 @@ const _abi = [
     type: "error",
   },
   {
+    inputs: [],
+    name: "InvalidCarAddress",
+    type: "error",
+  },
+  {
     inputs: [
       {
         internalType: "uint8",
@@ -222,6 +227,11 @@ const _abi = [
         name: "cooldownSeconds",
         type: "uint32",
       },
+      {
+        internalType: "uint32",
+        name: "lastMaintenance",
+        type: "uint32",
+      },
     ],
     stateMutability: "view",
     type: "function",
@@ -342,6 +352,11 @@ const _abi = [
           {
             internalType: "uint32",
             name: "cooldownSeconds",
+            type: "uint32",
+          },
+          {
+            internalType: "uint32",
+            name: "lastMaintenance",
             type: "uint32",
           },
         ],
@@ -546,6 +561,24 @@ const _abi = [
       },
     ],
     name: "transferOwnership",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "carAddress",
+        type: "address",
+      },
+      {
+        internalType: "uint32",
+        name: "newMaintenanceTime",
+        type: "uint32",
+      },
+    ],
+    name: "updateCarMaintenance",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

@@ -151,7 +151,7 @@ async function performMaintenance(signer: any, carAddress: string) {
     signer
   );
 
-  const tx = await gameContract.performMaintenance(carAddress);
+  const tx = await gameContract["performMaintenance(address)"](carAddress);
   const receipt = await tx.wait();
   return receipt?.hash || tx.hash;
 }
@@ -192,7 +192,6 @@ export const useCarsInventory = (): UseCarsInventoryReturn => {
         };
       }
 
-      // Conectar aos contratos
       const carsContract = TorqueDriftCars__factory.connect(
         CONTRACT_ADDRESSES.TorqueDriftCars,
         provider
@@ -203,14 +202,14 @@ export const useCarsInventory = (): UseCarsInventoryReturn => {
         provider
       );
 
-      // Buscar inventário e estado do usuário em paralelo
-      const [inventory, userState] = await Promise.all([
+      const [inventory, equippedCarsData] = await Promise.all([
         carsContract.getUserInventory(address),
-        gameContract.getUserState(address),
+        gameContract.getUserCars(),
       ]);
 
-      const [ownedCars, totalOwned, totalHashPower, equippedSlotsFromCars] =
-        inventory;
+      const [ownedCars, totalOwned, totalHashPower] = inventory;
+      const [equippedCarsArray, totalEquipped, equippedTotalHashPower] =
+        equippedCarsData;
 
       const cars: CarInventoryData[] = [];
       for (const car of ownedCars) {
@@ -218,10 +217,13 @@ export const useCarsInventory = (): UseCarsInventoryReturn => {
         const version = Number(car.version) || 0;
         const catalogData = getCarCatalogData(rarity, version);
 
-        // ✅ Verificar se o carro está nos slots do UserState (fonte verdadeira)
         let equippedSlotNumber = -1;
-        for (let i = 0; i < userState.slots.length; i++) {
-          if (userState.slots[i].toLowerCase() === car.mint.toLowerCase()) {
+        for (let i = 0; i < equippedCarsArray.length; i++) {
+          const slotMint = equippedCarsArray[i][0];
+          if (
+            slotMint !== ethers.ZeroAddress &&
+            slotMint.toLowerCase() === car.mint.toLowerCase()
+          ) {
             equippedSlotNumber = i;
             break;
           }
@@ -247,8 +249,8 @@ export const useCarsInventory = (): UseCarsInventoryReturn => {
         });
       }
 
-      const equippedSlots = userState.slots.map(
-        (slot) => slot !== ethers.ZeroAddress
+      const equippedSlots = equippedCarsArray.map(
+        (slot) => slot[0] !== ethers.ZeroAddress
       );
 
       return {
@@ -257,6 +259,11 @@ export const useCarsInventory = (): UseCarsInventoryReturn => {
         totalInventoryHashPower: Number(totalHashPower),
         totalInventoryHashPowerFormatted: formatHashPower(totalHashPower),
         equippedSlots,
+        equippedCarsData: {
+          equippedCars: equippedCarsArray,
+          totalEquipped: Number(totalEquipped),
+          equippedHashPower: Number(equippedTotalHashPower),
+        },
       };
     },
     enabled: !!address && isConnected,
@@ -269,7 +276,7 @@ export const useCarsInventory = (): UseCarsInventoryReturn => {
   // ==========================================
   // 🎯 EQUIPPED SLOTS DATA
   // ==========================================
-  const equippedSlotsData = React.useMemo(() => {
+  const equippedSlotsData = useMemo(() => {
     if (!inventoryData?.cars) {
       return {
         slots: new Array(5).fill(null).map((_, i) => ({
@@ -383,11 +390,31 @@ export const useCarsInventory = (): UseCarsInventoryReturn => {
       queryClient.invalidateQueries({ queryKey: ["userInventory", address] });
     },
     onError: (error) => {
-      toast.error(
-        `Failed to equip car: ${
-          error instanceof Error ? error.message : "Unknown error"
-        }`
-      );
+      if (
+        error instanceof Error &&
+        error.message.includes("user rejected action")
+      ) {
+        toast.error("User rejected action");
+        return;
+      } else if (
+        error instanceof Error &&
+        error.message.includes("Car not found")
+      ) {
+        toast.error("Car not found");
+        return;
+      } else if (
+        error instanceof Error &&
+        error.message.includes("Invalid slot index")
+      ) {
+        toast.error("Invalid slot index");
+        return;
+      } else if (
+        error instanceof Error &&
+        error.message.includes("Wallet not connected")
+      ) {
+        toast.error("Wallet not connected");
+        return;
+      }
     },
   });
 
@@ -427,17 +454,34 @@ export const useCarsInventory = (): UseCarsInventoryReturn => {
       queryClient.invalidateQueries({ queryKey: ["userInventory", address] });
     },
     onError: (error) => {
-      toast.error(
-        `Failed to unequip car: ${
-          error instanceof Error ? error.message : "Unknown error"
-        }`
-      );
+      if (
+        error instanceof Error &&
+        error.message.includes("user rejected action")
+      ) {
+        toast.error("User rejected action");
+        return;
+      } else if (
+        error instanceof Error &&
+        error.message.includes("Car not found")
+      ) {
+        toast.error("Car not found");
+        return;
+      } else if (
+        error instanceof Error &&
+        error.message.includes("Invalid slot index")
+      ) {
+        toast.error("Invalid slot index");
+        return;
+      } else if (
+        error instanceof Error &&
+        error.message.includes("Wallet not connected")
+      ) {
+        toast.error("Wallet not connected");
+        return;
+      }
     },
   });
 
-  // ==========================================
-  // 🔧 MAINTENANCE MUTATION
-  // ==========================================
   const maintenanceMutation = useMutation({
     mutationFn: async ({ carMint }: { carMint: string }) => {
       setMaintainingCars((prev) => new Set([...prev, carMint]));
@@ -536,6 +580,9 @@ export const useCarsInventory = (): UseCarsInventoryReturn => {
     totalOwned: inventoryData?.totalOwned || 0,
     totalInventoryHashPower: inventoryData?.totalInventoryHashPower || 0,
 
+    // Validation data
+    equippedCarsData: inventoryData?.equippedCarsData || null,
+
     // State management
     isLoading: inventoryLoading,
     error: inventoryError,
@@ -571,4 +618,3 @@ export const useCarsInventory = (): UseCarsInventoryReturn => {
     maintenanceError: maintenanceMutation.error,
   };
 };
-

@@ -42,35 +42,20 @@ export const ClaimSection: React.FC<ClaimSectionProps> = ({ equippedCars }) => {
 
   useEffect(() => {
     if (!previewData) return;
-
     const calculateLiveAmount = () => {
-      const now = Date.now(); // Timestamp atual em milissegundos
-      const timeElapsed = (now - startTime) / 1000; // Tempo decorrido em segundos
-
-      // Taxa por segundo = hashPower * baseRate
-      // baseRate está em wei por segundo, então convertemos
-      const baseRatePerSecond = previewData.baseRate / 1e18; // Converter de wei para unidades
-      const tokensPerSecond = previewData.hashPower * baseRatePerSecond;
-
-      // Adicionar tokens gerados desde o último update
+      const now = Date.now();
+      const timeElapsed = (now - startTime) / 1000;
+      const hourlyReward = parseFloat(previewData.hourlyReward || "0");
+      const tokensPerSecond = hourlyReward / 3600;
       const additionalTokens = tokensPerSecond * timeElapsed;
-
-      // Novo valor live = claimableAmount do contrato + tokens gerados em tempo real
       const newLiveAmount = previewData.claimableAmount + additionalTokens;
-
       setLiveClaimableAmount(Math.max(0, newLiveAmount));
     };
-
-    // Calcular imediatamente
     calculateLiveAmount();
-
-    // Atualizar a cada segundo para mostrar o numero atualizando
     const interval = setInterval(calculateLiveAmount, 1000);
-
     return () => clearInterval(interval);
   }, [previewData, startTime]);
 
-  // Reset do startTime quando previewData muda
   useEffect(() => {
     if (previewData) {
       setStartTime(Date.now());
@@ -79,15 +64,14 @@ export const ClaimSection: React.FC<ClaimSectionProps> = ({ equippedCars }) => {
 
   const { onClaim, isLoading: claimLoading, isClaiming } = useClaim();
   const hasActiveLock = lockState?.hasActiveLock ?? false;
-  const isClaimDisabled = isClaiming || hasActiveLock;
   const hasPenalty = previewData?.hasPenalty ?? false;
+  const isClaimDisabled = isClaiming || hasActiveLock;
 
   const handleRefreshData = async () => {
     if (!address) return;
 
     setIsRefreshing(true);
     try {
-      // Invalidate and refetch claim-related queries
       await queryClient.invalidateQueries({
         queryKey: ["claimPreview", address],
       });
@@ -98,7 +82,6 @@ export const ClaimSection: React.FC<ClaimSectionProps> = ({ equippedCars }) => {
         queryKey: ["carsInventory", address],
       });
 
-      // Force refetch
       await Promise.all([
         queryClient.refetchQueries({ queryKey: ["claimPreview", address] }),
         queryClient.refetchQueries({ queryKey: ["userData", address] }),
@@ -226,42 +209,52 @@ export const ClaimSection: React.FC<ClaimSectionProps> = ({ equippedCars }) => {
               {cooldownText}
             </span>
           </div>
-          {previewData?.hashPower && (
-            <div className="flex justify-between">
-              <span className="text-[#B5B2BC]">Race Power:</span>
-              <span className="text-blue-400 font-medium">
-                {previewData.hashPower} RP
-              </span>
-            </div>
-          )}
-          {previewData?.hourlyReward && (
-            <div className="flex justify-between">
-              <span className="text-[#B5B2BC]">$TOD/Hour:</span>
-              <span className="text-purple-400 font-medium">
-                {previewData?.hourlyReward ?? "0"}
-              </span>
+          <div className="flex justify-between">
+            <span className="text-[#B5B2BC]">Race Power:</span>
+            <span className="text-blue-400 font-medium">
+              {previewData?.hashPower ?? 0} RP
+            </span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-[#B5B2BC]">$TOD/Hour:</span>
+            <span className="text-purple-400 font-medium">
+              {previewData?.hourlyReward ?? "0"}
+            </span>
+          </div>
+          {!previewData?.canClaimWithoutPenalty && (
+            <div className="">
+              <div className="flex justify-between text-sm">
+                <span className="text-[#B5B2BC]">BNB Penalty:</span>
+                <span className="text-red-400 font-medium">
+                  {previewData?.penaltyBnb?.toFixed(3) ?? 0} BNB
+                </span>
+              </div>
+              <div className="flex justify-between text-sm mt-2">
+                <span className="text-[#B5B2BC]">Token Burn:</span>
+                <span className="text-red-400 font-medium">
+                  {previewData?.penaltyBurnPercent ?? 0}% of claim
+                </span>
+              </div>
             </div>
           )}
           <div className="flex justify-between">
             <span className="text-[#B5B2BC]">Lock Boost:</span>
             <span className="text-cyan-400 font-medium">
-              +{previewData?.lockBoost.toFixed(2) ?? 0}%
+              +{previewData?.lockBoost.toFixed(0) ?? 0}%
             </span>
           </div>
           <div className="flex justify-between">
             <span className="text-[#B5B2BC]">Referral Boost:</span>
             <span className="text-cyan-400 font-medium">
-              +{previewData?.referralBoost?.toFixed(2) ?? 0}%
+              +{previewData?.referralBoost?.toFixed(0) ?? 0}%
             </span>
           </div>
-          {(previewData?.totalBoost ?? 0) > 0 && (
-            <div className="flex justify-between border-t border-[#49474E] pt-2 mt-2">
-              <span className="text-[#EEEEF0] font-medium">Total Boost:</span>
-              <span className="text-green-400 font-bold">
-                +{previewData?.totalBoost?.toFixed(2) ?? 0}%
-              </span>
-            </div>
-          )}
+          <div className="flex justify-between border-t border-[#49474E] pt-2 mt-2">
+            <span className="text-[#EEEEF0] font-medium">Total Boost:</span>
+            <span className="text-green-400 font-bold">
+              +{previewData?.totalBoost?.toFixed(2) ?? 0}%
+            </span>
+          </div>
         </div>
 
         {/* Mensagem explicativa quando há lock ativo */}
@@ -278,18 +271,14 @@ export const ClaimSection: React.FC<ClaimSectionProps> = ({ equippedCars }) => {
             disabled={isClaimDisabled}
             className="flex-1"
             onClick={async () => {
-              try {
-                await onClaim();
-                if (liveClaimableAmount > 0) {
-                  setClaimedAmount(
-                    formatTokenAmount(
-                      liveClaimableAmount >= 0 ? liveClaimableAmount : 0
-                    )
-                  );
-                  setShowSuccess(true);
-                }
-              } catch (error) {
-                // Erro já é tratado pelo hook
+              await onClaim(previewData?.penaltyBnb ?? 0);
+              if (liveClaimableAmount > 0) {
+                setClaimedAmount(
+                  formatTokenAmount(
+                    liveClaimableAmount >= 0 ? liveClaimableAmount : 0
+                  )
+                );
+                setShowSuccess(true);
               }
             }}
           >
@@ -354,7 +343,10 @@ export const ClaimSection: React.FC<ClaimSectionProps> = ({ equippedCars }) => {
               <div className="flex justify-between">
                 <span className="text-[#888]">Last Claim:</span>
                 <span className="text-[#EEEEF0]">
-                  {new Date(previewData.lastClaim * 1000).toLocaleDateString()}
+                  {new Date(previewData.lastClaim * 1000).toLocaleDateString(
+                    "en-US",
+                    { minute: "2-digit", second: "2-digit", hour: "2-digit" }
+                  )}
                 </span>
               </div>
             )}
@@ -405,4 +397,3 @@ export const ClaimSection: React.FC<ClaimSectionProps> = ({ equippedCars }) => {
     </motion.div>
   );
 };
-

@@ -32,6 +32,11 @@
     "type": "error"
   },
   {
+    "inputs": [],
+    "name": "InvalidCarAddress",
+    "type": "error"
+  },
+  {
     "inputs": [
       {
         "internalType": "uint8",
@@ -211,6 +216,11 @@
         "internalType": "uint32",
         "name": "cooldownSeconds",
         "type": "uint32"
+      },
+      {
+        "internalType": "uint32",
+        "name": "lastMaintenance",
+        "type": "uint32"
       }
     ],
     "stateMutability": "view",
@@ -332,6 +342,11 @@
           {
             "internalType": "uint32",
             "name": "cooldownSeconds",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "lastMaintenance",
             "type": "uint32"
           }
         ],
@@ -536,6 +551,24 @@
       }
     ],
     "name": "transferOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "carAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "uint32",
+        "name": "newMaintenanceTime",
+        "type": "uint32"
+      }
+    ],
+    "name": "updateCarMaintenance",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

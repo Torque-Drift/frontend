@@ -18,8 +18,8 @@ export interface ClaimLockState {
 
 // Available lock options
 export const LOCK_OPTIONS = [
-  { option: 0, duration: 1, boost: 2, label: "1 Day (+5%)" },
-  { option: 1, duration: 3, boost: 5, label: "3 Days (10%)" },
+  { option: 0, duration: 1, boost: 5, label: "1 Day (+5%)" },
+  { option: 1, duration: 3, boost: 10, label: "3 Days (10%)" },
   { option: 2, duration: 7, boost: 20, label: "7 Days (+20%)" },
 ];
 

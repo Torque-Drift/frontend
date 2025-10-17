@@ -106,7 +106,7 @@ export default function Home() {
             return (
               <div
                 key={index}
-                className="bg-[#1A191B] rounded-xl p-3 sm:p-4 border border-gray-700 hover:border-gray-600 transition-colors duration-200"
+                className="bg-[#1A191B] rounded-xl p-2 sm:p-2 border-2 border-transparent hover:border-[#6C28FF]/50 transition-colors duration-200"
               >
                 <div className="aspect-square relative mb-3 sm:mb-4 rounded-lg overflow-hidden bg-gray-800">
                   <Image

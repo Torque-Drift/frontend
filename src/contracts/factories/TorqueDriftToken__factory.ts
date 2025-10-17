@@ -354,6 +354,19 @@ const _abi = [
     inputs: [
       {
         indexed: false,
+        internalType: "bool",
+        name: "enabled",
+        type: "bool",
+      },
+    ],
+    name: "TransferToggled",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
         internalType: "address",
         name: "account",
         type: "address",
@@ -488,44 +501,6 @@ const _abi = [
     name: "burnFrom",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "tokenAmount",
-        type: "uint256",
-      },
-    ],
-    name: "calculateBnbForTokens",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "bnbAmount",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "bnbAmount",
-        type: "uint256",
-      },
-    ],
-    name: "calculateTokensForBnb",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "tokenAmount",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
     type: "function",
   },
   {
@@ -678,6 +653,19 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [
+      {
+        internalType: "bool",
+        name: "enabled",
+        type: "bool",
+      },
+    ],
+    name: "toggleTransfer",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "tokenPriceInBnb",
     outputs: [
@@ -738,6 +726,19 @@ const _abi = [
       },
     ],
     stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "transferEnabled",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {

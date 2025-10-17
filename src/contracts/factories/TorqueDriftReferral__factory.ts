@@ -77,17 +77,6 @@ const _abi = [
     type: "error",
   },
   {
-    inputs: [
-      {
-        internalType: "address",
-        name: "caller",
-        type: "address",
-      },
-    ],
-    name: "Unauthorized",
-    type: "error",
-  },
-  {
     inputs: [],
     name: "ZeroAmount",
     type: "error",
@@ -246,6 +235,37 @@ const _abi = [
       },
       {
         indexed: false,
+        internalType: "uint8",
+        name: "slotIndex",
+        type: "uint8",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "timestamp",
+        type: "uint256",
+      },
+    ],
+    name: "CarMaintained",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "carAddress",
+        type: "address",
+      },
+      {
+        indexed: false,
         internalType: "uint256",
         name: "maintenanceCost",
         type: "uint256",
@@ -314,6 +334,37 @@ const _abi = [
       },
     ],
     name: "ClockDriftToleranceUpdated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "address",
+        name: "msgSender",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "txOrigin",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "gameContract",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "thisContract",
+        type: "address",
+      },
+    ],
+    name: "DebugInitialize",
     type: "event",
   },
   {
@@ -861,6 +912,19 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [
+      {
+        internalType: "string",
+        name: "code",
+        type: "string",
+      },
+    ],
+    name: "createReferralCode",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "deactivateClaimLock",
     outputs: [],
@@ -984,50 +1048,6 @@ const _abi = [
         internalType: "address",
         name: "",
         type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "user",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "carAddress",
-        type: "address",
-      },
-    ],
-    name: "getCarEfficiencyInfo",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "currentEfficiency",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "effectiveHashPower",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "maintenanceCost",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "timeUntilNextMaintenance",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "currentDailyYield",
-        type: "uint256",
       },
     ],
     stateMutability: "view",
@@ -1193,11 +1213,6 @@ const _abi = [
           },
           {
             internalType: "bool",
-            name: "gamblePaused",
-            type: "bool",
-          },
-          {
-            internalType: "bool",
             name: "lockPaused",
             type: "bool",
           },
@@ -1299,66 +1314,6 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [],
-    name: "getUserCars",
-    outputs: [
-      {
-        components: [
-          {
-            internalType: "address",
-            name: "mint",
-            type: "address",
-          },
-          {
-            internalType: "uint256",
-            name: "hashPower",
-            type: "uint256",
-          },
-          {
-            internalType: "uint32",
-            name: "efficiency",
-            type: "uint32",
-          },
-          {
-            internalType: "uint32",
-            name: "lastMaintenance",
-            type: "uint32",
-          },
-          {
-            internalType: "uint8",
-            name: "rarity",
-            type: "uint8",
-          },
-          {
-            internalType: "uint8",
-            name: "version",
-            type: "uint8",
-          },
-          {
-            internalType: "uint8",
-            name: "slotIndex",
-            type: "uint8",
-          },
-        ],
-        internalType: "struct ITorqueDriftStructs.CarInfo[5]",
-        name: "userEquippedCars",
-        type: "tuple[5]",
-      },
-      {
-        internalType: "uint8",
-        name: "totalEquipped",
-        type: "uint8",
-      },
-      {
-        internalType: "uint256",
-        name: "totalHashPower",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
     inputs: [
       {
         internalType: "address",
@@ -1366,77 +1321,21 @@ const _abi = [
         type: "address",
       },
     ],
-    name: "getUserEquippedCar",
+    name: "getUserDailyCarCreationInfo",
     outputs: [
       {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "user",
-        type: "address",
-      },
-    ],
-    name: "getUserEquippedCars",
-    outputs: [
-      {
-        components: [
-          {
-            internalType: "address",
-            name: "mint",
-            type: "address",
-          },
-          {
-            internalType: "uint256",
-            name: "hashPower",
-            type: "uint256",
-          },
-          {
-            internalType: "uint32",
-            name: "efficiency",
-            type: "uint32",
-          },
-          {
-            internalType: "uint32",
-            name: "lastMaintenance",
-            type: "uint32",
-          },
-          {
-            internalType: "uint8",
-            name: "rarity",
-            type: "uint8",
-          },
-          {
-            internalType: "uint8",
-            name: "version",
-            type: "uint8",
-          },
-          {
-            internalType: "uint8",
-            name: "slotIndex",
-            type: "uint8",
-          },
-        ],
-        internalType: "struct ITorqueDriftStructs.CarInfo[5]",
-        name: "userEquippedCars",
-        type: "tuple[5]",
+        internalType: "uint8",
+        name: "dailyCarCreationCount",
+        type: "uint8",
       },
       {
         internalType: "uint8",
-        name: "totalEquipped",
+        name: "maxDailyCarCreations",
         type: "uint8",
       },
       {
         internalType: "uint256",
-        name: "totalHashPower",
+        name: "nextResetTime",
         type: "uint256",
       },
     ],
@@ -1457,25 +1356,6 @@ const _abi = [
         internalType: "bool",
         name: "",
         type: "bool",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "user",
-        type: "address",
-      },
-    ],
-    name: "getUserHashPower",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
       },
     ],
     stateMutability: "view",
@@ -1519,25 +1399,6 @@ const _abi = [
         internalType: "uint8",
         name: "equippedCount",
         type: "uint8",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "user",
-        type: "address",
-      },
-    ],
-    name: "getUserLastClaim",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
       },
     ],
     stateMutability: "view",
@@ -1644,18 +1505,28 @@ const _abi = [
           },
           {
             internalType: "uint256",
-            name: "lastGambleTime",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "lastGambleDay",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
             name: "lastLockTime",
             type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "farmingPausedTime",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "farmingLastPaused",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "lastCarCreationDay",
+            type: "uint256",
+          },
+          {
+            internalType: "uint8",
+            name: "dailyCarCreationCount",
+            type: "uint8",
           },
           {
             internalType: "uint256",
@@ -1723,16 +1594,6 @@ const _abi = [
             internalType: "uint32",
             name: "referralCount",
             type: "uint32",
-          },
-          {
-            internalType: "uint8",
-            name: "gambleCountToday",
-            type: "uint8",
-          },
-          {
-            internalType: "bool",
-            name: "gambleUsed",
-            type: "bool",
           },
           {
             internalType: "bool",
@@ -1917,11 +1778,6 @@ const _abi = [
       },
       {
         internalType: "bool",
-        name: "gamblePaused",
-        type: "bool",
-      },
-      {
-        internalType: "bool",
         name: "lockPaused",
         type: "bool",
       },
@@ -2022,6 +1878,19 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "uint8",
+        name: "slotIndex",
+        type: "uint8",
+      },
+    ],
+    name: "performMaintenance",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "address",
         name: "carAddress",
         type: "address",
@@ -2060,6 +1929,11 @@ const _abi = [
       {
         internalType: "uint256",
         name: "referralBoost",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "hourlyReward",
         type: "uint256",
       },
     ],
@@ -2232,6 +2106,25 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [
+      {
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+    ],
+    name: "syncUserHashPower",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "tokenContract",
     outputs: [
@@ -2343,18 +2236,28 @@ const _abi = [
       },
       {
         internalType: "uint256",
-        name: "lastGambleTime",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "lastGambleDay",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
         name: "lastLockTime",
         type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "farmingPausedTime",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "farmingLastPaused",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "lastCarCreationDay",
+        type: "uint256",
+      },
+      {
+        internalType: "uint8",
+        name: "dailyCarCreationCount",
+        type: "uint8",
       },
       {
         internalType: "uint256",
@@ -2417,16 +2320,6 @@ const _abi = [
         internalType: "uint32",
         name: "referralCount",
         type: "uint32",
-      },
-      {
-        internalType: "uint8",
-        name: "gambleCountToday",
-        type: "uint8",
-      },
-      {
-        internalType: "bool",
-        name: "gambleUsed",
-        type: "bool",
       },
       {
         internalType: "bool",

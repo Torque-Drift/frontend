@@ -4,29 +4,6 @@ import { CONTRACT_ADDRESSES } from "@/constants";
 import { useEthers } from "./useEthers";
 import toast from "react-hot-toast";
 
-export const calculateBnbForTokens = async (
-  tokenAmount: number,
-  signer: any
-) => {
-  const tokenContract = TorqueDriftToken__factory.connect(
-    CONTRACT_ADDRESSES.TorqueDriftToken,
-    signer
-  );
-  const tokenAmountWei = BigInt(tokenAmount) * BigInt(10 ** 9);
-  const requiredBnb = await tokenContract.calculateBnbForTokens(tokenAmountWei);
-  return requiredBnb;
-};
-
-export const calculateTokensForBnb = async (bnbAmount: bigint, signer: any) => {
-  const tokenContract = TorqueDriftToken__factory.connect(
-    CONTRACT_ADDRESSES.TorqueDriftToken,
-    signer
-  );
-
-  const tokensAmount = await tokenContract.calculateTokensForBnb(bnbAmount);
-  return Number(tokensAmount) / 10 ** 9;
-};
-
 export const useTokenPurchase = () => {
   const { signer, address, isConnected } = useEthers();
 
@@ -46,11 +23,9 @@ export const useTokenPurchase = () => {
         // Convert token amount to contract format (9 decimals)
         const tokenAmountWei = BigInt(tokenAmount) * BigInt(10 ** 9);
 
-        // Calculate required BNB from contract
-        const requiredBnb = await tokenContract.calculateBnbForTokens(
-          tokenAmountWei
-        );
+        const requiredBnb = await tokenContract.tokenPriceInBnb();
         const requiredBnbEther = Number(requiredBnb) / 10 ** 18;
+
         const balance = await signer.provider.getBalance(address);
         if (balance < requiredBnb) {
           throw new Error(
