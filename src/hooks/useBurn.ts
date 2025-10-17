@@ -1,7 +1,11 @@
 import { useMutation } from "@tanstack/react-query";
 import { CONTRACT_ADDRESSES } from "@/constants";
-import { TorqueDriftToken__factory } from "@/contracts";
+import {
+  TorqueDriftToken__factory,
+  TorqueDriftGame__factory,
+} from "@/contracts";
 import { useEthers } from "./useEthers";
+import { useInitializeGame } from "./useInitializeGame";
 import toast from "react-hot-toast";
 
 async function burnTokensForLootbox(signer: any) {
@@ -74,11 +78,35 @@ async function burnTokensForLootbox(signer: any) {
 
 export const useBurn = () => {
   const { signer, address, isConnected } = useEthers();
+  const { userExists } = useInitializeGame();
 
   const mutation = useMutation({
     mutationFn: async () => {
       if (!signer || !isConnected || !address)
         throw new Error("Wallet not connected");
+
+      if (!userExists) {
+        throw new Error(
+          "You must initialize the game before opening lootboxes. Please start your account first."
+        );
+      }
+
+      // Verificar limites diários de criação de carros
+      const gameContract = TorqueDriftGame__factory.connect(
+        CONTRACT_ADDRESSES.TorqueDriftGame,
+        signer
+      );
+
+      const dailyInfo = await gameContract.getUserDailyCarCreationInfo(address);
+      const dailyCarCreationCount = Number(dailyInfo[0]);
+      const maxDailyCarCreations = Number(dailyInfo[1]);
+
+      if (dailyCarCreationCount >= maxDailyCarCreations) {
+        throw new Error(
+          `Daily car creation limit reached (${maxDailyCarCreations}). Please try again tomorrow.`
+        );
+      }
+
       const burnTxSignature = await burnTokensForLootbox(signer);
       if (!burnTxSignature) throw new Error("Failed to get transaction hash");
       const response = await fetch("/api/purchase", {
@@ -127,3 +155,4 @@ export const useBurn = () => {
     mutateAsync: mutation.mutateAsync,
   };
 };
+

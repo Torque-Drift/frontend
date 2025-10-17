@@ -23,7 +23,8 @@ export const useTokenPurchase = () => {
         // Convert token amount to contract format (9 decimals)
         const tokenAmountWei = BigInt(tokenAmount) * BigInt(10 ** 9);
 
-        const requiredBnb = await tokenContract.tokenPriceInBnb();
+        // Calculate required BNB using contract function
+        const requiredBnb = await tokenContract.calculateBnbForTokens(tokenAmountWei);
         const requiredBnbEther = Number(requiredBnb) / 10 ** 18;
 
         const balance = await signer.provider.getBalance(address);

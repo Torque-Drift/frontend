@@ -33,6 +33,8 @@ export interface TorqueDriftTokenInterface extends Interface {
       | "balanceOf"
       | "burn"
       | "burnFrom"
+      | "calculateBnbForTokens"
+      | "calculateTokensForBnb"
       | "decimals"
       | "mint"
       | "mintAuthority"
@@ -91,6 +93,14 @@ export interface TorqueDriftTokenInterface extends Interface {
   encodeFunctionData(
     functionFragment: "burnFrom",
     values: [AddressLike, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "calculateBnbForTokens",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "calculateTokensForBnb",
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
   encodeFunctionData(
@@ -175,6 +185,14 @@ export interface TorqueDriftTokenInterface extends Interface {
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "burn", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "burnFrom", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "calculateBnbForTokens",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "calculateTokensForBnb",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
   decodeFunctionResult(
@@ -422,6 +440,18 @@ export interface TorqueDriftToken extends BaseContract {
     "nonpayable"
   >;
 
+  calculateBnbForTokens: TypedContractMethod<
+    [tokenAmount: BigNumberish],
+    [bigint],
+    "view"
+  >;
+
+  calculateTokensForBnb: TypedContractMethod<
+    [bnbAmount: BigNumberish],
+    [bigint],
+    "view"
+  >;
+
   decimals: TypedContractMethod<[], [bigint], "view">;
 
   mint: TypedContractMethod<
@@ -543,6 +573,12 @@ export interface TorqueDriftToken extends BaseContract {
     [void],
     "nonpayable"
   >;
+  getFunction(
+    nameOrSignature: "calculateBnbForTokens"
+  ): TypedContractMethod<[tokenAmount: BigNumberish], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "calculateTokensForBnb"
+  ): TypedContractMethod<[bnbAmount: BigNumberish], [bigint], "view">;
   getFunction(
     nameOrSignature: "decimals"
   ): TypedContractMethod<[], [bigint], "view">;

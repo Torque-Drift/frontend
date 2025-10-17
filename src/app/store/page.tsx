@@ -60,7 +60,9 @@ export default function StorePage() {
         CONTRACT_ADDRESSES.TorqueDriftToken,
         signer
       );
-      const requiredBnb = await tokenContract.tokenPriceInBnb();
+      // Convert token amount to contract format (9 decimals)
+      const tokenAmountWei = BigInt(tokens) * BigInt(10 ** 9);
+      const requiredBnb = await tokenContract.calculateBnbForTokens(tokenAmountWei);
       const bnbEther = Number(requiredBnb) / 10 ** 18;
       setBnbAmount(bnbEther.toFixed(6));
     } catch (error) {

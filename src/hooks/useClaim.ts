@@ -35,9 +35,7 @@ export const usePreviewClaim = () => {
         const globalState = await gameContract.globalState();
         console.log("preview data:", preview);
         console.log("preview hourlyReward:", preview.hourlyReward);
-        const claimableAmount = Number(
-          ethers.formatUnits(preview.claimableAmount, 9)
-        );
+        const claimableAmount = Number(ethers.formatUnits(preview[0], 9));
         console.log("🔍 Claimable amount:", claimableAmount);
         const baseReward = Number(preview.baseReward) / 1e9;
         const lockBoost = Number(preview.lockBoost) / 1e9;
@@ -268,3 +266,4 @@ function formatTokenAmount(amount: number): string {
     })} $TOD`;
   }
 }
+
