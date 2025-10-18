@@ -62,7 +62,9 @@ export default function StorePage() {
       );
       // Convert token amount to contract format (9 decimals)
       const tokenAmountWei = BigInt(tokens) * BigInt(10 ** 9);
-      const requiredBnb = await tokenContract.calculateBnbForTokens(tokenAmountWei);
+      const requiredBnb = await tokenContract.calculateBnbForTokens(
+        tokenAmountWei
+      );
       const bnbEther = Number(requiredBnb) / 10 ** 18;
       setBnbAmount(bnbEther.toFixed(6));
     } catch (error) {
@@ -260,7 +262,7 @@ export default function StorePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div>
               <p className="text-[#B5B2BC] mb-4">
-                Open a lootbox to get a random NFT car! Each lootbox costs 100
+                Open a lootbox to get a random NFT car! Each lootbox costs 300
                 $TOD tokens and gives you one of our rare collectible cars.
               </p>
 

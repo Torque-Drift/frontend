@@ -66,7 +66,7 @@ export default function Home() {
               Mine & Earn
             </h1>
             <p className="text-sm sm:text-base text-gray-300">
-              Put your GPUs to work mining cryptocurrency in a futuristic
+              Put your cars to work racing for cryptocurrency in a futuristic
               virtual environment
             </p>
           </div>
@@ -170,10 +170,10 @@ export default function Home() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 my-16 sm:my-20 w-full">
         <div className="bg-[url('/images/bg_footer.png')] rounded-lg bg-cover bg-center py-12 sm:py-16 lg:py-20 flex items-center justify-center flex-col w-full min-h-[250px] sm:min-h-[300px]">
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#EEEEF0] text-center mb-4">
-            Join the Mining Revolution
+            Join the Racing Revolution
           </h1>
           <p className="text-[#B5B2BC] text-base sm:text-lg mb-6 sm:mb-8 max-w-md mx-auto text-center leading-relaxed">
-            Be among the first to experience the future of GPU NFT mining
+            Be among the first to experience the future of Torque Drift
           </p>
           <Button
             onClick={() => router.push("/garage")}

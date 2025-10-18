@@ -197,39 +197,18 @@ export const useCarsInventory = (): UseCarsInventoryReturn => {
         provider
       );
 
-      const gameContract = TorqueDriftGame__factory.connect(
-        CONTRACT_ADDRESSES.TorqueDriftGame,
-        provider
-      );
-
-      const [inventory, equippedCarsData] = await Promise.all([
-        carsContract.getUserInventory(address),
-        gameContract.getUserCars(),
-      ]);
+      const inventory = await carsContract.getUserInventory(address);
+      console.log(inventory);
 
       const [ownedCars, totalOwned, totalHashPower] = inventory;
-      const [equippedCarsArray, totalEquipped, equippedTotalHashPower] =
-        equippedCarsData;
 
       const cars: CarInventoryData[] = [];
       for (const car of ownedCars) {
         const rarity = Number(car.rarity) || 0;
         const version = Number(car.version) || 0;
+        const slotIndex = Number(car.slotIndex);
+        const isEquipped = slotIndex !== 255; // 255 means not equipped
         const catalogData = getCarCatalogData(rarity, version);
-
-        let equippedSlotNumber = -1;
-        for (let i = 0; i < equippedCarsArray.length; i++) {
-          const slotMint = equippedCarsArray[i][0];
-          if (
-            slotMint !== ethers.ZeroAddress &&
-            slotMint.toLowerCase() === car.mint.toLowerCase()
-          ) {
-            equippedSlotNumber = i;
-            break;
-          }
-        }
-
-        const isEquipped = equippedSlotNumber >= 0;
 
         cars.push({
           mint: car.mint,
@@ -239,7 +218,7 @@ export const useCarsInventory = (): UseCarsInventoryReturn => {
           efficiency: Number(car.efficiency) / 100 || 0,
           owner: address || "",
           isEquipped,
-          slotIndex: isEquipped ? equippedSlotNumber : undefined,
+          slotIndex: isEquipped ? slotIndex : undefined,
           image: catalogData.image,
           name: catalogData.name,
           description: catalogData.description,
@@ -249,9 +228,17 @@ export const useCarsInventory = (): UseCarsInventoryReturn => {
         });
       }
 
-      const equippedSlots = equippedCarsArray.map(
-        (slot) => slot[0] !== ethers.ZeroAddress
-      );
+      // Create equipped slots array based on the cars data
+      const equippedSlots = new Array(5).fill(false);
+      cars.forEach((car) => {
+        if (
+          car.isEquipped &&
+          car.slotIndex !== undefined &&
+          car.slotIndex < 5
+        ) {
+          equippedSlots[car.slotIndex] = true;
+        }
+      });
 
       return {
         cars,
@@ -259,11 +246,6 @@ export const useCarsInventory = (): UseCarsInventoryReturn => {
         totalInventoryHashPower: Number(totalHashPower),
         totalInventoryHashPowerFormatted: formatHashPower(totalHashPower),
         equippedSlots,
-        equippedCarsData: {
-          equippedCars: equippedCarsArray,
-          totalEquipped: Number(totalEquipped),
-          equippedHashPower: Number(equippedTotalHashPower),
-        },
       };
     },
     enabled: !!address && isConnected,
@@ -579,9 +561,6 @@ export const useCarsInventory = (): UseCarsInventoryReturn => {
     inventoryData,
     totalOwned: inventoryData?.totalOwned || 0,
     totalInventoryHashPower: inventoryData?.totalInventoryHashPower || 0,
-
-    // Validation data
-    equippedCarsData: inventoryData?.equippedCarsData || null,
 
     // State management
     isLoading: inventoryLoading,

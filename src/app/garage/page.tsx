@@ -8,6 +8,7 @@ import {
   DragStartEvent,
   pointerWithin,
 } from "@dnd-kit/core";
+import { useQuery } from "@tanstack/react-query";
 import { Street } from "@/components/Street";
 import { useCarsInventory } from "@/hooks/useCarsInventory";
 import {
@@ -20,6 +21,10 @@ import {
 import { useInitializeGame } from "@/hooks/useInitializeGame";
 import { useTokenBalances } from "@/hooks/useTokenBalances";
 import { Button } from "@/components/Button";
+import { useEthers } from "@/hooks/useEthers";
+import { ethers } from "ethers";
+import { CONTRACT_ADDRESSES } from "@/constants";
+import { TorqueDriftReferral__factory } from "@/contracts";
 import type { CarInventoryData } from "@/types/cars";
 
 interface MiningStats {
@@ -33,10 +38,58 @@ interface MiningStats {
 export default function GaragePage() {
   const [referrerInput, setReferrerInput] = useState("");
 
+  const { provider } = useEthers();
+
   const { userExists, referrerCode, initializeGame, isInitializing } =
     useInitializeGame();
 
   const { todBalance } = useTokenBalances();
+
+  // Query to check referral discount
+  const {
+    data: referralCheck,
+    isLoading: checkingReferral,
+  } = useQuery({
+    queryKey: ["referralCheck", referrerInput, provider],
+    queryFn: async () => {
+      if (!provider || !referrerInput.trim()) {
+        return {
+          hasDiscount: false,
+          requiredPayment: "0.1",
+        };
+      }
+
+      try {
+        const referralContract = TorqueDriftReferral__factory.connect(
+          CONTRACT_ADDRESSES.TorqueDriftReferral,
+          provider
+        );
+
+        const isValid = await referralContract.isValidReferralCode(referrerInput.trim());
+        if (!isValid) {
+          return {
+            hasDiscount: false,
+            requiredPayment: "0.1",
+          };
+        }
+
+        const hasDiscount = await referralContract.discountReferralCodes(referrerInput.trim());
+
+        return {
+          hasDiscount,
+          requiredPayment: hasDiscount ? "0.09" : "0.1",
+        };
+      } catch (error) {
+        console.error("Error checking referral:", error);
+        return {
+          hasDiscount: false,
+          requiredPayment: "0.1",
+        };
+      }
+    },
+    enabled: !!provider && referrerInput.trim().length > 0,
+    staleTime: 30000,
+  });
 
   const {
     cars: allCars = [],
@@ -62,7 +115,6 @@ export default function GaragePage() {
   }, [userExists]);
 
   const convertEquippedToSlots = (): (CarInventoryData | null)[] => {
-    console.log("equippedSlotsData", equippedSlotsData);
     if (!equippedSlotsData?.slots) {
       return new Array(5).fill(null);
     }
@@ -123,8 +175,13 @@ export default function GaragePage() {
 
             <p className="text-[#B5B2BC] text-lg mb-8 max-w-md mx-auto">
               Pay a one-time entry fee of{" "}
-              <span className="text-yellow-500 font-semibold">0.1 BNB</span> to
-              unlock your garage and start your racing journey!
+              <span className="text-yellow-500 font-semibold">
+                {referralCheck?.requiredPayment || "0.1"} BNB
+                {referralCheck?.hasDiscount && (
+                  <span className="text-green-400 text-sm ml-2">(discount applied!)</span>
+                )}
+              </span>{" "}
+              to unlock your garage and start your racing journey!
             </p>
 
             {/* Referral Input */}
@@ -146,11 +203,11 @@ export default function GaragePage() {
                   referrerPubkey: referrerInput.trim() || undefined,
                 });
               }}
-              disabled={isInitializing}
+              disabled={isInitializing || checkingReferral}
             >
               {isInitializing
                 ? "Initializing..."
-                : "Pay 0.1 BNB & Start Racing"}
+                : `Pay ${referralCheck?.requiredPayment || "0.1"} BNB & Start Racing`}
             </Button>
           </motion.div>
         </div>

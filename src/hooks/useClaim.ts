@@ -33,24 +33,19 @@ export const usePreviewClaim = () => {
       try {
         const preview = await gameContract.previewClaim(address);
         const globalState = await gameContract.globalState();
-        console.log("preview data:", preview);
-        console.log("preview hourlyReward:", preview.hourlyReward);
         const claimableAmount = Number(ethers.formatUnits(preview[0], 9));
-        console.log("🔍 Claimable amount:", claimableAmount);
         const baseReward = Number(preview.baseReward) / 1e9;
         const lockBoost = Number(preview.lockBoost) / 1e9;
         const referralBoost = Number(preview.referralBoost) / 1e9;
         const userState = await gameContract.getUserState(address);
         const referralInfo = await referralContract.getReferralInfo(address);
-        console.log("🔍 Referral info:", referralInfo);
-
         const hashPower = Number(userState.totalHashPower) || 0;
         const lastClaim = Number(userState.lastClaim) || 0;
         const totalClaimed = Number(userState.totalClaimed) / 1e9 || 0;
         const baseRate = Number(globalState.baseRate) / 1e9;
         const now = Math.floor(Date.now() / 1000);
         const timeSinceLastClaim = now - lastClaim;
-        const optimalClaimTime = 4 * 3600; // 4 hours
+        const optimalClaimTime = 4 * 3600;
         const hasPenalty = timeSinceLastClaim < optimalClaimTime;
 
         let penaltyDescription = "";
@@ -67,7 +62,6 @@ export const usePreviewClaim = () => {
           baseReward > 0 ? (referralBoost / baseReward) * 100 : 0;
         const totalBoostPercent = lockBoostPercent + referralBoostPercent;
         const hourlyReward = Number(preview.hourlyReward) / 1e9;
-        console.log("🔍 Hourly reward:", hourlyReward);
         const referralCount = Number(referralInfo.referralCount_) || 0;
         const referralEarnings =
           Number(referralInfo.referralEarnings_) / 1e9 || 0;
@@ -77,7 +71,7 @@ export const usePreviewClaim = () => {
         const hoursUntilNoPenalty = Math.max(0, 4 - hoursSinceLastClaim);
         let penaltyBnb = 0;
         let penaltyBurnPercent = 0;
-        let canClaimWithoutPenalty = hoursSinceLastClaim >= 4; // 4 horas mínimo
+        const canClaimWithoutPenalty = hoursSinceLastClaim >= 4; // 4 horas mínimo
 
         if (!canClaimWithoutPenalty) {
           // Penalidades baseadas no tempo que FALTA para completar o cooldown de 4h
@@ -266,4 +260,3 @@ function formatTokenAmount(amount: number): string {
     })} $TOD`;
   }
 }
-
