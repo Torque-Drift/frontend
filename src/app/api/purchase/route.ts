@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ethers } from "ethers";
 import { CAR_CATALOG, CONTRACT_ADDRESSES } from "@/constants";
-import { TorqueDriftGame__factory } from "@/contracts/factories";
+import {
+  TorqueDriftAdmin__factory,
+  TorqueDriftGame__factory,
+} from "@/contracts/factories";
 
 // Enums for NFT items
 enum Rarity {
@@ -384,8 +387,8 @@ async function mintCar(
   try {
     const wallet = new ethers.Wallet(process.env.ADMIN_PRIVATE_KEY || "");
     const signer = wallet.connect(provider);
-    const carContract = await TorqueDriftGame__factory.connect(
-      CONTRACT_ADDRESSES.TorqueDriftGame,
+    const carContract = await TorqueDriftAdmin__factory.connect(
+      CONTRACT_ADDRESSES.TorqueDriftAdmin,
       signer
     );
     const rarity =
@@ -409,3 +412,4 @@ async function mintCar(
     throw error;
   }
 }
+
