@@ -84,6 +84,7 @@ export declare namespace ITorqueDriftStructs {
 export interface TorqueDriftCarsInterface extends Interface {
   getFunction(
     nameOrSignature:
+      | "UPGRADE_INTERFACE_VERSION"
       | "authorizedContracts"
       | "carStates"
       | "createGameCar"
@@ -94,20 +95,31 @@ export interface TorqueDriftCarsInterface extends Interface {
       | "getUserCarAddresses"
       | "getUserCarCount"
       | "getUserInventory"
+      | "initialize"
       | "owner"
+      | "proxiableUUID"
       | "renounceOwnership"
       | "setAuthorizedContract"
       | "setGameContract"
       | "transferOwnership"
       | "updateCarMaintenance"
+      | "upgradeToAndCall"
       | "userCars"
       | "userOwnsCar"
   ): FunctionFragment;
 
   getEvent(
-    nameOrSignatureOrTopic: "CarCreated" | "OwnershipTransferred"
+    nameOrSignatureOrTopic:
+      | "CarCreated"
+      | "Initialized"
+      | "OwnershipTransferred"
+      | "Upgraded"
   ): EventFragment;
 
+  encodeFunctionData(
+    functionFragment: "UPGRADE_INTERFACE_VERSION",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "authorizedContracts",
     values: [AddressLike]
@@ -148,7 +160,15 @@ export interface TorqueDriftCarsInterface extends Interface {
     functionFragment: "getUserInventory",
     values: [AddressLike]
   ): string;
+  encodeFunctionData(
+    functionFragment: "initialize",
+    values: [AddressLike]
+  ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "proxiableUUID",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "renounceOwnership",
     values?: undefined
@@ -170,6 +190,10 @@ export interface TorqueDriftCarsInterface extends Interface {
     values: [AddressLike, BigNumberish]
   ): string;
   encodeFunctionData(
+    functionFragment: "upgradeToAndCall",
+    values: [AddressLike, BytesLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "userCars",
     values: [AddressLike, BigNumberish]
   ): string;
@@ -178,6 +202,10 @@ export interface TorqueDriftCarsInterface extends Interface {
     values: [AddressLike, AddressLike]
   ): string;
 
+  decodeFunctionResult(
+    functionFragment: "UPGRADE_INTERFACE_VERSION",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "authorizedContracts",
     data: BytesLike
@@ -215,7 +243,12 @@ export interface TorqueDriftCarsInterface extends Interface {
     functionFragment: "getUserInventory",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "proxiableUUID",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "renounceOwnership",
     data: BytesLike
@@ -234,6 +267,10 @@ export interface TorqueDriftCarsInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "updateCarMaintenance",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "upgradeToAndCall",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "userCars", data: BytesLike): Result;
@@ -274,12 +311,36 @@ export namespace CarCreatedEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
+export namespace InitializedEvent {
+  export type InputTuple = [version: BigNumberish];
+  export type OutputTuple = [version: bigint];
+  export interface OutputObject {
+    version: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
 export namespace OwnershipTransferredEvent {
   export type InputTuple = [previousOwner: AddressLike, newOwner: AddressLike];
   export type OutputTuple = [previousOwner: string, newOwner: string];
   export interface OutputObject {
     previousOwner: string;
     newOwner: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace UpgradedEvent {
+  export type InputTuple = [implementation: AddressLike];
+  export type OutputTuple = [implementation: string];
+  export interface OutputObject {
+    implementation: string;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -329,6 +390,8 @@ export interface TorqueDriftCars extends BaseContract {
   removeAllListeners<TCEvent extends TypedContractEvent>(
     event?: TCEvent
   ): Promise<this>;
+
+  UPGRADE_INTERFACE_VERSION: TypedContractMethod<[], [string], "view">;
 
   authorizedContracts: TypedContractMethod<
     [arg0: AddressLike],
@@ -409,7 +472,15 @@ export interface TorqueDriftCars extends BaseContract {
     "view"
   >;
 
+  initialize: TypedContractMethod<
+    [initialOwner: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
   owner: TypedContractMethod<[], [string], "view">;
+
+  proxiableUUID: TypedContractMethod<[], [string], "view">;
 
   renounceOwnership: TypedContractMethod<[], [void], "nonpayable">;
 
@@ -437,6 +508,12 @@ export interface TorqueDriftCars extends BaseContract {
     "nonpayable"
   >;
 
+  upgradeToAndCall: TypedContractMethod<
+    [newImplementation: AddressLike, data: BytesLike],
+    [void],
+    "payable"
+  >;
+
   userCars: TypedContractMethod<
     [arg0: AddressLike, arg1: BigNumberish],
     [string],
@@ -453,6 +530,9 @@ export interface TorqueDriftCars extends BaseContract {
     key: string | FunctionFragment
   ): T;
 
+  getFunction(
+    nameOrSignature: "UPGRADE_INTERFACE_VERSION"
+  ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "authorizedContracts"
   ): TypedContractMethod<[arg0: AddressLike], [boolean], "view">;
@@ -535,7 +615,13 @@ export interface TorqueDriftCars extends BaseContract {
     "view"
   >;
   getFunction(
+    nameOrSignature: "initialize"
+  ): TypedContractMethod<[initialOwner: AddressLike], [void], "nonpayable">;
+  getFunction(
     nameOrSignature: "owner"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "proxiableUUID"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "renounceOwnership"
@@ -561,6 +647,13 @@ export interface TorqueDriftCars extends BaseContract {
     "nonpayable"
   >;
   getFunction(
+    nameOrSignature: "upgradeToAndCall"
+  ): TypedContractMethod<
+    [newImplementation: AddressLike, data: BytesLike],
+    [void],
+    "payable"
+  >;
+  getFunction(
     nameOrSignature: "userCars"
   ): TypedContractMethod<
     [arg0: AddressLike, arg1: BigNumberish],
@@ -583,11 +676,25 @@ export interface TorqueDriftCars extends BaseContract {
     CarCreatedEvent.OutputObject
   >;
   getEvent(
+    key: "Initialized"
+  ): TypedContractEvent<
+    InitializedEvent.InputTuple,
+    InitializedEvent.OutputTuple,
+    InitializedEvent.OutputObject
+  >;
+  getEvent(
     key: "OwnershipTransferred"
   ): TypedContractEvent<
     OwnershipTransferredEvent.InputTuple,
     OwnershipTransferredEvent.OutputTuple,
     OwnershipTransferredEvent.OutputObject
+  >;
+  getEvent(
+    key: "Upgraded"
+  ): TypedContractEvent<
+    UpgradedEvent.InputTuple,
+    UpgradedEvent.OutputTuple,
+    UpgradedEvent.OutputObject
   >;
 
   filters: {
@@ -602,6 +709,17 @@ export interface TorqueDriftCars extends BaseContract {
       CarCreatedEvent.OutputObject
     >;
 
+    "Initialized(uint64)": TypedContractEvent<
+      InitializedEvent.InputTuple,
+      InitializedEvent.OutputTuple,
+      InitializedEvent.OutputObject
+    >;
+    Initialized: TypedContractEvent<
+      InitializedEvent.InputTuple,
+      InitializedEvent.OutputTuple,
+      InitializedEvent.OutputObject
+    >;
+
     "OwnershipTransferred(address,address)": TypedContractEvent<
       OwnershipTransferredEvent.InputTuple,
       OwnershipTransferredEvent.OutputTuple,
@@ -611,6 +729,17 @@ export interface TorqueDriftCars extends BaseContract {
       OwnershipTransferredEvent.InputTuple,
       OwnershipTransferredEvent.OutputTuple,
       OwnershipTransferredEvent.OutputObject
+    >;
+
+    "Upgraded(address)": TypedContractEvent<
+      UpgradedEvent.InputTuple,
+      UpgradedEvent.OutputTuple,
+      UpgradedEvent.OutputObject
+    >;
+    Upgraded: TypedContractEvent<
+      UpgradedEvent.InputTuple,
+      UpgradedEvent.OutputTuple,
+      UpgradedEvent.OutputObject
     >;
   };
 }

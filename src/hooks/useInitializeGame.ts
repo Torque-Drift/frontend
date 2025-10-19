@@ -129,9 +129,7 @@ export const useInitializeGame = () => {
       }
       const value = referralData.requiredPayment;
       const code = referrerCode ? referrerCode : "";
-      const tx = await gameContract["initializeStartGame(string)"](code, {
-        value,
-      });
+      const tx = await gameContract.initializeStartGame(code, { value });
       await tx.wait();
       await refetchUserExists();
     },

@@ -10,30 +10,20 @@ import type {
 
 const _abi = [
   {
+    inputs: [],
+    stateMutability: "nonpayable",
+    type: "constructor",
+  },
+  {
     inputs: [
       {
         internalType: "address",
-        name: "_tokenContract",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "_carsContract",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "_maxSupply",
-        type: "uint256",
-      },
-      {
-        internalType: "address",
-        name: "_treasuryWallet",
+        name: "target",
         type: "address",
       },
     ],
-    stateMutability: "nonpayable",
-    type: "constructor",
+    name: "AddressEmptyCode",
+    type: "error",
   },
   {
     inputs: [
@@ -52,6 +42,27 @@ const _abi = [
     type: "error",
   },
   {
+    inputs: [
+      {
+        internalType: "address",
+        name: "implementation",
+        type: "address",
+      },
+    ],
+    name: "ERC1967InvalidImplementation",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "ERC1967NonPayable",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "FailedCall",
+    type: "error",
+  },
+  {
     inputs: [],
     name: "GameNotStarted",
     type: "error",
@@ -59,6 +70,11 @@ const _abi = [
   {
     inputs: [],
     name: "InvalidAddress",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "InvalidInitialization",
     type: "error",
   },
   {
@@ -111,12 +127,55 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "NotInitializing",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "owner",
+        type: "address",
+      },
+    ],
+    name: "OwnableInvalidOwner",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+    ],
+    name: "OwnableUnauthorizedAccount",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "ReentrancyGuardReentrantCall",
     type: "error",
   },
   {
     inputs: [],
     name: "ReferralContractNotSet",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "UUPSUnauthorizedCallContext",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "slot",
+        type: "bytes32",
+      },
+    ],
+    name: "UUPSUnsupportedProxiableUUID",
     type: "error",
   },
   {
@@ -452,6 +511,19 @@ const _abi = [
     inputs: [
       {
         indexed: false,
+        internalType: "uint64",
+        name: "version",
+        type: "uint64",
+      },
+    ],
+    name: "Initialized",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
         internalType: "uint256",
         name: "oldValue",
         type: "uint256",
@@ -464,6 +536,25 @@ const _abi = [
       },
     ],
     name: "MinClaimCooldownUpdated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "previousOwner",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "newOwner",
+        type: "address",
+      },
+    ],
+    name: "OwnershipTransferred",
     type: "event",
   },
   {
@@ -570,6 +661,19 @@ const _abi = [
       },
     ],
     name: "TreasuryWalletUpdated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "implementation",
+        type: "address",
+      },
+    ],
+    name: "Upgraded",
     type: "event",
   },
   {
@@ -742,6 +846,19 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "UPGRADE_INTERFACE_VERSION",
+    outputs: [
+      {
+        internalType: "string",
+        name: "",
+        type: "string",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "uint8",
@@ -805,6 +922,35 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [
+      {
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+    ],
+    name: "checkClaimPenalties",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "needsPenalty",
+        type: "bool",
+      },
+      {
+        internalType: "uint256",
+        name: "bnbRequired",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "burnPercent",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "claimTokens",
     outputs: [],
@@ -831,6 +977,30 @@ const _abi = [
     ],
     name: "createAdditionalCar",
     outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "carId",
+        type: "uint256",
+      },
+    ],
+    name: "createStarterCar",
+    outputs: [
+      {
+        internalType: "address",
+        name: "starterCarAddress",
+        type: "address",
+      },
+    ],
     stateMutability: "nonpayable",
     type: "function",
   },
@@ -1337,11 +1507,6 @@ const _abi = [
         type: "uint256",
       },
       {
-        internalType: "bool",
-        name: "equippedCar",
-        type: "bool",
-      },
-      {
         internalType: "uint256",
         name: "boostPercent",
         type: "uint256",
@@ -1452,6 +1617,11 @@ const _abi = [
           },
           {
             internalType: "uint256",
+            name: "lastCalculatedEarned",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
             name: "lastCarCreationDay",
             type: "uint256",
           },
@@ -1526,11 +1696,6 @@ const _abi = [
             internalType: "uint32",
             name: "referralCount",
             type: "uint32",
-          },
-          {
-            internalType: "bool",
-            name: "equippedCar",
-            type: "bool",
           },
           {
             internalType: "bool",
@@ -1740,13 +1905,28 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "referrer",
+        name: "_tokenContract",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_carsContract",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "maxSupply",
+        type: "uint256",
+      },
+      {
+        internalType: "address",
+        name: "_treasuryWallet",
         type: "address",
       },
     ],
-    name: "initializeStartGame",
+    name: "initialize",
     outputs: [],
-    stateMutability: "payable",
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -1855,6 +2035,19 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "proxiableUUID",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "referralContract",
     outputs: [
       {
@@ -1864,6 +2057,13 @@ const _abi = [
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "renounceOwnership",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -2075,6 +2275,11 @@ const _abi = [
           },
           {
             internalType: "uint256",
+            name: "lastCalculatedEarned",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
             name: "lastCarCreationDay",
             type: "uint256",
           },
@@ -2149,11 +2354,6 @@ const _abi = [
             internalType: "uint32",
             name: "referralCount",
             type: "uint32",
-          },
-          {
-            internalType: "bool",
-            name: "equippedCar",
-            type: "bool",
           },
           {
             internalType: "bool",
@@ -2255,6 +2455,19 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [
+      {
+        internalType: "address",
+        name: "newOwner",
+        type: "address",
+      },
+    ],
+    name: "transferOwnership",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "treasuryWallet",
     outputs: [
@@ -2315,6 +2528,24 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
+        name: "newImplementation",
+        type: "address",
+      },
+      {
+        internalType: "bytes",
+        name: "data",
+        type: "bytes",
+      },
+    ],
+    name: "upgradeToAndCall",
+    outputs: [],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
         name: "",
         type: "address",
       },
@@ -2364,6 +2595,11 @@ const _abi = [
       {
         internalType: "uint256",
         name: "farmingLastPaused",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "lastCalculatedEarned",
         type: "uint256",
       },
       {
@@ -2437,11 +2673,6 @@ const _abi = [
         internalType: "uint32",
         name: "referralCount",
         type: "uint32",
-      },
-      {
-        internalType: "bool",
-        name: "equippedCar",
-        type: "bool",
       },
       {
         internalType: "bool",

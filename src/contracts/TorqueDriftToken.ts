@@ -28,6 +28,7 @@ export interface TorqueDriftTokenInterface extends Interface {
     nameOrSignature:
       | "DECIMALS"
       | "MAX_SUPPLY"
+      | "UPGRADE_INTERFACE_VERSION"
       | "allowance"
       | "approve"
       | "balanceOf"
@@ -36,14 +37,17 @@ export interface TorqueDriftTokenInterface extends Interface {
       | "calculateBnbForTokens"
       | "calculateTokensForBnb"
       | "decimals"
+      | "initialize"
       | "mint"
       | "mintAuthority"
       | "name"
       | "owner"
       | "pause"
       | "paused"
+      | "proxiableUUID"
       | "purchaseTokens"
       | "renounceOwnership"
+      | "setMintAuthority"
       | "setTokenPrice"
       | "symbol"
       | "toggleTokenPurchase"
@@ -59,22 +63,29 @@ export interface TorqueDriftTokenInterface extends Interface {
       | "unpause"
       | "updateMintAuthority"
       | "updateTreasuryWallet"
+      | "upgradeToAndCall"
   ): FunctionFragment;
 
   getEvent(
     nameOrSignatureOrTopic:
       | "Approval"
+      | "Initialized"
       | "OwnershipTransferred"
       | "Paused"
       | "TokensPurchased"
       | "Transfer"
       | "TransferToggled"
       | "Unpaused"
+      | "Upgraded"
   ): EventFragment;
 
   encodeFunctionData(functionFragment: "DECIMALS", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "MAX_SUPPLY",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "UPGRADE_INTERFACE_VERSION",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -104,6 +115,10 @@ export interface TorqueDriftTokenInterface extends Interface {
   ): string;
   encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
   encodeFunctionData(
+    functionFragment: "initialize",
+    values: [AddressLike, AddressLike, AddressLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "mint",
     values: [AddressLike, BigNumberish]
   ): string;
@@ -116,12 +131,20 @@ export interface TorqueDriftTokenInterface extends Interface {
   encodeFunctionData(functionFragment: "pause", values?: undefined): string;
   encodeFunctionData(functionFragment: "paused", values?: undefined): string;
   encodeFunctionData(
+    functionFragment: "proxiableUUID",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "purchaseTokens",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "renounceOwnership",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setMintAuthority",
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "setTokenPrice",
@@ -177,9 +200,17 @@ export interface TorqueDriftTokenInterface extends Interface {
     functionFragment: "updateTreasuryWallet",
     values: [AddressLike]
   ): string;
+  encodeFunctionData(
+    functionFragment: "upgradeToAndCall",
+    values: [AddressLike, BytesLike]
+  ): string;
 
   decodeFunctionResult(functionFragment: "DECIMALS", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "MAX_SUPPLY", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "UPGRADE_INTERFACE_VERSION",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "allowance", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
@@ -194,6 +225,7 @@ export interface TorqueDriftTokenInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "mintAuthority",
@@ -204,11 +236,19 @@ export interface TorqueDriftTokenInterface extends Interface {
   decodeFunctionResult(functionFragment: "pause", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "paused", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "proxiableUUID",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "purchaseTokens",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "renounceOwnership",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setMintAuthority",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -262,6 +302,10 @@ export interface TorqueDriftTokenInterface extends Interface {
     functionFragment: "updateTreasuryWallet",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "upgradeToAndCall",
+    data: BytesLike
+  ): Result;
 }
 
 export namespace ApprovalEvent {
@@ -275,6 +319,18 @@ export namespace ApprovalEvent {
     owner: string;
     spender: string;
     value: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace InitializedEvent {
+  export type InputTuple = [version: BigNumberish];
+  export type OutputTuple = [version: bigint];
+  export interface OutputObject {
+    version: bigint;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -371,6 +427,18 @@ export namespace UnpausedEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
+export namespace UpgradedEvent {
+  export type InputTuple = [implementation: AddressLike];
+  export type OutputTuple = [implementation: string];
+  export interface OutputObject {
+    implementation: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
 export interface TorqueDriftToken extends BaseContract {
   connect(runner?: ContractRunner | null): TorqueDriftToken;
   waitForDeployment(): Promise<this>;
@@ -418,6 +486,8 @@ export interface TorqueDriftToken extends BaseContract {
 
   MAX_SUPPLY: TypedContractMethod<[], [bigint], "view">;
 
+  UPGRADE_INTERFACE_VERSION: TypedContractMethod<[], [string], "view">;
+
   allowance: TypedContractMethod<
     [owner: AddressLike, spender: AddressLike],
     [bigint],
@@ -454,6 +524,16 @@ export interface TorqueDriftToken extends BaseContract {
 
   decimals: TypedContractMethod<[], [bigint], "view">;
 
+  initialize: TypedContractMethod<
+    [
+      initialOwner: AddressLike,
+      _mintAuthority: AddressLike,
+      _treasuryWallet: AddressLike
+    ],
+    [void],
+    "nonpayable"
+  >;
+
   mint: TypedContractMethod<
     [to: AddressLike, amount: BigNumberish],
     [void],
@@ -470,6 +550,8 @@ export interface TorqueDriftToken extends BaseContract {
 
   paused: TypedContractMethod<[], [boolean], "view">;
 
+  proxiableUUID: TypedContractMethod<[], [string], "view">;
+
   purchaseTokens: TypedContractMethod<
     [tokenAmount: BigNumberish],
     [void],
@@ -477,6 +559,12 @@ export interface TorqueDriftToken extends BaseContract {
   >;
 
   renounceOwnership: TypedContractMethod<[], [void], "nonpayable">;
+
+  setMintAuthority: TypedContractMethod<
+    [_mintAuthority: AddressLike],
+    [void],
+    "nonpayable"
+  >;
 
   setTokenPrice: TypedContractMethod<
     [newPrice: BigNumberish],
@@ -536,6 +624,12 @@ export interface TorqueDriftToken extends BaseContract {
     "nonpayable"
   >;
 
+  upgradeToAndCall: TypedContractMethod<
+    [newImplementation: AddressLike, data: BytesLike],
+    [void],
+    "payable"
+  >;
+
   getFunction<T extends ContractMethod = ContractMethod>(
     key: string | FunctionFragment
   ): T;
@@ -546,6 +640,9 @@ export interface TorqueDriftToken extends BaseContract {
   getFunction(
     nameOrSignature: "MAX_SUPPLY"
   ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "UPGRADE_INTERFACE_VERSION"
+  ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "allowance"
   ): TypedContractMethod<
@@ -583,6 +680,17 @@ export interface TorqueDriftToken extends BaseContract {
     nameOrSignature: "decimals"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
+    nameOrSignature: "initialize"
+  ): TypedContractMethod<
+    [
+      initialOwner: AddressLike,
+      _mintAuthority: AddressLike,
+      _treasuryWallet: AddressLike
+    ],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
     nameOrSignature: "mint"
   ): TypedContractMethod<
     [to: AddressLike, amount: BigNumberish],
@@ -605,11 +713,17 @@ export interface TorqueDriftToken extends BaseContract {
     nameOrSignature: "paused"
   ): TypedContractMethod<[], [boolean], "view">;
   getFunction(
+    nameOrSignature: "proxiableUUID"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
     nameOrSignature: "purchaseTokens"
   ): TypedContractMethod<[tokenAmount: BigNumberish], [void], "payable">;
   getFunction(
     nameOrSignature: "renounceOwnership"
   ): TypedContractMethod<[], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "setMintAuthority"
+  ): TypedContractMethod<[_mintAuthority: AddressLike], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "setTokenPrice"
   ): TypedContractMethod<[newPrice: BigNumberish], [void], "nonpayable">;
@@ -667,6 +781,13 @@ export interface TorqueDriftToken extends BaseContract {
     [void],
     "nonpayable"
   >;
+  getFunction(
+    nameOrSignature: "upgradeToAndCall"
+  ): TypedContractMethod<
+    [newImplementation: AddressLike, data: BytesLike],
+    [void],
+    "payable"
+  >;
 
   getEvent(
     key: "Approval"
@@ -674,6 +795,13 @@ export interface TorqueDriftToken extends BaseContract {
     ApprovalEvent.InputTuple,
     ApprovalEvent.OutputTuple,
     ApprovalEvent.OutputObject
+  >;
+  getEvent(
+    key: "Initialized"
+  ): TypedContractEvent<
+    InitializedEvent.InputTuple,
+    InitializedEvent.OutputTuple,
+    InitializedEvent.OutputObject
   >;
   getEvent(
     key: "OwnershipTransferred"
@@ -717,6 +845,13 @@ export interface TorqueDriftToken extends BaseContract {
     UnpausedEvent.OutputTuple,
     UnpausedEvent.OutputObject
   >;
+  getEvent(
+    key: "Upgraded"
+  ): TypedContractEvent<
+    UpgradedEvent.InputTuple,
+    UpgradedEvent.OutputTuple,
+    UpgradedEvent.OutputObject
+  >;
 
   filters: {
     "Approval(address,address,uint256)": TypedContractEvent<
@@ -728,6 +863,17 @@ export interface TorqueDriftToken extends BaseContract {
       ApprovalEvent.InputTuple,
       ApprovalEvent.OutputTuple,
       ApprovalEvent.OutputObject
+    >;
+
+    "Initialized(uint64)": TypedContractEvent<
+      InitializedEvent.InputTuple,
+      InitializedEvent.OutputTuple,
+      InitializedEvent.OutputObject
+    >;
+    Initialized: TypedContractEvent<
+      InitializedEvent.InputTuple,
+      InitializedEvent.OutputTuple,
+      InitializedEvent.OutputObject
     >;
 
     "OwnershipTransferred(address,address)": TypedContractEvent<
@@ -794,6 +940,17 @@ export interface TorqueDriftToken extends BaseContract {
       UnpausedEvent.InputTuple,
       UnpausedEvent.OutputTuple,
       UnpausedEvent.OutputObject
+    >;
+
+    "Upgraded(address)": TypedContractEvent<
+      UpgradedEvent.InputTuple,
+      UpgradedEvent.OutputTuple,
+      UpgradedEvent.OutputObject
+    >;
+    Upgraded: TypedContractEvent<
+      UpgradedEvent.InputTuple,
+      UpgradedEvent.OutputTuple,
+      UpgradedEvent.OutputObject
     >;
   };
 }

@@ -1,33 +1,44 @@
 [
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_tokenContract",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_carsContract",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_maxSupply",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "_treasuryWallet",
-        "type": "address"
-      }
-    ],
+    "inputs": [],
     "stateMutability": "nonpayable",
     "type": "constructor"
   },
   {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "target",
+        "type": "address"
+      }
+    ],
+    "name": "AddressEmptyCode",
+    "type": "error"
+  },
+  {
     "inputs": [],
     "name": "AlreadyInitialized",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "implementation",
+        "type": "address"
+      }
+    ],
+    "name": "ERC1967InvalidImplementation",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ERC1967NonPayable",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "FailedCall",
     "type": "error"
   },
   {
@@ -58,6 +69,38 @@
   },
   {
     "inputs": [],
+    "name": "InvalidInitialization",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NotInitializing",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      }
+    ],
+    "name": "OwnableInvalidOwner",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "OwnableUnauthorizedAccount",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "ReentrancyGuardReentrantCall",
     "type": "error"
   },
@@ -68,263 +111,24 @@
   },
   {
     "inputs": [],
-    "name": "ZeroAmount",
+    "name": "UUPSUnauthorizedCallContext",
     "type": "error"
   },
   {
-    "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "advancedContract",
-        "type": "address"
+        "internalType": "bytes32",
+        "name": "slot",
+        "type": "bytes32"
       }
     ],
-    "name": "AdvancedContractUpdated",
-    "type": "event"
+    "name": "UUPSUnsupportedProxiableUUID",
+    "type": "error"
   },
   {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "string",
-        "name": "penaltyType",
-        "type": "string"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "oldAmount",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "newAmount",
-        "type": "uint256"
-      }
-    ],
-    "name": "BnbPenaltyUpdated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "string",
-        "name": "penaltyType",
-        "type": "string"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "oldBps",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "newBps",
-        "type": "uint256"
-      }
-    ],
-    "name": "BurnPenaltyUpdated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "carId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint8",
-        "name": "rarity",
-        "type": "uint8"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint8",
-        "name": "version",
-        "type": "uint8"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "hashPower",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "timestamp",
-        "type": "uint256"
-      }
-    ],
-    "name": "CarCreated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "carAddress",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "hashPower",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint8",
-        "name": "slotIndex",
-        "type": "uint8"
-      }
-    ],
-    "name": "CarEquipped",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "carAddress",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint8",
-        "name": "slotIndex",
-        "type": "uint8"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "timestamp",
-        "type": "uint256"
-      }
-    ],
-    "name": "CarMaintained",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "carAddress",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "maintenanceCost",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "oldEfficiency",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "newEfficiency",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "timestamp",
-        "type": "uint256"
-      }
-    ],
-    "name": "CarMaintenance",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "carAddress",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint8",
-        "name": "slotIndex",
-        "type": "uint8"
-      }
-    ],
-    "name": "CarUnequipped",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "oldValue",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "newValue",
-        "type": "uint256"
-      }
-    ],
-    "name": "ClockDriftToleranceUpdated",
-    "type": "event"
+    "inputs": [],
+    "name": "ZeroAmount",
+    "type": "error"
   },
   {
     "anonymous": false,
@@ -355,6 +159,37 @@
       }
     ],
     "name": "DebugInitialize",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "msgSender",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "msgValue",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "referrerCode",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "treasuryWallet",
+        "type": "address"
+      }
+    ],
+    "name": "DebugPayment",
     "type": "event"
   },
   {
@@ -431,7 +266,7 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "bnbPaid",
+        "name": "amount",
         "type": "uint256"
       },
       {
@@ -455,49 +290,31 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "uint256",
-        "name": "halvingCount",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "newBaseRate",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "nextHalvingThreshold",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "timestamp",
-        "type": "uint256"
+        "internalType": "uint64",
+        "name": "version",
+        "type": "uint64"
       }
     ],
-    "name": "HalvingTriggered",
+    "name": "Initialized",
     "type": "event"
   },
   {
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "oldValue",
-        "type": "uint256"
+        "indexed": true,
+        "internalType": "address",
+        "name": "previousOwner",
+        "type": "address"
       },
       {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "newValue",
-        "type": "uint256"
+        "indexed": true,
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
       }
     ],
-    "name": "MinClaimCooldownUpdated",
+    "name": "OwnershipTransferred",
     "type": "event"
   },
   {
@@ -518,7 +335,7 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "referrerBoost",
+        "name": "referrerReward",
         "type": "uint256"
       },
       {
@@ -541,25 +358,6 @@
       }
     ],
     "name": "ReferralApplied",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "oldValue",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "newValue",
-        "type": "uint256"
-      }
-    ],
-    "name": "ReferralBoostDurationUpdated",
     "type": "event"
   },
   {
@@ -624,164 +422,16 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "user",
+        "name": "implementation",
         "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "timestamp",
-        "type": "uint256"
       }
     ],
-    "name": "TokensClaimed",
+    "name": "Upgraded",
     "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "oldWallet",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "newWallet",
-        "type": "address"
-      }
-    ],
-    "name": "TreasuryWalletUpdated",
-    "type": "event"
-  },
-  {
-    "inputs": [],
-    "name": "DEFAULT_TIMELOCK_DURATION",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
   },
   {
     "inputs": [],
     "name": "MIN_CLAIM_COOLDOWN",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "PENALTY_1H_BURN_BPS",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "PENALTY_1H_SOL",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "PENALTY_2H_BURN_BPS",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "PENALTY_2H_SOL",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "PENALTY_3H_BURN_BPS",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "PENALTY_3H_SOL",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "PENALTY_4H_BURN_BPS",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "PENALTY_4H_SOL",
     "outputs": [
       {
         "internalType": "uint256",
@@ -832,50 +482,13 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "uint8",
-        "name": "lockOption",
-        "type": "uint8"
-      }
-    ],
-    "name": "activateClaimLock",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "inputs": [],
-    "name": "advancedContract",
+    "name": "UPGRADE_INTERFACE_VERSION",
     "outputs": [
       {
-        "internalType": "address",
+        "internalType": "string",
         "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "carAddress",
-        "type": "address"
-      }
-    ],
-    "name": "calculateMaintenanceCost",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "cost",
-        "type": "uint256"
-      },
-      {
-        "internalType": "bool",
-        "name": "canMaintain",
-        "type": "bool"
+        "type": "string"
       }
     ],
     "stateMutability": "view",
@@ -895,13 +508,6 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "claimTokens",
-    "outputs": [],
-    "stateMutability": "payable",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
         "internalType": "string",
@@ -910,13 +516,6 @@
       }
     ],
     "name": "createReferralCode",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "deactivateClaimLock",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -943,35 +542,12 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "token",
-        "type": "address"
-      },
-      {
         "internalType": "uint256",
         "name": "amount",
         "type": "uint256"
       }
     ],
-    "name": "emergencyRescueTokens",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "carAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "uint8",
-        "name": "slotIndex",
-        "type": "uint8"
-      }
-    ],
-    "name": "equipCar",
+    "name": "emergencyWithdraw",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1045,15 +621,15 @@
   },
   {
     "inputs": [],
-    "name": "getContractVersion",
+    "name": "getContractBalance",
     "outputs": [
       {
-        "internalType": "string",
+        "internalType": "uint256",
         "name": "",
-        "type": "string"
+        "type": "uint256"
       }
     ],
-    "stateMutability": "pure",
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -1070,146 +646,6 @@
         "internalType": "bool[]",
         "name": "enabled",
         "type": "bool[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getGlobalState",
-    "outputs": [
-      {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "totalMinted",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "maxSupply",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "baseRate",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "lastHalving",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "halvingCount",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "nextHalvingThreshold",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "emergencyTimestamp",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "pendingBaseRate",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "pendingMaxSupply",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "timelockExpires",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "timelockDuration",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "upgradeProposedAt",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "totalUsers",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "totalHashPower",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "totalTokensClaimed",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "lastStatsUpdate",
-            "type": "uint256"
-          },
-          {
-            "internalType": "address",
-            "name": "admin",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "tokenMint",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "pendingAdmin",
-            "type": "address"
-          },
-          {
-            "internalType": "bytes32",
-            "name": "emergencyReason",
-            "type": "bytes32"
-          },
-          {
-            "internalType": "bool",
-            "name": "mintingPaused",
-            "type": "bool"
-          },
-          {
-            "internalType": "bool",
-            "name": "emergencyPause",
-            "type": "bool"
-          },
-          {
-            "internalType": "bool",
-            "name": "claimPaused",
-            "type": "bool"
-          },
-          {
-            "internalType": "bool",
-            "name": "equipPaused",
-            "type": "bool"
-          },
-          {
-            "internalType": "bool",
-            "name": "lockPaused",
-            "type": "bool"
-          }
-        ],
-        "internalType": "struct ITorqueDriftStructs.GlobalState",
-        "name": "",
-        "type": "tuple"
       }
     ],
     "stateMutability": "view",
@@ -1311,332 +747,12 @@
         "type": "address"
       }
     ],
-    "name": "getUserDailyCarCreationInfo",
-    "outputs": [
-      {
-        "internalType": "uint8",
-        "name": "dailyCarCreationCount",
-        "type": "uint8"
-      },
-      {
-        "internalType": "uint8",
-        "name": "maxDailyCarCreations",
-        "type": "uint8"
-      },
-      {
-        "internalType": "uint256",
-        "name": "nextResetTime",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
-      }
-    ],
-    "name": "getUserGameStarted",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getUserInfo",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "gameStarted_",
-        "type": "bool"
-      },
-      {
-        "internalType": "uint256",
-        "name": "totalHashPower",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "lastClaim",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "discount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "bool",
-        "name": "equippedCar",
-        "type": "bool"
-      },
-      {
-        "internalType": "uint256",
-        "name": "boostPercent",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint8",
-        "name": "equippedCount",
-        "type": "uint8"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
-      }
-    ],
     "name": "getUserReferralCode",
     "outputs": [
       {
         "internalType": "string",
         "name": "",
         "type": "string"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
-      }
-    ],
-    "name": "getUserReferralCount",
-    "outputs": [
-      {
-        "internalType": "uint32",
-        "name": "",
-        "type": "uint32"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
-      }
-    ],
-    "name": "getUserReferrer",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
-      }
-    ],
-    "name": "getUserState",
-    "outputs": [
-      {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "lastClaim",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "totalHashPower",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "discount",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "boostPercent",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "boostStartTime",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "boostDuration",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "lastLockTime",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "farmingPausedTime",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "farmingLastPaused",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "lastCarCreationDay",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint8",
-            "name": "dailyCarCreationCount",
-            "type": "uint8"
-          },
-          {
-            "internalType": "uint256",
-            "name": "totalClaimed",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "referralEarnings",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "referralEarningsLevel2",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "cachedEffectiveHashPower",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "lastEffectiveHashPowerUpdate",
-            "type": "uint256"
-          },
-          {
-            "components": [
-              {
-                "internalType": "uint256",
-                "name": "amount",
-                "type": "uint256"
-              },
-              {
-                "internalType": "uint256",
-                "name": "unlockTime",
-                "type": "uint256"
-              },
-              {
-                "internalType": "uint256",
-                "name": "boostPercent",
-                "type": "uint256"
-              }
-            ],
-            "internalType": "struct ITorqueDriftStructs.LockInfo",
-            "name": "lock",
-            "type": "tuple"
-          },
-          {
-            "internalType": "address",
-            "name": "referrer",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "referrerLevel2",
-            "type": "address"
-          },
-          {
-            "internalType": "address[5]",
-            "name": "slots",
-            "type": "address[5]"
-          },
-          {
-            "internalType": "uint32",
-            "name": "referralCount",
-            "type": "uint32"
-          },
-          {
-            "internalType": "bool",
-            "name": "equippedCar",
-            "type": "bool"
-          },
-          {
-            "internalType": "bool",
-            "name": "gameStarted",
-            "type": "bool"
-          }
-        ],
-        "internalType": "struct ITorqueDriftStructs.UserState",
-        "name": "",
-        "type": "tuple"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
-      }
-    ],
-    "name": "getUserTotalClaimed",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
-      }
-    ],
-    "name": "getUserTotalEarned",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -1779,32 +895,28 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "user",
+        "name": "_tokenContract",
         "type": "address"
-      }
-    ],
-    "name": "hasActiveClaimLock",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
+      },
       {
         "internalType": "address",
-        "name": "referrer",
+        "name": "_carsContract",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_treasuryWallet",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_gameContract",
         "type": "address"
       }
     ],
-    "name": "initializeStartGame",
+    "name": "initialize",
     "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -1853,78 +965,13 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "carAddress",
-        "type": "address"
-      }
-    ],
-    "name": "payMaintenance",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint8",
-        "name": "slotIndex",
-        "type": "uint8"
-      }
-    ],
-    "name": "performMaintenance",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "carAddress",
-        "type": "address"
-      }
-    ],
-    "name": "performMaintenance",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
-      }
-    ],
-    "name": "previewClaim",
+    "inputs": [],
+    "name": "proxiableUUID",
     "outputs": [
       {
-        "internalType": "uint256",
-        "name": "claimableAmount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "baseReward",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "lockBoost",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "referralBoost",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "hourlyReward",
-        "type": "uint256"
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
       }
     ],
     "stateMutability": "view",
@@ -2007,27 +1054,8 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_advancedContract",
-        "type": "address"
-      }
-    ],
-    "name": "setAdvancedContract",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_carsContract",
-        "type": "address"
-      }
-    ],
-    "name": "setCarsContract",
+    "inputs": [],
+    "name": "renounceOwnership",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -2067,19 +1095,6 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_tokenContract",
-        "type": "address"
-      }
-    ],
-    "name": "setTokenContract",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
         "name": "",
         "type": "address"
       }
@@ -2096,22 +1111,16 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
-      }
-    ],
-    "name": "syncUserHashPower",
+    "inputs": [],
+    "name": "testFunction",
     "outputs": [
       {
-        "internalType": "uint256",
+        "internalType": "bool",
         "name": "",
-        "type": "uint256"
+        "type": "bool"
       }
     ],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -2119,7 +1128,7 @@
     "name": "tokenContract",
     "outputs": [
       {
-        "internalType": "contract IMintableToken",
+        "internalType": "contract IERC20",
         "name": "",
         "type": "address"
       }
@@ -2128,29 +1137,16 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "totalTokensClaimed",
-    "outputs": [
+    "inputs": [
       {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
       }
     ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "totalUsers",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
+    "name": "transferOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -2170,18 +1166,18 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "carAddress",
+        "name": "newImplementation",
         "type": "address"
       },
       {
-        "internalType": "uint8",
-        "name": "slotIndex",
-        "type": "uint8"
+        "internalType": "bytes",
+        "name": "data",
+        "type": "bytes"
       }
     ],
-    "name": "unequipCar",
+    "name": "upgradeToAndCall",
     "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -2237,6 +1233,11 @@
       {
         "internalType": "uint256",
         "name": "farmingLastPaused",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "lastCalculatedEarned",
         "type": "uint256"
       },
       {
@@ -2313,11 +1314,6 @@
       },
       {
         "internalType": "bool",
-        "name": "equippedCar",
-        "type": "bool"
-      },
-      {
-        "internalType": "bool",
         "name": "gameStarted",
         "type": "bool"
       }
@@ -2331,5 +1327,9 @@
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
+  },
+  {
+    "stateMutability": "payable",
+    "type": "receive"
   }
 ]
