@@ -10,9 +10,9 @@ const Footer: React.FC = () => {
   return (
     <footer className="w-full border-t-4 border-[#49474E] mt-auto bg-[#1A191B]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="flex items-center justify-between">
           {/* Brand */}
-          <div className="space-y-4">
+          <div className="space-y-4 w-1/3">
             <Image
               src="/images/logo_horizontal.png"
               alt="Logo"
@@ -29,6 +29,9 @@ const Footer: React.FC = () => {
           </div>
 
           {/* Links */}
+         
+
+          {/* Legal */}
           <div className="space-y-4">
             <h3 className="text-sm font-semibold text-[#EEEEF0]">Links</h3>
             <div className="flex flex-col space-y-2">
@@ -38,7 +41,7 @@ const Footer: React.FC = () => {
               >
                 Home
               </Link>
-              <Link
+             {/*  <Link
                 href="/garage"
                 className="text-sm text-[#B5B2BC] hover:text-[#EEEEF0] transition-colors duration-200"
               >
@@ -57,32 +60,7 @@ const Footer: React.FC = () => {
                 className="text-sm text-[#B5B2BC] hover:text-[#EEEEF0] transition-colors duration-200"
               >
                 Whitepaper
-              </Link>
-            </div>
-          </div>
-
-          {/* Legal */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-[#EEEEF0]">Legal</h3>
-            <div className="flex flex-col space-y-2">
-              <Link
-                href="#privacy"
-                className="text-sm text-[#B5B2BC] hover:text-[#EEEEF0] transition-colors duration-200"
-              >
-                Privacy Policy
-              </Link>
-              <Link
-                href="#terms"
-                className="text-sm text-[#B5B2BC] hover:text-[#EEEEF0] transition-colors duration-200"
-              >
-                Terms of Service
-              </Link>
-              <Link
-                href="#contact"
-                className="text-sm text-[#B5B2BC] hover:text-[#EEEEF0] transition-colors duration-200"
-              >
-                Contact
-              </Link>
+              </Link> */}
             </div>
           </div>
         </div>

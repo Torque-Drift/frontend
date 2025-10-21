@@ -32,7 +32,7 @@ const Header: React.FC = () => {
             >
               Home
             </Link>
-            <Link
+           {/*  <Link
               href="/garage"
               className="font-be-vietnam-pro text-[#B5B2BC] hover:text-[#FFFFFF] transition-colors duration-200 text-base"
             >
@@ -51,11 +51,11 @@ const Header: React.FC = () => {
               className="font-be-vietnam-pro text-[#B5B2BC] hover:text-[#FFFFFF] transition-colors duration-200 text-base"
             >
               Whitepaper
-            </Link>
+            </Link> */}
           </div>
 
           {/* Wallet Connection */}
-          <div className="flex justify-end items-center">
+          <div className="hidden flex justify-end items-center">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="text-[#B5B2BC] hover:text-[#FFFFFF] p-2 lg:hidden"
@@ -212,7 +212,7 @@ const Header: React.FC = () => {
               >
                 Home
               </Link>
-              <Link
+             {/*  <Link
                 href="/garage"
                 className="font-be-vietnam-pro text-[#B5B2BC] hover:text-[#FFFFFF] transition-colors duration-200 text-base px-6 py-3 hover:bg-[#49474E]/20"
                 onClick={() => setIsMenuOpen(false)}
@@ -234,7 +234,7 @@ const Header: React.FC = () => {
                 onClick={() => setIsMenuOpen(false)}
               >
                 Whitepaper
-              </Link>
+              </Link> */}
             </div>
           </div>
         )}

@@ -26,6 +26,7 @@ import { ethers } from "ethers";
 import { CONTRACT_ADDRESSES } from "@/constants";
 import { TorqueDriftReferral__factory } from "@/contracts";
 import type { CarInventoryData } from "@/types/cars";
+import { notFound } from "next/navigation";
 
 interface MiningStats {
   totalHp: number;
@@ -36,6 +37,7 @@ interface MiningStats {
 }
 
 export default function GaragePage() {
+  return notFound();
   const [referrerInput, setReferrerInput] = useState("");
 
   const { provider } = useEthers();

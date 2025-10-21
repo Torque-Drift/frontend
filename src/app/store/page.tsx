@@ -14,8 +14,10 @@ import toast from "react-hot-toast";
 import { useTokenBalances } from "@/hooks";
 import { RewardModal } from "@/components/garage/RewardModal";
 import { TorqueDriftToken__factory } from "@/contracts";
+import notFound from "../not-found";
 
 export default function StorePage() {
+  return notFound();
   const { signer, isConnected } = useEthers();
   const { mutateAsync: openLootbox, isLoading: isOpeningLootbox } = useBurn();
   const { formattedTodBalance: tokenBalance, refetchAll } = useTokenBalances();

@@ -45,7 +45,7 @@ export default function Home() {
 
       <Street />
 
-      <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 mt-20">
+      <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 my-20">
         <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#EEEEF0] text-center">
           Car Mining Experience
         </h1>
@@ -76,13 +76,13 @@ export default function Home() {
               Invite Friends
             </h1>
             <p className="text-sm sm:text-base text-gray-300">
-              Earn $TOD tokens by inviting friends to the platform
+              Earn tokens by inviting friends to the platform
             </p>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 my-16 sm:my-20">
+      {/* <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 my-16 sm:my-20">
         <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#EEEEF0] text-center">
           Featured Amazing Cars
         </h1>
@@ -163,7 +163,7 @@ export default function Home() {
             Join the garage!
           </Button>
         </div>
-      </div>
+      </div> */}
 
       <Street />
 

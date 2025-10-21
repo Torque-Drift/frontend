@@ -33,6 +33,7 @@ export const usePreviewClaim = () => {
       try {
         const preview = await gameContract.previewClaim(address);
         const globalState = await gameContract.globalState();
+        console.log(preview)
         const claimableAmount = Number(ethers.formatUnits(preview[0], 9));
         const baseReward = Number(preview.baseReward) / 1e9;
         const lockBoost = Number(preview.lockBoost) / 1e9;

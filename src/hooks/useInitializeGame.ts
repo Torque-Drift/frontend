@@ -97,6 +97,7 @@ export const useInitializeGame = () => {
         );
 
         const started = await gameContract.getUserGameStarted(address);
+        console.log(started)
         let referrerCode = "";
         if (started) {
           referrerCode = await referralContract.getUserReferralCode(address);
