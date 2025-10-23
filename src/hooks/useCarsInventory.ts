@@ -198,7 +198,6 @@ export const useCarsInventory = (): UseCarsInventoryReturn => {
       );
 
       const inventory = await carsContract.getUserInventory(address);
-      console.log(inventory);
 
       const [ownedCars, totalOwned, totalHashPower] = inventory;
 

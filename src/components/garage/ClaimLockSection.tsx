@@ -64,7 +64,7 @@ export const ClaimLockSection: React.FC = () => {
       {lockState?.hasActiveLock ? (
         // CLAIM LOCK ACTIVE
         <div className="space-y-4">
-          <div className="bg-gradient-to-r from-[#ff6b6b]/20 to-[#ee5a24]/20 border border-[#ff4757]/30 rounded-lg p-4">
+          <div className="bg-linear-to-r from-[#ff6b6b]/20 to-[#ee5a24]/20 border border-[#ff4757]/30 rounded-lg p-4">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-lg font-semibold text-[#EEEEF0]">
                 Lock Active

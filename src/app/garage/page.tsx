@@ -37,7 +37,6 @@ interface MiningStats {
 }
 
 export default function GaragePage() {
-  return notFound();
   const [referrerInput, setReferrerInput] = useState("");
 
   const { provider } = useEthers();

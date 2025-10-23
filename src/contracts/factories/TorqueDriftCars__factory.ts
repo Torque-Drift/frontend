@@ -554,6 +554,16 @@ const _abi = [
             type: "uint32",
           },
           {
+            internalType: "uint256",
+            name: "lastFarmingTime",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "accumulatedReward",
+            type: "uint256",
+          },
+          {
             internalType: "uint8",
             name: "rarity",
             type: "uint8",

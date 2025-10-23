@@ -131,18 +131,7 @@ export const ClaimSection: React.FC<ClaimSectionProps> = ({ equippedCars }) => {
       </motion.div>
     );
   }
-
-  const getCooldownText = () => {
-    if (remainingTimeMinutes) {
-      return `${Math.floor(remainingTimeMinutes / 60)}h ${
-        remainingTimeMinutes % 60
-      }m Until Free Claim`;
-    }
-    return "Ready (4h cooldown recommended)";
-  };
-
-  const cooldownText = getCooldownText();
-
+  const cooldownText = previewData?.timeUntilNextClaimFormatted ?? "0h 0m";
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -339,17 +328,21 @@ export const ClaimSection: React.FC<ClaimSectionProps> = ({ equippedCars }) => {
             Mining Stats
           </h4>
           <div className="space-y-1 text-xs">
-            {previewData?.lastClaim && (
-              <div className="flex justify-between">
-                <span className="text-[#888]">Last Claim:</span>
-                <span className="text-[#EEEEF0]">
-                  {new Date(previewData.lastClaim * 1000).toLocaleDateString(
-                    "en-US",
-                    { minute: "2-digit", second: "2-digit", hour: "2-digit" }
-                  )}
-                </span>
-              </div>
-            )}
+            <div className="flex justify-between">
+              <span className="text-[#888]">Last Claim:</span>
+              <span className="text-[#EEEEF0]">
+                {previewData?.lastClaim
+                  ? new Date(previewData?.lastClaim * 1000).toLocaleDateString(
+                      "en-US",
+                      {
+                        minute: "2-digit",
+                        second: "2-digit",
+                        hour: "2-digit",
+                      }
+                    )
+                  : "Never"}
+              </span>
+            </div>
             {previewData?.totalClaimed !== undefined && (
               <div className="flex justify-between">
                 <span className="text-[#888]">Total Claimed:</span>

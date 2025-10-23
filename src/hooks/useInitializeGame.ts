@@ -97,7 +97,7 @@ export const useInitializeGame = () => {
         );
 
         const started = await gameContract.getUserGameStarted(address);
-        console.log(started)
+        console.log(started);
         let referrerCode = "";
         if (started) {
           referrerCode = await referralContract.getUserReferralCode(address);
@@ -119,8 +119,8 @@ export const useInitializeGame = () => {
       if (!signer || !isConnected || !address || !provider) {
         throw new Error("Wallet not connected or signer not available");
       }
-      const gameContract = TorqueDriftGame__factory.connect(
-        CONTRACT_ADDRESSES.TorqueDriftGame,
+      const referralContract = TorqueDriftReferral__factory.connect(
+        CONTRACT_ADDRESSES.TorqueDriftReferral,
         signer
       );
       const referrerCode = params.referrerPubkey ? params.referrerPubkey : "";
@@ -130,7 +130,9 @@ export const useInitializeGame = () => {
       }
       const value = referralData.requiredPayment;
       const code = referrerCode ? referrerCode : "";
-      const tx = await gameContract.initializeStartGame(code, { value });
+      const tx = await referralContract.initializeStartGameWithReferral(code, {
+        value,
+      });
       await tx.wait();
       await refetchUserExists();
     },

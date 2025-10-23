@@ -57,6 +57,8 @@ export declare namespace ITorqueDriftStructs {
     hashPower: BigNumberish;
     efficiency: BigNumberish;
     lastMaintenance: BigNumberish;
+    lastFarmingTime: BigNumberish;
+    accumulatedReward: BigNumberish;
     rarity: BigNumberish;
     version: BigNumberish;
     slotIndex: BigNumberish;
@@ -67,6 +69,8 @@ export declare namespace ITorqueDriftStructs {
     hashPower: bigint,
     efficiency: bigint,
     lastMaintenance: bigint,
+    lastFarmingTime: bigint,
+    accumulatedReward: bigint,
     rarity: bigint,
     version: bigint,
     slotIndex: bigint
@@ -75,6 +79,8 @@ export declare namespace ITorqueDriftStructs {
     hashPower: bigint;
     efficiency: bigint;
     lastMaintenance: bigint;
+    lastFarmingTime: bigint;
+    accumulatedReward: bigint;
     rarity: bigint;
     version: bigint;
     slotIndex: bigint;
