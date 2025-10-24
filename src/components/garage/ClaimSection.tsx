@@ -343,45 +343,28 @@ export const ClaimSection: React.FC<ClaimSectionProps> = ({ equippedCars }) => {
                   : "Never"}
               </span>
             </div>
-            {previewData?.totalClaimed !== undefined && (
-              <div className="flex justify-between">
-                <span className="text-[#888]">Total Claimed:</span>
-                <span className="text-[#EEEEF0]">
-                  {previewData.totalClaimed?.toFixed(2) || "0"} $TOD
-                </span>
-              </div>
-            )}
-            {previewData?.referralCount !== undefined &&
-              previewData.referralCount > 0 && (
-                <div className="flex justify-between">
-                  <span className="text-[#888]">Referrals:</span>
-                  <span className="text-[#EEEEF0]">
-                    {previewData.referralCount}
-                  </span>
-                </div>
-              )}
-            {previewData?.referralEarnings !== undefined &&
-              previewData.referralEarnings > 0 && (
-                <div className="flex justify-between">
-                  <span className="text-[#888]">Referral Boost:</span>
-                  <span className="text-[#EEEEF0]">
-                    {previewData.referralEarnings?.toFixed(2) || "0"}%
-                  </span>
-                </div>
-              )}
-            {previewData?.totalBoost !== undefined &&
-              previewData.totalBoost > 0 && (
-                <div className="flex justify-between">
-                  <span className="text-[#888]">Total Boost:</span>
-                  <span className="text-[#EEEEF0]">
-                    {previewData.totalBoost?.toFixed(0) || "0"}%
-                  </span>
-                </div>
-              )}
+            <div className="flex justify-between">
+              <span className="text-[#888]">Referrals:</span>
+              <span className="text-[#EEEEF0]">
+                {previewData?.referralCount ?? 0}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-[#888]">Referral Boost:</span>
+              <span className="text-[#EEEEF0]">
+                {previewData?.referralEarnings?.toFixed(2) ?? "0"}%
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-[#888]">Total Boost:</span>
+              <span className="text-[#EEEEF0]">
+                {previewData?.totalBoost?.toFixed(0) ?? "0"}%
+              </span>
+            </div>
             <div className="flex justify-between">
               <span className="text-[#888]">Equipped Cars:</span>
               <span className="text-[#EEEEF0]">
-                {equippedCars.filter((car) => car !== null).length}/5
+                {equippedCars.filter((car) => car !== null).length ?? 0}/5
               </span>
             </div>
           </div>
