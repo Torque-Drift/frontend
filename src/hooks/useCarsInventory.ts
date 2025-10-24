@@ -3,7 +3,7 @@ import React from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { ethers } from "ethers";
-import { CONTRACT_ADDRESSES } from "@/constants";
+import { CAR_CATALOG, CONTRACT_ADDRESSES } from "@/constants";
 import {
   TorqueDriftCars__factory,
   TorqueDriftGame__factory,
@@ -26,91 +26,11 @@ function formatHashPower(hashPower: bigint | number): string {
 }
 
 function getCarCatalogData(rarity: number, version: number) {
-  const catalogMap: Record<string, any> = {
-    "0-0": {
-      name: "Chevrolet Bel Air 1955",
-      description:
-        "The classic American beauty from the 1950s. This rock 'n' roll era icon combines vintage elegance with reliable performance.",
-      image: "/images/common_0.png",
-      hashRange: [10, 18],
-      cooldown: 12,
-      dailyYield: 0.931,
-      roi: 12.53,
-    },
-    "0-1": {
-      name: "UNO With Stairs",
-      description:
-        "A modern and creative take on the classic Fiat Uno. This compact urban vehicle features external stairs for easy rooftop access.",
-      image: "/images/common_1.png",
-      hashRange: [15, 25],
-      cooldown: 11,
-      dailyYield: 1.33,
-      roi: 8.77,
-    },
-    "1-0": {
-      name: "Rare Vintage Car",
-      description:
-        "A rare gem from the vintage collection. This classic vehicle has been meticulously restored with attention to original details.",
-      image: "/images/rare_0.png",
-      hashRange: [26, 40],
-      cooldown: 9,
-      dailyYield: 2.194,
-      roi: 5.32,
-    },
-    "1-1": {
-      name: "Golf GTI 2025",
-      description:
-        "The ultimate evolution of the sporty hatchback. With cutting-edge technology and aerodynamic design.",
-      image: "/images/rare_1.png",
-      hashRange: [34, 50],
-      cooldown: 8,
-      dailyYield: 2.792,
-      roi: 4.18,
-    },
-    "2-0": {
-      name: "Epic Vintage Car",
-      description:
-        "A masterpiece of vintage engineering. This legendary vehicle combines classic elegance with modern modifications.",
-      image: "/images/epic_0.png",
-      hashRange: [51, 63],
-      cooldown: 6,
-      dailyYield: 3.79,
-      roi: 3.08,
-    },
-    "2-1": {
-      name: "Red Car",
-      description:
-        "A fiery red speedster that turns heads wherever it goes. Its vibrant color symbolizes passion and speed.",
-      image: "/images/epic_1.png",
-      hashRange: [60, 75],
-      cooldown: 5,
-      dailyYield: 4.488,
-      roi: 2.6,
-    },
-    "3-0": {
-      name: "Chevrolet Impala 1967",
-      description:
-        "The ultimate muscle car from the classic era. This 1967 Impala represents the pinnacle of American power.",
-      image: "/images/legendary_0.png",
-      hashRange: [76, 88],
-      cooldown: 4,
-      dailyYield: 5.452,
-      roi: 2.14,
-    },
-    "3-1": {
-      name: "Dodge Challenger Black 2023",
-      description:
-        "Absolute darkness meets maximum speed. This midnight black Challenger combines muscle car heritage with cutting-edge technology.",
-      image: "/images/legendary_1.png",
-      hashRange: [84, 100],
-      cooldown: 3,
-      dailyYield: 6.117,
-      roi: 1.91,
-    },
-  };
-
-  const key = `${rarity}-${version}`;
-  return catalogMap[key] || catalogMap["0-0"];
+  return (
+    CAR_CATALOG.find(
+      (car) => car.rarity === rarity && car.version === version
+    ) || CAR_CATALOG[0]
+  );
 }
 
 // ==========================================
@@ -222,8 +142,6 @@ export const useCarsInventory = (): UseCarsInventoryReturn => {
           name: catalogData.name,
           description: catalogData.description,
           dailyYield: catalogData.dailyYield,
-          cooldown: catalogData.cooldown,
-          roi: catalogData.roi,
         });
       }
 

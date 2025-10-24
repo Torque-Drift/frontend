@@ -176,13 +176,9 @@ export const RewardModal: React.FC<RewardModalProps> = memo(
 
     useEffect(() => {
       if (isOpen && rewardItem) {
-        // Phase 1: Initial reveal
         const timer1 = setTimeout(() => setShowConfetti(true), 200);
-        // Phase 2: Card reveal
         const timer2 = setTimeout(() => setShowCard(true), 500);
-        // Phase 3: Stats animation
         const timer3 = setTimeout(() => setShowStats(true), 1000);
-        // Phase 4: Celebration text
         const timer4 = setTimeout(() => setCelebrationPhase(1), 1500);
 
         return () => {
@@ -356,12 +352,11 @@ export const RewardModal: React.FC<RewardModalProps> = memo(
 
                   {/* Car Image with enhanced styling */}
                   <motion.div
-                    className="w-full h-52 rounded-lg mb-3 flex items-center justify-center relative overflow-hidden"
+                    className="w-full h-60 rounded-lg mb-3 flex items-center justify-center relative overflow-hidden"
                     style={{
                       background: `url(${rewardItem.image}) no-repeat center center`,
                       backgroundSize: "cover",
                       backgroundPosition: "center",
-                      border: `2px solid ${rarityConfig.borderColor}40`,
                     }}
                   >
                     {/* Gradient overlay */}

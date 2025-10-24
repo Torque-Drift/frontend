@@ -31,8 +31,6 @@ export interface CarInventoryData {
   name: string;
   description: string;
   dailyYield: number;
-  cooldown: number;
-  roi: number;
 }
 
 // ============================================================================
