@@ -181,7 +181,7 @@ export default function StorePage() {
                   <div className="flex justify-between items-center pt-2 border-t border-[#49474E]/50">
                     <span className="text-[#EEEEF0] font-semibold">Total:</span>
                     <span className="text-[#00D4FF] font-bold">
-                      ${Number(tokenAmount * 0.12).toFixed(2)} USD
+                      ${Number(tokenAmount * 0.08).toFixed(2)} USD
                     </span>
                   </div>
                 </div>
