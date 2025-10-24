@@ -78,8 +78,8 @@ export const usePreviewClaim = () => {
         const timeUntilNextClaimFormatted = formatTime(
           Number(timeUntilNextClaim)
         );
-        let penaltyBnb = 0;
-        let penaltyBurnPercent = 0;
+        const penaltyBnb = 0;
+        const penaltyBurnPercent = 0;
         const canClaimWithoutPenalty =
           timeUntilNextClaimFormatted === "Ready to claim!";
 
