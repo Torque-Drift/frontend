@@ -49,7 +49,8 @@ export const usePreviewClaim = () => {
         const now = Math.floor(Date.now() / 1000);
         const timeSinceLastClaim = now - lastClaim;
         const optimalClaimTime = 4 * 3600;
-        const hasPenalty = timeSinceLastClaim < optimalClaimTime;
+        const claimPenalties = await gameContract.checkClaimPenalties(address);
+        const hasPenalty = claimPenalties.needsPenalty;
 
         let penaltyDescription = "";
         if (hasPenalty) {
@@ -78,8 +79,9 @@ export const usePreviewClaim = () => {
         const timeUntilNextClaimFormatted = formatTime(
           Number(timeUntilNextClaim)
         );
-        const penaltyBnb = 0;
-        const penaltyBurnPercent = 0;
+
+        const penaltyBnb = Number(claimPenalties.bnbRequired) / 1e18;
+        const penaltyBurnPercent = Number(claimPenalties.burnPercent) / 100;
         const canClaimWithoutPenalty =
           timeUntilNextClaimFormatted === "Ready to claim!";
 
