@@ -241,7 +241,7 @@ export const ClaimSection: React.FC<ClaimSectionProps> = ({ equippedCars }) => {
           <div className="flex justify-between border-t border-[#49474E] pt-2 mt-2">
             <span className="text-[#EEEEF0] font-medium">Total Boost:</span>
             <span className="text-green-400 font-bold">
-              +{previewData?.totalBoost?.toFixed(2) ?? 0}%
+              +{previewData?.totalBoost?.toFixed(0) ?? 0}%
             </span>
           </div>
         </div>
@@ -260,7 +260,7 @@ export const ClaimSection: React.FC<ClaimSectionProps> = ({ equippedCars }) => {
             disabled={isClaimDisabled}
             className="flex-1"
             onClick={async () => {
-              await onClaim(previewData?.penaltyBnb ?? 0);
+              await onClaim();
               if (liveClaimableAmount > 0) {
                 setClaimedAmount(
                   formatTokenAmount(
@@ -374,7 +374,7 @@ export const ClaimSection: React.FC<ClaimSectionProps> = ({ equippedCars }) => {
                 <div className="flex justify-between">
                   <span className="text-[#888]">Total Boost:</span>
                   <span className="text-[#EEEEF0]">
-                    {previewData.totalBoost?.toFixed(2) || "0"}%
+                    {previewData.totalBoost?.toFixed(0) || "0"}%
                   </span>
                 </div>
               )}

@@ -144,7 +144,7 @@ export default function StorePage() {
             <div>
               <p className="text-[#B5B2BC] mb-4">
                 Purchase $TOD tokens to open lootboxes and collect rare NFT
-                cars. Each token costs $1 USD and requires BNB payment.
+                cars. Each token costs $0.08 USD and requires BNB payment.
               </p>
 
               <div className="space-y-4">
@@ -172,7 +172,7 @@ export default function StorePage() {
                   </div>
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-[#B5B2BC]">Price per token:</span>
-                    <span className="text-[#EEEEF0]">$0.12 USD</span>
+                    <span className="text-[#EEEEF0]">$0.08 USD</span>
                   </div>
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-[#B5B2BC]">BNB required:</span>
@@ -231,7 +231,7 @@ export default function StorePage() {
                 <ul className="text-sm text-[#B5B2BC] space-y-2">
                   <li className="flex items-center">
                     <span className="w-2 h-2 bg-[#00D4FF] rounded-full mr-3"></span>
-                    Price: $0.12 per token (~0.0001 BNB)
+                    Price: $0.08 per token (~0.00008 BNB)
                   </li>
                   <li className="flex items-center">
                     <span className="w-2 h-2 bg-[#00D4FF] rounded-full mr-3"></span>
@@ -566,7 +566,7 @@ export default function StorePage() {
                   </li>
                   <li className="flex items-center">
                     <span className="w-2 h-2 bg-[#00D4FF] rounded-full mr-3"></span>
-                    Token Price: $0.12 USD
+                    Token Price: $0.08 USD
                   </li>
                 </ul>
               </div>

@@ -3,6 +3,7 @@ import { useEthers } from "./useEthers";
 import { TorqueDriftGame__factory } from "@/contracts";
 import { CONTRACT_ADDRESSES } from "@/constants";
 import toast from "react-hot-toast";
+import { ethers } from "ethers";
 
 export interface ClaimLockState {
   hasActiveLock: boolean;
@@ -117,18 +118,16 @@ export const useClaimLock = () => {
         throw new Error("Wallet not connected");
       }
 
+      const option = lockOption + 1;
+
       const gameContract = TorqueDriftGame__factory.connect(
         CONTRACT_ADDRESSES.TorqueDriftGame,
         signer
       );
-
-      // Estimate gas
       const estimatedGas = await gameContract.activateClaimLock.estimateGas(
-        lockOption
+        option
       );
-
-      // Execute transaction
-      const tx = await gameContract.activateClaimLock(lockOption, {
+      const tx = await gameContract.activateClaimLock(option, {
         gasLimit: estimatedGas * BigInt(2),
       });
 
@@ -139,6 +138,7 @@ export const useClaimLock = () => {
       toast.success("Claim Lock activated successfully!");
       refetchState();
       queryClient.invalidateQueries({ queryKey: ["previewClaim", address] });
+      queryClient.refetchQueries({ queryKey: ["claimPreview", address] });
     },
     onError: (error: any) => {
       console.error("Error activating claim lock:", error);
@@ -159,20 +159,23 @@ export const useClaimLock = () => {
   // Mutation to deactivate claim lock
   const deactivateMutation = useMutation({
     mutationFn: async () => {
-      if (!signer || !address) {
-        throw new Error("Wallet not connected");
-      }
+      if (!signer || !address) throw new Error("Wallet not connected");
 
       const gameContract = TorqueDriftGame__factory.connect(
         CONTRACT_ADDRESSES.TorqueDriftGame,
         signer
       );
 
-      // Estimate gas
-      const estimatedGas = await gameContract.deactivateClaimLock.estimateGas();
+      console.log("lockState", lockState);
+      const canDeactivate = lockState?.canDeactivate;
+      const value = !canDeactivate ? ethers.parseEther("0.01") : BigInt(0);
 
-      // Execute transaction
+      const estimatedGas = await gameContract.deactivateClaimLock.estimateGas({
+        value,
+      });
+      console.log("value", value);
       const tx = await gameContract.deactivateClaimLock({
+        value,
         gasLimit: estimatedGas * BigInt(2),
       });
 
@@ -183,6 +186,7 @@ export const useClaimLock = () => {
       toast.success("Claim Lock deactivated successfully!");
       refetchState();
       queryClient.invalidateQueries({ queryKey: ["previewClaim", address] });
+      queryClient.refetchQueries({ queryKey: ["claimPreview", address] });
     },
     onError: (error: any) => {
       console.error("Error deactivating claim lock:", error);

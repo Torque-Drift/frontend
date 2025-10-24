@@ -35,10 +35,12 @@ export const usePreviewClaim = () => {
         const timeUntilNextClaim = await gameContract.getTimeUntilNextClaim(
           address
         );
-        const claimableAmount = Number(ethers.formatEther(preview[0]));
-        const baseReward = Number(ethers.formatEther(preview[1]));
-        const lockBoost = Number(ethers.formatEther(preview.lockBoost));
-        const referralBoost = Number(ethers.formatEther(preview.referralBoost));
+        const claimableAmount = Number(ethers.formatUnits(preview[0], 9));
+        const baseReward = Number(ethers.formatUnits(preview[1], 9));
+        const lockBoost = Number(ethers.formatUnits(preview.lockBoost, 9));
+        const referralBoost = Number(
+          ethers.formatUnits(preview.referralBoost, 9)
+        );
         const userState = await gameContract.getUserInfo();
         const referralInfo = await referralContract.getReferralInfo(address);
         const hashPower = Number(userState.totalHashPower) || 0;
@@ -62,10 +64,10 @@ export const usePreviewClaim = () => {
         const referralBoostPercent =
           baseReward > 0 ? (referralBoost / baseReward) * 100 : 0;
         const totalBoostPercent = lockBoostPercent + referralBoostPercent;
-        const hourlyReward = Number(ethers.formatEther(preview[4]));
+        const hourlyReward = Number(ethers.formatUnits(preview[4], 9));
         const referralCount = Number(referralInfo.referralCount_) || 0;
         const referralEarnings =
-          Number(referralInfo.referralEarnings_) / 1e9 || 0;
+          Number(ethers.formatUnits(referralInfo.referralEarnings_, 9)) || 0;
 
         const formatTime = (seconds: number) => {
           if (seconds === 0) return "Ready to claim!";
@@ -80,7 +82,6 @@ export const usePreviewClaim = () => {
         let penaltyBurnPercent = 0;
         const canClaimWithoutPenalty =
           timeUntilNextClaimFormatted === "Ready to claim!";
-          
 
         return {
           claimableAmount,
@@ -144,18 +145,22 @@ export const useClaim = () => {
   const [isClaiming, setIsClaiming] = useState(false);
 
   const claimMutation = useMutation({
-    mutationFn: async (penaltyBnb: number) => {
+    mutationFn: async () => {
       if (!signer || !isConnected || !address) {
         throw new Error("Wallet not connected or signer not available");
       }
-
-      const penaltyAmount = ethers.parseEther(penaltyBnb.toString());
       const gameContract = TorqueDriftGame__factory.connect(
         CONTRACT_ADDRESSES.TorqueDriftGame,
         signer
       );
 
-      const tx = await gameContract.claimTokens({ value: penaltyAmount });
+      const hasPenalty = await gameContract.checkClaimPenalties(address);
+      let tx = null;
+      if (hasPenalty.needsPenalty) {
+        tx = await gameContract.claimTokens({ value: hasPenalty.bnbRequired });
+      } else {
+        tx = await gameContract.claimTokens();
+      }
       await tx.wait();
 
       return { success: true };

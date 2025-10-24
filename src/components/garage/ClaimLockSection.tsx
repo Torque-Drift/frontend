@@ -125,11 +125,23 @@ export const ClaimLockSection: React.FC = () => {
               </Button>
             </motion.div>
           ) : (
-            <div className="text-center p-4 bg-[#121113]/50 rounded-lg border border-[#49474E]/30">
-              <p className="text-[#B5B2BC] text-sm">
-                Expires in {formatTime(lockState.timeRemaining)}
-              </p>
-            </div>
+            <Button
+              onClick={handleDeactivateLock}
+              disabled={isDeactivating}
+              className="w-full"
+            >
+              {isDeactivating ? (
+                <>
+                  <Loader height={16} width={16} className="mr-2" />
+                  Deactivating...
+                </>
+              ) : (
+                <>
+                  <Unlock className="w-4 h-4 mr-2" />
+                  Deactivate Lock
+                </>
+              )}
+            </Button>
           )}
         </div>
       ) : (
@@ -159,7 +171,7 @@ export const ClaimLockSection: React.FC = () => {
                           {option.duration} day{option.duration > 1 ? "s" : ""}
                         </div>
                         <div className="text-[#B5B2BC] text-xs">
-                          +{option.boost}% boost on rewards
+                          +{option.boost}% boost on claim
                         </div>
                       </div>
                       <div className="text-right">
