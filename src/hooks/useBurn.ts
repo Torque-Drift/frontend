@@ -2,21 +2,49 @@ import { useMutation } from "@tanstack/react-query";
 import { CONTRACT_ADDRESSES } from "@/constants";
 import {
   TorqueDriftToken__factory,
+  TorqueDriftCars__factory,
   TorqueDriftGame__factory,
 } from "@/contracts";
 import { useEthers } from "./useEthers";
 import { useInitializeGame } from "./useInitializeGame";
 import toast from "react-hot-toast";
 
-async function burnTokensForLootbox(signer: any) {
+async function burnTokensForLootbox(signer: any, lootboxAmount: number = 1) {
   if (!signer) throw new Error("Wallet not connected");
+
+  const address = await signer.getAddress();
+
+  // Verificar limite diário de mints antes do burn
+  const carsContract = TorqueDriftCars__factory.connect(
+    CONTRACT_ADDRESSES.TorqueDriftCars,
+    signer
+  );
+
+  const [currentMints, remainingMints] = await carsContract.getUserDailyMintStatus(address);
+
+  if (Number(remainingMints) < lootboxAmount) {
+    throw new Error(
+      `Daily mint limit exceeded. You can mint ${remainingMints} more cars today.`
+    );
+  }
 
   const tokenContract = TorqueDriftToken__factory.connect(
     CONTRACT_ADDRESSES.TorqueDriftToken,
     signer
   );
 
-  const tokensToBurn = 300;
+  // Calculate tokens to burn based on lootbox amount with discounts
+  const baseCost = 300;
+  let totalCost = baseCost * lootboxAmount;
+
+  // Apply discounts
+  if (lootboxAmount === 5) {
+    totalCost = Math.floor(totalCost * 0.95); // 5% discount
+  } else if (lootboxAmount === 10) {
+    totalCost = Math.floor(totalCost * 0.90); // 10% discount
+  }
+
+  const tokensToBurn = totalCost;
   const amountToBurn = BigInt(tokensToBurn) * BigInt(10 ** 9);
 
   try {
@@ -34,7 +62,7 @@ async function burnTokensForLootbox(signer: any) {
 
     if (balance < amountToBurn) {
       throw new Error(
-        `Insufficient $TOD balance. Required: ${tokensToBurn} $TOD, Available: ${balanceInTokens} $TOD`
+        `Insufficient $TOD balance. Required: ${tokensToBurn} $TOD, Available: ${balanceInTokens.toFixed(2)} $TOD`
       );
     }
 
@@ -81,7 +109,9 @@ export const useBurn = () => {
   const { userExists } = useInitializeGame();
 
   const mutation = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (lootboxAmount: number = 1) => {
+      console.log(`🎯 useBurn called with lootboxAmount: ${lootboxAmount}`);
+
       if (!signer || !isConnected || !address)
         throw new Error("Wallet not connected");
 
@@ -91,23 +121,14 @@ export const useBurn = () => {
         );
       }
 
-      // Verificar limites diários de criação de carros
-      const gameContract = TorqueDriftGame__factory.connect(
-        CONTRACT_ADDRESSES.TorqueDriftGame,
-        signer
-      );
-
-      const dailyInfo = await gameContract.getUserDailyCarCreationInfo(address);
-      const dailyCarCreationCount = Number(dailyInfo[0]);
-      const maxDailyCarCreations = Number(dailyInfo[1]);
-
-      if (dailyCarCreationCount >= maxDailyCarCreations) {
-        throw new Error(
-          `Daily car creation limit reached (${maxDailyCarCreations}). Please try again tomorrow.`
-        );
+      // Validate lootboxAmount
+      if (lootboxAmount < 1 || lootboxAmount > 10) {
+        throw new Error("Invalid lootbox amount. Must be between 1 and 10.");
       }
 
-      const burnTxSignature = await burnTokensForLootbox(signer);
+      // A verificação de limite diário agora é feita na função burnTokensForLootbox
+
+      const burnTxSignature = await burnTokensForLootbox(signer, lootboxAmount);
       if (!burnTxSignature) throw new Error("Failed to get transaction hash");
       const response = await fetch("/api/purchase", {
         method: "POST",
@@ -115,6 +136,7 @@ export const useBurn = () => {
         body: JSON.stringify({
           userWallet: address,
           burnTxSignature,
+          lootboxAmount,
         }),
       });
       if (!response.ok) {
@@ -122,11 +144,12 @@ export const useBurn = () => {
         throw new Error(errorData.error || "Failed to open lootbox");
       }
       const lootboxResult = await response.json();
-      const item = lootboxResult.rewardItem;
       return {
         burnTxSignature,
-        rewardItem: item,
-        itemDetails: {
+        rewardItems: lootboxResult.rewardItems,
+        lootboxAmount,
+        discountApplied: lootboxResult.discountApplied,
+        itemDetails: lootboxResult.rewardItems?.map((item: any) => ({
           id: item.id,
           name: item.name,
           rarity: item.rarity,
@@ -135,7 +158,8 @@ export const useBurn = () => {
           cooldown: item.cooldown,
           roi: item.roi,
           uri: item.uri,
-        },
+          lootboxIndex: item.lootboxIndex,
+        })),
       };
     },
     onError: (error) => {

@@ -245,16 +245,7 @@ export const ClaimSection: React.FC<ClaimSectionProps> = ({ equippedCars }) => {
             </span>
           </div>
         </div>
-
-        {/* Mensagem explicativa quando há lock ativo */}
-        {hasActiveLock && (
-          <div className="mb-3 p-3 bg-[#ff6b6b]/10 border border-[#ff6b6b]/30 rounded-lg">
-            <p className="text-sm text-[#ff6b6b] text-center">
-              Claim is locked due to active Claim Lock.
-            </p>
-          </div>
-        )}
-
+        
         <div className="flex gap-2 mb-4 h-full">
           <Button
             disabled={isClaimDisabled}

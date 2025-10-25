@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback, memo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Sparkles, Trophy, Zap, TrendingUp } from "lucide-react";
+import { X, Sparkles, Trophy, Zap, TrendingUp, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "../Button";
 
 interface RewardItem {
@@ -26,7 +26,7 @@ interface RewardItem {
 interface RewardModalProps {
   isOpen: boolean;
   onClose: () => void;
-  rewardItem: RewardItem | null;
+  rewardItem: RewardItem | RewardItem[] | null;
 }
 
 // Enhanced rarity config with more visual effects
@@ -163,19 +163,32 @@ ConfettiParticle.displayName = "ConfettiParticle";
 export const RewardModal: React.FC<RewardModalProps> = memo(
   ({ isOpen, onClose, rewardItem }) => {
     if (!rewardItem) return null;
+
+    // Handle single item or array of items
+    const rewardItems = Array.isArray(rewardItem) ? rewardItem : [rewardItem];
+    const [currentItemIndex, setCurrentItemIndex] = useState(0);
+    const currentItem = rewardItems[currentItemIndex];
+
     const [showConfetti, setShowConfetti] = useState(false);
     const [showCard, setShowCard] = useState(false);
     const [showStats, setShowStats] = useState(false);
     const [celebrationPhase, setCelebrationPhase] = useState(0);
 
+    // Reset to first item when modal opens
+    useEffect(() => {
+      if (isOpen) {
+        setCurrentItemIndex(0);
+      }
+    }, [isOpen]);
+
     // Memoize rarity config to avoid recalculation
     const rarityConfig = useMemo(
-      () => getRarityConfig(rewardItem?.rarity || ""),
-      [rewardItem?.rarity]
+      () => getRarityConfig(currentItem?.rarity || ""),
+      [currentItem?.rarity]
     );
 
     useEffect(() => {
-      if (isOpen && rewardItem) {
+      if (isOpen && currentItem) {
         const timer1 = setTimeout(() => setShowConfetti(true), 200);
         const timer2 = setTimeout(() => setShowCard(true), 500);
         const timer3 = setTimeout(() => setShowStats(true), 1000);
@@ -193,7 +206,16 @@ export const RewardModal: React.FC<RewardModalProps> = memo(
         setShowStats(false);
         setCelebrationPhase(0);
       }
-    }, [isOpen, rewardItem]);
+    }, [isOpen, currentItem]);
+
+    // Navigation functions
+    const goToPrevious = useCallback(() => {
+      setCurrentItemIndex((prev) => Math.max(0, prev - 1));
+    }, []);
+
+    const goToNext = useCallback(() => {
+      setCurrentItemIndex((prev) => Math.min(rewardItems.length - 1, prev + 1));
+    }, [rewardItems.length]);
 
     const handleClose = useCallback(() => {
       setShowConfetti(false);
@@ -317,8 +339,40 @@ export const RewardModal: React.FC<RewardModalProps> = memo(
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.8 }}
                   >
-                    You got a new car from the Mystery Box!
+                    {rewardItems.length > 1
+                      ? `You got ${rewardItems.length} new cars from the Mystery Boxes!`
+                      : "You got a new car from the Mystery Box!"}
                   </motion.p>
+
+                  {/* Item counter when multiple items */}
+                  {rewardItems.length > 1 && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 1.0 }}
+                      className="flex items-center justify-center gap-4 mt-3"
+                    >
+                      <button
+                        onClick={goToPrevious}
+                        disabled={currentItemIndex === 0}
+                        className="w-8 h-8 rounded-full bg-[#49474E]/60 hover:bg-[#49474E] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors"
+                      >
+                        <ChevronLeft className="w-4 h-4 text-[#EEEEF0]" />
+                      </button>
+
+                      <span className="text-[#B5B2BC] text-sm">
+                        {currentItemIndex + 1} of {rewardItems.length}
+                      </span>
+
+                      <button
+                        onClick={goToNext}
+                        disabled={currentItemIndex === rewardItems.length - 1}
+                        className="w-8 h-8 rounded-full bg-[#49474E]/60 hover:bg-[#49474E] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors"
+                      >
+                        <ChevronRight className="w-4 h-4 text-[#EEEEF0]" />
+                      </button>
+                    </motion.div>
+                  )}
                 </motion.div>
 
                 {/* Enhanced Car Card */}
@@ -354,7 +408,7 @@ export const RewardModal: React.FC<RewardModalProps> = memo(
                   <motion.div
                     className="w-full h-60 rounded-lg mb-3 flex items-center justify-center relative overflow-hidden"
                     style={{
-                      background: `url(${rewardItem.image}) no-repeat center center`,
+                      background: `url(${currentItem.image}) no-repeat center center`,
                       backgroundSize: "cover",
                       backgroundPosition: "center",
                     }}
@@ -385,7 +439,7 @@ export const RewardModal: React.FC<RewardModalProps> = memo(
                         border: `1px solid ${rarityConfig.accentColor}`,
                       }}
                     >
-                      {rewardItem.rarity.toUpperCase()}
+                      {currentItem.rarity.toUpperCase()}
                     </motion.div>
                   </motion.div>
 
@@ -405,18 +459,18 @@ export const RewardModal: React.FC<RewardModalProps> = memo(
                         textShadow: `0 0 10px ${rarityConfig.glowColor}40`,
                       }}
                     >
-                      {rewardItem.name}
+                      {currentItem.name}
                     </motion.h3>
 
                     {/* Description if available */}
-                    {rewardItem.description && (
+                    {currentItem.description && (
                       <motion.p
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: 1.0 }}
                         className="text-xs text-[#B5B2BC] text-center italic"
                       >
-                        {rewardItem.description}
+                        {currentItem.description}
                       </motion.p>
                     )}
 
@@ -440,7 +494,7 @@ export const RewardModal: React.FC<RewardModalProps> = memo(
                           Daily Yield
                         </p>
                         <p className="text-sm font-bold text-[#EEEEF0]">
-                          {rewardItem.dailyYield} $TOD
+                          {currentItem.dailyYield} $TOD
                         </p>
                       </motion.div>
                       <motion.div
@@ -449,13 +503,13 @@ export const RewardModal: React.FC<RewardModalProps> = memo(
                       >
                         <p className="text-xs text-[#B5B2BC] mb-1">Version</p>
                         <p className="text-sm font-bold text-[#EEEEF0]">
-                          {rewardItem.version}
+                          {currentItem.version}
                         </p>
                       </motion.div>
                     </motion.div>
 
                     {/* Attributes if available */}
-                    {rewardItem.attributes && (
+                    {currentItem.attributes && (
                       <motion.div
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={showStats ? { opacity: 1, scale: 1 } : {}}
@@ -466,7 +520,7 @@ export const RewardModal: React.FC<RewardModalProps> = memo(
                         }}
                         className="grid grid-cols-2 gap-2 mt-3"
                       >
-                        {Object.entries(rewardItem.attributes).map(
+                        {Object.entries(currentItem.attributes).map(
                           ([key, value], index) => (
                             <motion.div
                               key={key}
@@ -532,7 +586,7 @@ export const RewardModal: React.FC<RewardModalProps> = memo(
 
                       {/* Button content */}
                       <span className="relative z-10 flex items-center justify-center gap-2 font-bold">
-                        Claim Your Car!
+                        {rewardItems.length > 1 ? "Claim Your Cars!" : "Claim Your Car!"}
                       </span>
 
                       {/* Pulsing glow */}

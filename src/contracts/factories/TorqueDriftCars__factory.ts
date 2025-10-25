@@ -206,6 +206,37 @@ const _abi = [
     inputs: [
       {
         indexed: false,
+        internalType: "address[]",
+        name: "owners",
+        type: "address[]",
+      },
+      {
+        indexed: false,
+        internalType: "uint256[]",
+        name: "carIds",
+        type: "uint256[]",
+      },
+      {
+        indexed: false,
+        internalType: "address[]",
+        name: "carAddresses",
+        type: "address[]",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "totalCreated",
+        type: "uint256",
+      },
+    ],
+    name: "CarsCreatedBatch",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
         internalType: "uint64",
         name: "version",
         type: "uint64",
@@ -248,6 +279,32 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "MAX_DAILY_MINTS",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "SECONDS_PER_DAY",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "UPGRADE_INTERFACE_VERSION",
     outputs: [
       {
@@ -268,6 +325,25 @@ const _abi = [
       },
     ],
     name: "authorizedContracts",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+    ],
+    name: "canUserMintToday",
     outputs: [
       {
         internalType: "bool",
@@ -359,6 +435,54 @@ const _abi = [
       },
     ],
     stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address[]",
+        name: "owners",
+        type: "address[]",
+      },
+      {
+        internalType: "uint8[]",
+        name: "rarities",
+        type: "uint8[]",
+      },
+      {
+        internalType: "uint8[]",
+        name: "versions",
+        type: "uint8[]",
+      },
+    ],
+    name: "createGameCarBatch",
+    outputs: [
+      {
+        internalType: "address[]",
+        name: "carAddresses",
+        type: "address[]",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    name: "dailyMints",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {
@@ -529,6 +653,30 @@ const _abi = [
         type: "address",
       },
     ],
+    name: "getUserDailyMintStatus",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "currentMints",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "remainingMints",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+    ],
     name: "getUserInventory",
     outputs: [
       {
@@ -613,6 +761,38 @@ const _abi = [
     name: "initialize",
     outputs: [],
     stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    name: "lastMintDay",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "lastResetDay",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {

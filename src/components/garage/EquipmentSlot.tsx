@@ -41,7 +41,6 @@ export const EquipmentSlot: React.FC<EquipmentSlotProps> = ({
     id,
     disabled: car !== null,
   });
-  console.log(car);
   const isLoading = isEquipping || isUnequipping || isUnderMaintenance;
 
   return (
@@ -191,3 +190,4 @@ export const EquipmentSlot: React.FC<EquipmentSlotProps> = ({
     </div>
   );
 };
+
