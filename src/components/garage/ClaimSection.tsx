@@ -131,18 +131,7 @@ export const ClaimSection: React.FC<ClaimSectionProps> = ({ equippedCars }) => {
       </motion.div>
     );
   }
-
-  const getCooldownText = () => {
-    if (remainingTimeMinutes) {
-      return `${Math.floor(remainingTimeMinutes / 60)}h ${
-        remainingTimeMinutes % 60
-      }m Until Free Claim`;
-    }
-    return "Ready (4h cooldown recommended)";
-  };
-
-  const cooldownText = getCooldownText();
-
+  const cooldownText = previewData?.timeUntilNextClaimFormatted ?? "0h 0m";
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -252,26 +241,17 @@ export const ClaimSection: React.FC<ClaimSectionProps> = ({ equippedCars }) => {
           <div className="flex justify-between border-t border-[#49474E] pt-2 mt-2">
             <span className="text-[#EEEEF0] font-medium">Total Boost:</span>
             <span className="text-green-400 font-bold">
-              +{previewData?.totalBoost?.toFixed(2) ?? 0}%
+              +{previewData?.totalBoost?.toFixed(0) ?? 0}%
             </span>
           </div>
         </div>
-
-        {/* Mensagem explicativa quando há lock ativo */}
-        {hasActiveLock && (
-          <div className="mb-3 p-3 bg-[#ff6b6b]/10 border border-[#ff6b6b]/30 rounded-lg">
-            <p className="text-sm text-[#ff6b6b] text-center">
-              Claim is locked due to active Claim Lock.
-            </p>
-          </div>
-        )}
-
+        
         <div className="flex gap-2 mb-4 h-full">
           <Button
             disabled={isClaimDisabled}
             className="flex-1"
             onClick={async () => {
-              await onClaim(previewData?.penaltyBnb ?? 0);
+              await onClaim();
               if (liveClaimableAmount > 0) {
                 setClaimedAmount(
                   formatTokenAmount(
@@ -339,56 +319,43 @@ export const ClaimSection: React.FC<ClaimSectionProps> = ({ equippedCars }) => {
             Mining Stats
           </h4>
           <div className="space-y-1 text-xs">
-            {previewData?.lastClaim && (
-              <div className="flex justify-between">
-                <span className="text-[#888]">Last Claim:</span>
-                <span className="text-[#EEEEF0]">
-                  {new Date(previewData.lastClaim * 1000).toLocaleDateString(
-                    "en-US",
-                    { minute: "2-digit", second: "2-digit", hour: "2-digit" }
-                  )}
-                </span>
-              </div>
-            )}
-            {previewData?.totalClaimed !== undefined && (
-              <div className="flex justify-between">
-                <span className="text-[#888]">Total Claimed:</span>
-                <span className="text-[#EEEEF0]">
-                  {previewData.totalClaimed?.toFixed(2) || "0"} $TOD
-                </span>
-              </div>
-            )}
-            {previewData?.referralCount !== undefined &&
-              previewData.referralCount > 0 && (
-                <div className="flex justify-between">
-                  <span className="text-[#888]">Referrals:</span>
-                  <span className="text-[#EEEEF0]">
-                    {previewData.referralCount}
-                  </span>
-                </div>
-              )}
-            {previewData?.referralEarnings !== undefined &&
-              previewData.referralEarnings > 0 && (
-                <div className="flex justify-between">
-                  <span className="text-[#888]">Referral Boost:</span>
-                  <span className="text-[#EEEEF0]">
-                    {previewData.referralEarnings?.toFixed(2) || "0"}%
-                  </span>
-                </div>
-              )}
-            {previewData?.totalBoost !== undefined &&
-              previewData.totalBoost > 0 && (
-                <div className="flex justify-between">
-                  <span className="text-[#888]">Total Boost:</span>
-                  <span className="text-[#EEEEF0]">
-                    {previewData.totalBoost?.toFixed(2) || "0"}%
-                  </span>
-                </div>
-              )}
+            <div className="flex justify-between">
+              <span className="text-[#888]">Last Claim:</span>
+              <span className="text-[#EEEEF0]">
+                {previewData?.lastClaim
+                  ? new Date(previewData?.lastClaim * 1000).toLocaleDateString(
+                      "en-US",
+                      {
+                        minute: "2-digit",
+                        second: "2-digit",
+                        hour: "2-digit",
+                      }
+                    )
+                  : "Never"}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-[#888]">Referrals:</span>
+              <span className="text-[#EEEEF0]">
+                {previewData?.referralCount ?? 0}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-[#888]">Referral Boost:</span>
+              <span className="text-[#EEEEF0]">
+                {previewData?.referralEarnings?.toFixed(2) ?? "0"}%
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-[#888]">Total Boost:</span>
+              <span className="text-[#EEEEF0]">
+                {previewData?.totalBoost?.toFixed(0) ?? "0"}%
+              </span>
+            </div>
             <div className="flex justify-between">
               <span className="text-[#888]">Equipped Cars:</span>
               <span className="text-[#EEEEF0]">
-                {equippedCars.filter((car) => car !== null).length}/5
+                {equippedCars.filter((car) => car !== null).length ?? 0}/5
               </span>
             </div>
           </div>

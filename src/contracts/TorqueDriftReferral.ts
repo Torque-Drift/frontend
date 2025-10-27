@@ -682,11 +682,23 @@ export interface TorqueDriftReferral extends BaseContract {
   equippedCars: TypedContractMethod<
     [arg0: AddressLike, arg1: BigNumberish],
     [
-      [string, bigint, bigint, bigint, bigint, bigint, bigint] & {
+      [
+        string,
+        bigint,
+        bigint,
+        bigint,
+        bigint,
+        bigint,
+        bigint,
+        bigint,
+        bigint
+      ] & {
         mint: string;
         hashPower: bigint;
         efficiency: bigint;
         lastMaintenance: bigint;
+        lastFarmingTime: bigint;
+        accumulatedReward: bigint;
         rarity: bigint;
         version: bigint;
         slotIndex: bigint;
@@ -890,11 +902,6 @@ export interface TorqueDriftReferral extends BaseContract {
         bigint,
         bigint,
         bigint,
-        bigint,
-        bigint,
-        bigint,
-        bigint,
-        bigint,
         ITorqueDriftStructs.LockInfoStructOutput,
         string,
         string,
@@ -908,16 +915,11 @@ export interface TorqueDriftReferral extends BaseContract {
         boostStartTime: bigint;
         boostDuration: bigint;
         lastLockTime: bigint;
-        farmingPausedTime: bigint;
-        farmingLastPaused: bigint;
-        lastCalculatedEarned: bigint;
         lastCarCreationDay: bigint;
         dailyCarCreationCount: bigint;
         totalClaimed: bigint;
         referralEarnings: bigint;
         referralEarningsLevel2: bigint;
-        cachedEffectiveHashPower: bigint;
-        lastEffectiveHashPowerUpdate: bigint;
         lock: ITorqueDriftStructs.LockInfoStructOutput;
         referrer: string;
         referrerLevel2: string;
@@ -966,11 +968,23 @@ export interface TorqueDriftReferral extends BaseContract {
   ): TypedContractMethod<
     [arg0: AddressLike, arg1: BigNumberish],
     [
-      [string, bigint, bigint, bigint, bigint, bigint, bigint] & {
+      [
+        string,
+        bigint,
+        bigint,
+        bigint,
+        bigint,
+        bigint,
+        bigint,
+        bigint,
+        bigint
+      ] & {
         mint: string;
         hashPower: bigint;
         efficiency: bigint;
         lastMaintenance: bigint;
+        lastFarmingTime: bigint;
+        accumulatedReward: bigint;
         rarity: bigint;
         version: bigint;
         slotIndex: bigint;
@@ -1172,11 +1186,6 @@ export interface TorqueDriftReferral extends BaseContract {
         bigint,
         bigint,
         bigint,
-        bigint,
-        bigint,
-        bigint,
-        bigint,
-        bigint,
         ITorqueDriftStructs.LockInfoStructOutput,
         string,
         string,
@@ -1190,16 +1199,11 @@ export interface TorqueDriftReferral extends BaseContract {
         boostStartTime: bigint;
         boostDuration: bigint;
         lastLockTime: bigint;
-        farmingPausedTime: bigint;
-        farmingLastPaused: bigint;
-        lastCalculatedEarned: bigint;
         lastCarCreationDay: bigint;
         dailyCarCreationCount: bigint;
         totalClaimed: bigint;
         referralEarnings: bigint;
         referralEarningsLevel2: bigint;
-        cachedEffectiveHashPower: bigint;
-        lastEffectiveHashPowerUpdate: bigint;
         lock: ITorqueDriftStructs.LockInfoStructOutput;
         referrer: string;
         referrerLevel2: string;

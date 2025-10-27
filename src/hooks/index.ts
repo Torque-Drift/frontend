@@ -6,3 +6,4 @@ export { useEthers } from "./useEthers";
 export { useInitializeGame } from "./useInitializeGame";
 export { useTokenPurchase } from "./useTokenPurchase";
 export { useTokenBalances } from "./useTokenBalances";
+export { usePurchaseStats } from "./usePurchaseStats";

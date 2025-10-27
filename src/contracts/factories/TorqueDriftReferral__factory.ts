@@ -598,6 +598,16 @@ const _abi = [
         type: "uint32",
       },
       {
+        internalType: "uint256",
+        name: "lastFarmingTime",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "accumulatedReward",
+        type: "uint256",
+      },
+      {
         internalType: "uint8",
         name: "rarity",
         type: "uint8",
@@ -1237,21 +1247,6 @@ const _abi = [
       },
       {
         internalType: "uint256",
-        name: "farmingPausedTime",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "farmingLastPaused",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "lastCalculatedEarned",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
         name: "lastCarCreationDay",
         type: "uint256",
       },
@@ -1273,16 +1268,6 @@ const _abi = [
       {
         internalType: "uint256",
         name: "referralEarningsLevel2",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "cachedEffectiveHashPower",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "lastEffectiveHashPowerUpdate",
         type: "uint256",
       },
       {

@@ -57,6 +57,8 @@ export declare namespace ITorqueDriftStructs {
     hashPower: BigNumberish;
     efficiency: BigNumberish;
     lastMaintenance: BigNumberish;
+    lastFarmingTime: BigNumberish;
+    accumulatedReward: BigNumberish;
     rarity: BigNumberish;
     version: BigNumberish;
     slotIndex: BigNumberish;
@@ -67,6 +69,8 @@ export declare namespace ITorqueDriftStructs {
     hashPower: bigint,
     efficiency: bigint,
     lastMaintenance: bigint,
+    lastFarmingTime: bigint,
+    accumulatedReward: bigint,
     rarity: bigint,
     version: bigint,
     slotIndex: bigint
@@ -75,6 +79,8 @@ export declare namespace ITorqueDriftStructs {
     hashPower: bigint;
     efficiency: bigint;
     lastMaintenance: bigint;
+    lastFarmingTime: bigint;
+    accumulatedReward: bigint;
     rarity: bigint;
     version: bigint;
     slotIndex: bigint;
@@ -84,18 +90,26 @@ export declare namespace ITorqueDriftStructs {
 export interface TorqueDriftCarsInterface extends Interface {
   getFunction(
     nameOrSignature:
+      | "MAX_DAILY_MINTS"
+      | "SECONDS_PER_DAY"
       | "UPGRADE_INTERFACE_VERSION"
       | "authorizedContracts"
+      | "canUserMintToday"
       | "carStates"
       | "createGameCar"
+      | "createGameCarBatch"
+      | "dailyMints"
       | "gameContract"
       | "generateRandomHashPower"
       | "getCarState"
       | "getCooldownSeconds"
       | "getUserCarAddresses"
       | "getUserCarCount"
+      | "getUserDailyMintStatus"
       | "getUserInventory"
       | "initialize"
+      | "lastMintDay"
+      | "lastResetDay"
       | "owner"
       | "proxiableUUID"
       | "renounceOwnership"
@@ -111,11 +125,20 @@ export interface TorqueDriftCarsInterface extends Interface {
   getEvent(
     nameOrSignatureOrTopic:
       | "CarCreated"
+      | "CarsCreatedBatch"
       | "Initialized"
       | "OwnershipTransferred"
       | "Upgraded"
   ): EventFragment;
 
+  encodeFunctionData(
+    functionFragment: "MAX_DAILY_MINTS",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "SECONDS_PER_DAY",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "UPGRADE_INTERFACE_VERSION",
     values?: undefined
@@ -125,12 +148,24 @@ export interface TorqueDriftCarsInterface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(
+    functionFragment: "canUserMintToday",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "carStates",
     values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "createGameCar",
     values: [AddressLike, BigNumberish, BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "createGameCarBatch",
+    values: [AddressLike[], BigNumberish[], BigNumberish[]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "dailyMints",
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "gameContract",
@@ -157,12 +192,24 @@ export interface TorqueDriftCarsInterface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(
+    functionFragment: "getUserDailyMintStatus",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "getUserInventory",
     values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "initialize",
     values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "lastMintDay",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "lastResetDay",
+    values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
@@ -203,6 +250,14 @@ export interface TorqueDriftCarsInterface extends Interface {
   ): string;
 
   decodeFunctionResult(
+    functionFragment: "MAX_DAILY_MINTS",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "SECONDS_PER_DAY",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "UPGRADE_INTERFACE_VERSION",
     data: BytesLike
   ): Result;
@@ -210,11 +265,20 @@ export interface TorqueDriftCarsInterface extends Interface {
     functionFragment: "authorizedContracts",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "canUserMintToday",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "carStates", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "createGameCar",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "createGameCarBatch",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "dailyMints", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "gameContract",
     data: BytesLike
@@ -240,10 +304,22 @@ export interface TorqueDriftCarsInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "getUserDailyMintStatus",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "getUserInventory",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "lastMintDay",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "lastResetDay",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "proxiableUUID",
@@ -304,6 +380,31 @@ export namespace CarCreatedEvent {
     version: bigint;
     hashPower: bigint;
     cooldownSeconds: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace CarsCreatedBatchEvent {
+  export type InputTuple = [
+    owners: AddressLike[],
+    carIds: BigNumberish[],
+    carAddresses: AddressLike[],
+    totalCreated: BigNumberish
+  ];
+  export type OutputTuple = [
+    owners: string[],
+    carIds: bigint[],
+    carAddresses: string[],
+    totalCreated: bigint
+  ];
+  export interface OutputObject {
+    owners: string[];
+    carIds: bigint[];
+    carAddresses: string[];
+    totalCreated: bigint;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -391,6 +492,10 @@ export interface TorqueDriftCars extends BaseContract {
     event?: TCEvent
   ): Promise<this>;
 
+  MAX_DAILY_MINTS: TypedContractMethod<[], [bigint], "view">;
+
+  SECONDS_PER_DAY: TypedContractMethod<[], [bigint], "view">;
+
   UPGRADE_INTERFACE_VERSION: TypedContractMethod<[], [string], "view">;
 
   authorizedContracts: TypedContractMethod<
@@ -398,6 +503,8 @@ export interface TorqueDriftCars extends BaseContract {
     [boolean],
     "view"
   >;
+
+  canUserMintToday: TypedContractMethod<[user: AddressLike], [boolean], "view">;
 
   carStates: TypedContractMethod<
     [arg0: AddressLike],
@@ -425,6 +532,14 @@ export interface TorqueDriftCars extends BaseContract {
     [string],
     "nonpayable"
   >;
+
+  createGameCarBatch: TypedContractMethod<
+    [owners: AddressLike[], rarities: BigNumberish[], versions: BigNumberish[]],
+    [string[]],
+    "nonpayable"
+  >;
+
+  dailyMints: TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
 
   gameContract: TypedContractMethod<[], [string], "view">;
 
@@ -454,6 +569,12 @@ export interface TorqueDriftCars extends BaseContract {
 
   getUserCarCount: TypedContractMethod<[user: AddressLike], [bigint], "view">;
 
+  getUserDailyMintStatus: TypedContractMethod<
+    [user: AddressLike],
+    [[bigint, bigint] & { currentMints: bigint; remainingMints: bigint }],
+    "view"
+  >;
+
   getUserInventory: TypedContractMethod<
     [user: AddressLike],
     [
@@ -477,6 +598,10 @@ export interface TorqueDriftCars extends BaseContract {
     [void],
     "nonpayable"
   >;
+
+  lastMintDay: TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
+
+  lastResetDay: TypedContractMethod<[], [bigint], "view">;
 
   owner: TypedContractMethod<[], [string], "view">;
 
@@ -531,11 +656,20 @@ export interface TorqueDriftCars extends BaseContract {
   ): T;
 
   getFunction(
+    nameOrSignature: "MAX_DAILY_MINTS"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "SECONDS_PER_DAY"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
     nameOrSignature: "UPGRADE_INTERFACE_VERSION"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "authorizedContracts"
   ): TypedContractMethod<[arg0: AddressLike], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "canUserMintToday"
+  ): TypedContractMethod<[user: AddressLike], [boolean], "view">;
   getFunction(
     nameOrSignature: "carStates"
   ): TypedContractMethod<
@@ -565,6 +699,16 @@ export interface TorqueDriftCars extends BaseContract {
     [string],
     "nonpayable"
   >;
+  getFunction(
+    nameOrSignature: "createGameCarBatch"
+  ): TypedContractMethod<
+    [owners: AddressLike[], rarities: BigNumberish[], versions: BigNumberish[]],
+    [string[]],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "dailyMints"
+  ): TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
   getFunction(
     nameOrSignature: "gameContract"
   ): TypedContractMethod<[], [string], "view">;
@@ -596,6 +740,13 @@ export interface TorqueDriftCars extends BaseContract {
     nameOrSignature: "getUserCarCount"
   ): TypedContractMethod<[user: AddressLike], [bigint], "view">;
   getFunction(
+    nameOrSignature: "getUserDailyMintStatus"
+  ): TypedContractMethod<
+    [user: AddressLike],
+    [[bigint, bigint] & { currentMints: bigint; remainingMints: bigint }],
+    "view"
+  >;
+  getFunction(
     nameOrSignature: "getUserInventory"
   ): TypedContractMethod<
     [user: AddressLike],
@@ -617,6 +768,12 @@ export interface TorqueDriftCars extends BaseContract {
   getFunction(
     nameOrSignature: "initialize"
   ): TypedContractMethod<[initialOwner: AddressLike], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "lastMintDay"
+  ): TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "lastResetDay"
+  ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "owner"
   ): TypedContractMethod<[], [string], "view">;
@@ -676,6 +833,13 @@ export interface TorqueDriftCars extends BaseContract {
     CarCreatedEvent.OutputObject
   >;
   getEvent(
+    key: "CarsCreatedBatch"
+  ): TypedContractEvent<
+    CarsCreatedBatchEvent.InputTuple,
+    CarsCreatedBatchEvent.OutputTuple,
+    CarsCreatedBatchEvent.OutputObject
+  >;
+  getEvent(
     key: "Initialized"
   ): TypedContractEvent<
     InitializedEvent.InputTuple,
@@ -707,6 +871,17 @@ export interface TorqueDriftCars extends BaseContract {
       CarCreatedEvent.InputTuple,
       CarCreatedEvent.OutputTuple,
       CarCreatedEvent.OutputObject
+    >;
+
+    "CarsCreatedBatch(address[],uint256[],address[],uint256)": TypedContractEvent<
+      CarsCreatedBatchEvent.InputTuple,
+      CarsCreatedBatchEvent.OutputTuple,
+      CarsCreatedBatchEvent.OutputObject
+    >;
+    CarsCreatedBatch: TypedContractEvent<
+      CarsCreatedBatchEvent.InputTuple,
+      CarsCreatedBatchEvent.OutputTuple,
+      CarsCreatedBatchEvent.OutputObject
     >;
 
     "Initialized(uint64)": TypedContractEvent<

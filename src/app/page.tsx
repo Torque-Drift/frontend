@@ -82,7 +82,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 my-16 sm:my-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 my-16 sm:my-20">
         <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#EEEEF0] text-center">
           Featured Amazing Cars
         </h1>
@@ -163,7 +163,7 @@ export default function Home() {
             Join the garage!
           </Button>
         </div>
-      </div> */}
+      </div>
 
       <Street />
 

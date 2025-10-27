@@ -22,11 +22,9 @@ import { useInitializeGame } from "@/hooks/useInitializeGame";
 import { useTokenBalances } from "@/hooks/useTokenBalances";
 import { Button } from "@/components/Button";
 import { useEthers } from "@/hooks/useEthers";
-import { ethers } from "ethers";
 import { CONTRACT_ADDRESSES } from "@/constants";
 import { TorqueDriftReferral__factory } from "@/contracts";
 import type { CarInventoryData } from "@/types/cars";
-import { notFound } from "next/navigation";
 
 interface MiningStats {
   totalHp: number;
@@ -37,7 +35,6 @@ interface MiningStats {
 }
 
 export default function GaragePage() {
-  return notFound();
   const [referrerInput, setReferrerInput] = useState("");
 
   const { provider } = useEthers();
@@ -47,7 +44,6 @@ export default function GaragePage() {
 
   const { todBalance } = useTokenBalances();
 
-  // Query to check referral discount
   const {
     data: referralCheck,
     isLoading: checkingReferral,
@@ -205,7 +201,7 @@ export default function GaragePage() {
                   referrerPubkey: referrerInput.trim() || undefined,
                 });
               }}
-              disabled={isInitializing || checkingReferral}
+              disabled={true/* isInitializing || checkingReferral */}
             >
               {isInitializing
                 ? "Initializing..."

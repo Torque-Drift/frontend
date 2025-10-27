@@ -59,7 +59,7 @@ export const MiningStats: React.FC<MiningStatsProps> = ({ referrerCode }) => {
             Daily Reward
           </p>
           <p className="text-lg font-bold text-blue-400">
-            {(Number(previewData?.hourlyReward ?? 0) * 24).toFixed(2)}/DAY
+            {(Number(previewData?.hourlyReward ?? 0) * 24).toFixed(2)}/day
           </p>
         </div>
         <div className="bg-[#121113]/50 rounded-md p-3 text-center">
@@ -67,7 +67,7 @@ export const MiningStats: React.FC<MiningStatsProps> = ({ referrerCode }) => {
             Boost
           </p>
           <p className="text-lg font-bold text-green-400">
-            +{previewData?.totalBoost.toFixed(2) ?? 0}%
+            +{previewData?.totalBoost.toFixed(0) ?? 0}%
           </p>
         </div>
 

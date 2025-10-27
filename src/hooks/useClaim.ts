@@ -32,22 +32,25 @@ export const usePreviewClaim = () => {
 
       try {
         const preview = await gameContract.previewClaim(address);
-        const globalState = await gameContract.globalState();
-        console.log(preview)
+        const timeUntilNextClaim = await gameContract.getTimeUntilNextClaim(
+          address
+        );
         const claimableAmount = Number(ethers.formatUnits(preview[0], 9));
-        const baseReward = Number(preview.baseReward) / 1e9;
-        const lockBoost = Number(preview.lockBoost) / 1e9;
-        const referralBoost = Number(preview.referralBoost) / 1e9;
-        const userState = await gameContract.getUserState(address);
+        const baseReward = Number(ethers.formatUnits(preview[1], 9));
+        const lockBoost = Number(ethers.formatUnits(preview.lockBoost, 9));
+        const referralBoost = Number(
+          ethers.formatUnits(preview.referralBoost, 9)
+        );
+        const userState = await gameContract.getUserInfo();
         const referralInfo = await referralContract.getReferralInfo(address);
         const hashPower = Number(userState.totalHashPower) || 0;
         const lastClaim = Number(userState.lastClaim) || 0;
-        const totalClaimed = Number(userState.totalClaimed) / 1e9 || 0;
-        const baseRate = Number(globalState.baseRate) / 1e9;
+        const totalClaimed = 0;
         const now = Math.floor(Date.now() / 1000);
         const timeSinceLastClaim = now - lastClaim;
         const optimalClaimTime = 4 * 3600;
-        const hasPenalty = timeSinceLastClaim < optimalClaimTime;
+        const claimPenalties = await gameContract.checkClaimPenalties(address);
+        const hasPenalty = claimPenalties.needsPenalty;
 
         let penaltyDescription = "";
         if (hasPenalty) {
@@ -62,38 +65,25 @@ export const usePreviewClaim = () => {
         const referralBoostPercent =
           baseReward > 0 ? (referralBoost / baseReward) * 100 : 0;
         const totalBoostPercent = lockBoostPercent + referralBoostPercent;
-        const hourlyReward = Number(preview.hourlyReward) / 1e9;
+        const hourlyReward = Number(ethers.formatUnits(preview[4], 9));
         const referralCount = Number(referralInfo.referralCount_) || 0;
         const referralEarnings =
-          Number(referralInfo.referralEarnings_) / 1e9 || 0;
+          Number(ethers.formatUnits(referralInfo.referralEarnings_, 9)) || 0;
 
-        // Calcular penalidades baseado no tempo que FALTA até poder claim sem penalidade
-        const hoursSinceLastClaim = timeSinceLastClaim / 3600;
-        const hoursUntilNoPenalty = Math.max(0, 4 - hoursSinceLastClaim);
-        let penaltyBnb = 0;
-        let penaltyBurnPercent = 0;
-        const canClaimWithoutPenalty = hoursSinceLastClaim >= 4; // 4 horas mínimo
+        const formatTime = (seconds: number) => {
+          if (seconds === 0) return "Ready to claim!";
+          const hours = Math.floor(seconds / 3600);
+          const minutes = Math.floor((seconds % 3600) / 60);
+          return `${hours}h ${minutes}m until free claim`;
+        };
+        const timeUntilNextClaimFormatted = formatTime(
+          Number(timeUntilNextClaim)
+        );
 
-        if (!canClaimWithoutPenalty) {
-          // Penalidades baseadas no tempo que FALTA para completar o cooldown de 4h
-          if (hoursUntilNoPenalty > 3) {
-            // Faltam mais de 3 horas (se passaram menos de 1 hora) - PENALTY_4H
-            penaltyBnb = 0.05; // 0.05 BNB
-            penaltyBurnPercent = 10; // 10% burn
-          } else if (hoursUntilNoPenalty > 2) {
-            // Faltam 2-3 horas (se passaram 1-2 horas) - PENALTY_3H
-            penaltyBnb = 0.04; // 0.04 BNB
-            penaltyBurnPercent = 7.5; // 7.5% burn
-          } else if (hoursUntilNoPenalty > 1) {
-            // Faltam 1-2 horas (se passaram 2-3 horas) - PENALTY_2H
-            penaltyBnb = 0.025; // 0.025 BNB
-            penaltyBurnPercent = 5; // 5% burn
-          } else {
-            // Faltam 0-1 hora (se passaram 3-4 horas) - PENALTY_1H
-            penaltyBnb = 0.01; // 0.01 BNB
-            penaltyBurnPercent = 2.5; // 2.5% burn
-          }
-        }
+        const penaltyBnb = Number(claimPenalties.bnbRequired) / 1e18;
+        const penaltyBurnPercent = Number(claimPenalties.burnPercent) / 100;
+        const canClaimWithoutPenalty =
+          timeUntilNextClaimFormatted === "Ready to claim!";
 
         return {
           claimableAmount,
@@ -101,7 +91,6 @@ export const usePreviewClaim = () => {
           lastClaim,
           hasPenalty,
           penaltyDescription,
-          baseRate,
           hourlyReward: hourlyReward.toFixed(4),
           lockBoost: lockBoostPercent,
           referralBoost: referralBoostPercent,
@@ -114,7 +103,8 @@ export const usePreviewClaim = () => {
           canClaimWithoutPenalty,
           penaltyBnb,
           penaltyBurnPercent,
-          hoursUntilNoPenalty,
+          hoursUntilNoPenalty: Number(timeUntilNextClaim),
+          timeUntilNextClaimFormatted,
         };
       } catch (error) {
         console.error("Error fetching claim preview:", error);
@@ -157,18 +147,22 @@ export const useClaim = () => {
   const [isClaiming, setIsClaiming] = useState(false);
 
   const claimMutation = useMutation({
-    mutationFn: async (penaltyBnb: number) => {
+    mutationFn: async () => {
       if (!signer || !isConnected || !address) {
         throw new Error("Wallet not connected or signer not available");
       }
-
-      const penaltyAmount = ethers.parseEther(penaltyBnb.toString());
       const gameContract = TorqueDriftGame__factory.connect(
         CONTRACT_ADDRESSES.TorqueDriftGame,
         signer
       );
 
-      const tx = await gameContract.claimTokens({ value: penaltyAmount });
+      const hasPenalty = await gameContract.checkClaimPenalties(address);
+      let tx = null;
+      if (hasPenalty.needsPenalty) {
+        tx = await gameContract.claimTokens({ value: hasPenalty.bnbRequired });
+      } else {
+        tx = await gameContract.claimTokens();
+      }
       await tx.wait();
 
       return { success: true };
@@ -219,7 +213,7 @@ export const useClaim = () => {
 
 // Interface for preview claim data
 export interface PreviewClaimData {
-  claimableAmount: number; // Já convertido para tokens (não wei!)
+  claimableAmount: number;
   hashPower: number;
   lastClaim: number;
   hasPenalty: boolean;
@@ -231,7 +225,6 @@ export interface PreviewClaimData {
   totalClaimed: number;
   referralCount: number;
   referralEarnings: number;
-  baseRate: number;
   equipCountToday: number;
   gambleCountToday: number;
   // Novos campos de penalidade
@@ -239,6 +232,7 @@ export interface PreviewClaimData {
   penaltyBnb: number;
   penaltyBurnPercent: number;
   hoursUntilNoPenalty: number;
+  timeUntilNextClaimFormatted: string;
 }
 
 // Helper function for formatting token amounts

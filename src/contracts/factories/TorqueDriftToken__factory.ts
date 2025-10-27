@@ -636,6 +636,34 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "getPurchaseStats",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "_totalTokensPurchased",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "_totalBnbReceived",
+        type: "uint256",
+      },
+      {
+        internalType: "bool",
+        name: "_purchaseEnabled",
+        type: "bool",
+      },
+      {
+        internalType: "uint256",
+        name: "_currentPrice",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "address",
@@ -861,7 +889,33 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "totalBnbReceived",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "totalSupply",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "totalTokensPurchased",
     outputs: [
       {
         internalType: "uint256",

@@ -37,6 +37,7 @@ export interface TorqueDriftTokenInterface extends Interface {
       | "calculateBnbForTokens"
       | "calculateTokensForBnb"
       | "decimals"
+      | "getPurchaseStats"
       | "initialize"
       | "mint"
       | "mintAuthority"
@@ -54,7 +55,9 @@ export interface TorqueDriftTokenInterface extends Interface {
       | "toggleTransfer"
       | "tokenPriceInBnb"
       | "tokenPurchaseEnabled"
+      | "totalBnbReceived"
       | "totalSupply"
+      | "totalTokensPurchased"
       | "transfer"
       | "transferEnabled"
       | "transferFrom"
@@ -115,6 +118,10 @@ export interface TorqueDriftTokenInterface extends Interface {
   ): string;
   encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
   encodeFunctionData(
+    functionFragment: "getPurchaseStats",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "initialize",
     values: [AddressLike, AddressLike, AddressLike]
   ): string;
@@ -168,7 +175,15 @@ export interface TorqueDriftTokenInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "totalBnbReceived",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "totalSupply",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "totalTokensPurchased",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -225,6 +240,10 @@ export interface TorqueDriftTokenInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getPurchaseStats",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
   decodeFunctionResult(
@@ -273,7 +292,15 @@ export interface TorqueDriftTokenInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "totalBnbReceived",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "totalSupply",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "totalTokensPurchased",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "transfer", data: BytesLike): Result;
@@ -524,6 +551,19 @@ export interface TorqueDriftToken extends BaseContract {
 
   decimals: TypedContractMethod<[], [bigint], "view">;
 
+  getPurchaseStats: TypedContractMethod<
+    [],
+    [
+      [bigint, bigint, boolean, bigint] & {
+        _totalTokensPurchased: bigint;
+        _totalBnbReceived: bigint;
+        _purchaseEnabled: boolean;
+        _currentPrice: bigint;
+      }
+    ],
+    "view"
+  >;
+
   initialize: TypedContractMethod<
     [
       initialOwner: AddressLike,
@@ -586,7 +626,11 @@ export interface TorqueDriftToken extends BaseContract {
 
   tokenPurchaseEnabled: TypedContractMethod<[], [boolean], "view">;
 
+  totalBnbReceived: TypedContractMethod<[], [bigint], "view">;
+
   totalSupply: TypedContractMethod<[], [bigint], "view">;
+
+  totalTokensPurchased: TypedContractMethod<[], [bigint], "view">;
 
   transfer: TypedContractMethod<
     [to: AddressLike, value: BigNumberish],
@@ -680,6 +724,20 @@ export interface TorqueDriftToken extends BaseContract {
     nameOrSignature: "decimals"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
+    nameOrSignature: "getPurchaseStats"
+  ): TypedContractMethod<
+    [],
+    [
+      [bigint, bigint, boolean, bigint] & {
+        _totalTokensPurchased: bigint;
+        _totalBnbReceived: bigint;
+        _purchaseEnabled: boolean;
+        _currentPrice: bigint;
+      }
+    ],
+    "view"
+  >;
+  getFunction(
     nameOrSignature: "initialize"
   ): TypedContractMethod<
     [
@@ -743,7 +801,13 @@ export interface TorqueDriftToken extends BaseContract {
     nameOrSignature: "tokenPurchaseEnabled"
   ): TypedContractMethod<[], [boolean], "view">;
   getFunction(
+    nameOrSignature: "totalBnbReceived"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
     nameOrSignature: "totalSupply"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "totalTokensPurchased"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "transfer"

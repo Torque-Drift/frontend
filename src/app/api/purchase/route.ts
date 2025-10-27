@@ -3,6 +3,7 @@ import { ethers } from "ethers";
 import { CAR_CATALOG, CONTRACT_ADDRESSES } from "@/constants";
 import {
   TorqueDriftAdmin__factory,
+  TorqueDriftCars__factory,
   TorqueDriftGame__factory,
 } from "@/contracts/factories";
 
@@ -29,6 +30,29 @@ interface NFTItem {
   probability: number;
   hashRange: [number, number];
   dailyYield: number;
+}
+
+// Fisher-Yates shuffle with seed for deterministic results
+function shuffleArray<T>(array: T[], seed: number): T[] {
+  const shuffled = [...array];
+  let currentIndex = shuffled.length;
+
+  // Simple seeded random number generator
+  let randomSeed = seed;
+  const random = () => {
+    randomSeed = (randomSeed * 9301 + 49297) % 233280;
+    return randomSeed / 233280;
+  };
+
+  while (currentIndex !== 0) {
+    const randomIndex = Math.floor(random() * currentIndex);
+    currentIndex--;
+
+    [shuffled[currentIndex], shuffled[randomIndex]] = [
+      shuffled[randomIndex], shuffled[currentIndex]];
+  }
+
+  return shuffled;
 }
 
 // Helper function to create NFTItem from catalog item
@@ -286,7 +310,9 @@ async function validateBurnTransaction(
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { userWallet, burnTxSignature } = body;
+    const { userWallet, burnTxSignature, lootboxAmount = 1 } = body;
+
+    console.log(`📦 API received: userWallet=${userWallet}, lootboxAmount=${lootboxAmount}`);
 
     if (!userWallet || !burnTxSignature) {
       return NextResponse.json(
@@ -297,7 +323,29 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const expectedBurnAmount = "300";
+    // Validate lootboxAmount
+    if (lootboxAmount < 1 || lootboxAmount > 10) {
+      return NextResponse.json(
+        {
+          error: "Invalid lootbox amount. Must be between 1 and 10.",
+        },
+        { status: 400 }
+      );
+    }
+
+    // Calculate expected burn amount based on lootbox amount with discounts
+    const baseCost = 300;
+    let totalCost = baseCost * lootboxAmount;
+
+    // Apply discounts
+    if (lootboxAmount === 5) {
+      totalCost = Math.floor(totalCost * 0.95); // 5% discount
+    } else if (lootboxAmount === 10) {
+      totalCost = Math.floor(totalCost * 0.9); // 10% discount
+    }
+
+    const expectedBurnAmount = totalCost.toString();
+
     if (!/^0x[a-fA-F0-9]{64}$/.test(burnTxSignature)) {
       return NextResponse.json(
         { error: "Invalid transaction hash format" },
@@ -323,37 +371,58 @@ export async function POST(request: NextRequest) {
     }
 
     console.log(
-      `Transaction validated successfully. Burn amount: ${validation.burnAmount}`
+      `Transaction validated successfully. Burn amount: ${validation.burnAmount}, Expected: ${expectedBurnAmount}, Lootboxes: ${lootboxAmount}`
     );
 
-    // Use provably fair system to determine the reward
-    const rewardItem = getProvablyFairItem(burnTxSignature);
+    // Generate multiple rewards using provably fair system
+    const rewardItems: any[] = [];
+    const carsToMint: NFTItem[] = [];
 
-    const rarity =
-      typeof rewardItem.rarity === "string"
-        ? rewardItem.rarity === "Common"
-          ? 0
-          : rewardItem.rarity === "Rare"
-          ? 1
-          : rewardItem.rarity === "Epic"
-          ? 2
-          : 3
-        : rewardItem.rarity;
-    const version =
-      typeof rewardItem.version === "string"
-        ? rewardItem.version === "Vintage"
-          ? 0
-          : 1
-        : rewardItem.version;
+    console.log(`🎲 Starting to generate ${lootboxAmount} rewards...`);
 
-    await mintCar(userWallet, rewardItem, provider);
+    for (let i = 0; i < lootboxAmount; i++) {
+      // Generate unique hash for each lootbox by modifying the original transaction hash
+      // Add the lootbox index to ensure each lootbox gets a different but deterministic result
+      const baseHash = burnTxSignature.slice(2);
+      const baseValue = parseInt(baseHash.slice(-8), 16);
 
-    const catalogData = CAR_CATALOG.find(
-      (car) => car.rarity === rarity && car.version === version
-    )!;
+      // Modify the hash by adding the lootbox index to get different results
+      const modifiedValue = (baseValue + i * 12345) >>> 0; // Use unsigned right shift
+      const modifiedHash = baseHash.slice(0, -8) + modifiedValue.toString(16).padStart(8, '0');
+      const uniqueHash = '0x' + modifiedHash;
 
-    return NextResponse.json({
-      rewardItem: {
+      console.log(`🎯 Lootbox ${i + 1}/${lootboxAmount} - Modified hash: ${uniqueHash}`);
+
+      // Use provably fair system to get the reward
+      const rewardItem = getProvablyFairItem(uniqueHash);
+
+      console.log(`✅ Generated: ${rewardItem.rarity} ${rewardItem.version} - ${rewardItem.name}`);
+
+      const rarity =
+        typeof rewardItem.rarity === "string"
+          ? rewardItem.rarity === "Common"
+            ? 0
+            : rewardItem.rarity === "Rare"
+            ? 1
+            : rewardItem.rarity === "Epic"
+            ? 2
+            : 3
+          : rewardItem.rarity;
+      const version =
+        typeof rewardItem.version === "string"
+          ? rewardItem.version === "Vintage"
+            ? 0
+            : 1
+          : rewardItem.version;
+
+      // Collect all cars to mint in batch
+      carsToMint.push(rewardItem);
+
+      const catalogData = CAR_CATALOG.find(
+        (car) => car.rarity === rarity && car.version === version
+      )!;
+
+      rewardItems.push({
         id: rewardItem.id,
         name: catalogData.name,
         symbol: rewardItem.symbol,
@@ -363,12 +432,25 @@ export async function POST(request: NextRequest) {
         image: catalogData.image,
         description: catalogData.description,
         dailyYield: catalogData.dailyYield,
-        hashValue: parseInt(burnTxSignature.slice(-8), 16) % 100,
-      },
+        hashValue: 0, // Not relevant for guaranteed diversity
+        lootboxIndex: i + 1,
+      });
+    }
+
+    console.log(`🎉 Generated ${rewardItems.length} reward items and ${carsToMint.length} cars to mint`);
+
+    // Mint all cars in batch
+    const batchTxHash = await mintCarBatch(userWallet, carsToMint, provider);
+
+    return NextResponse.json({
+      rewardItems,
+      lootboxAmount,
+      totalBurnAmount: validation.burnAmount,
+      expectedBurnAmount,
+      discountApplied: lootboxAmount === 5 ? 5 : lootboxAmount === 10 ? 10 : 0,
+      batchTxHash,
       // Include validation details
       transactionValidated: true,
-      burnAmount: validation.burnAmount,
-      expectedBurnAmount,
     });
   } catch (error) {
     console.error("Error in lootbox draw:", error);
@@ -379,36 +461,47 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function mintCar(
+async function mintCarBatch(
   userWallet: string,
-  car: NFTItem,
+  cars: NFTItem[],
   provider: ethers.JsonRpcProvider
 ): Promise<string> {
   try {
     const wallet = new ethers.Wallet(process.env.ADMIN_PRIVATE_KEY || "");
     const signer = wallet.connect(provider);
-    const carContract = await TorqueDriftAdmin__factory.connect(
-      CONTRACT_ADDRESSES.TorqueDriftAdmin,
+    const carsContract = await TorqueDriftCars__factory.connect(
+      CONTRACT_ADDRESSES.TorqueDriftCars,
       signer
     );
-    const rarity =
+
+    // Prepare arrays for batch mint
+    const owners = cars.map(() => userWallet); // Same owner for all cars
+    const rarities = cars.map((car) =>
       car.rarity === "Common"
         ? 0
         : car.rarity === "Rare"
         ? 1
         : car.rarity === "Epic"
         ? 2
-        : 3;
-    const version = car.version === "Vintage" ? 0 : 1;
-    const tx = await carContract.createAdditionalCar(
-      userWallet,
-      rarity,
-      version
+        : 3
     );
-    await tx.wait();
+    const versions = cars.map((car) => (car.version === "Vintage" ? 0 : 1));
+
+    // Execute mint in batch
+    const tx = await carsContract.createGameCarBatch(
+      owners,
+      rarities,
+      versions
+    );
+
+    console.log("Transação enviada:", tx.hash);
+
+    const receipt = await tx.wait();
+    console.log("Carros criados no bloco:", receipt?.blockNumber);
+
     return tx.hash;
   } catch (error) {
-    console.error("Error minting car:", error);
+    console.error("Error minting car batch:", error);
     throw error;
   }
 }

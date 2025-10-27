@@ -11,23 +11,47 @@ import { Button } from "@/components/Button";
 import { Loader } from "@/components/Loader";
 import { Street } from "@/components/Street";
 import toast from "react-hot-toast";
-import { useTokenBalances } from "@/hooks";
+import { useTokenBalances, usePurchaseStats } from "@/hooks";
 import { RewardModal } from "@/components/garage/RewardModal";
+import { Countdown } from "@/components/Countdown";
 import { TorqueDriftToken__factory } from "@/contracts";
-import notFound from "../not-found";
+import { ethers } from "ethers";
 
 export default function StorePage() {
-  return notFound();
   const { signer, isConnected } = useEthers();
   const { mutateAsync: openLootbox, isLoading: isOpeningLootbox } = useBurn();
   const { formattedTodBalance: tokenBalance, refetchAll } = useTokenBalances();
   const { mutateAsync: purchaseTokens, isLoading: isPurchasingTokens } =
     useTokenPurchase();
+  const {
+    data: purchaseStats,
+    isLoading: isLoadingStats,
+    error: statsError,
+  } = usePurchaseStats();
 
   const [tokenAmount, setTokenAmount] = useState(300);
   const [bnbAmount, setBnbAmount] = useState<string>("0.000000");
   const [showRewardModal, setShowRewardModal] = useState(false);
   const [rewardItem, setRewardItem] = useState(null);
+  const [selectedLootboxAmount, setSelectedLootboxAmount] = useState(1);
+
+  const launchDate = new Date();
+  launchDate.setUTCFullYear(2025, 9, 28);
+  launchDate.setUTCHours(15, 0, 0, 0);
+
+  // Calculate lootbox costs with discounts
+  const getLootboxCost = (amount: number) => {
+    const baseCost = 300;
+    const totalBase = baseCost * amount;
+
+    if (amount === 5) return Math.floor(totalBase * 0.95); // 5% discount
+    if (amount === 10) return Math.floor(totalBase * 0.9); // 10% discount
+    return totalBase;
+  };
+
+  const currentLootboxCost = getLootboxCost(selectedLootboxAmount);
+  const discountPercentage =
+    selectedLootboxAmount === 5 ? 5 : selectedLootboxAmount === 10 ? 10 : 0;
 
   const handleBuyTokens = async () => {
     if (!signer || !isConnected) {
@@ -35,13 +59,14 @@ export default function StorePage() {
       return;
     }
 
-    if (tokenAmount < 1) {
+    const finalTokenAmount = tokenAmount === 0 ? 1 : tokenAmount;
+    if (finalTokenAmount < 1) {
       toast.error("Minimum purchase is 1 token");
       return;
     }
 
     try {
-      const result = await purchaseTokens({ tokenAmount });
+      const result = await purchaseTokens({ tokenAmount: finalTokenAmount });
       console.log("Purchase result:", result);
       refetchAll();
     } catch (error) {
@@ -52,17 +77,19 @@ export default function StorePage() {
 
   // Update BNB amount when token amount changes
   const updateBnbAmount = async (tokens: number) => {
-    if (!signer || tokens < 1) {
+    if (tokens <= 0) {
       setBnbAmount("0.000000");
       return;
     }
 
     try {
+      const provider = new ethers.JsonRpcProvider(
+        process.env.NEXT_PUBLIC_RPC_URL
+      );
       const tokenContract = TorqueDriftToken__factory.connect(
         CONTRACT_ADDRESSES.TorqueDriftToken,
-        signer
+        provider
       );
-      // Convert token amount to contract format (9 decimals)
       const tokenAmountWei = BigInt(tokens) * BigInt(10 ** 9);
       const requiredBnb = await tokenContract.calculateBnbForTokens(
         tokenAmountWei
@@ -74,10 +101,9 @@ export default function StorePage() {
     }
   };
 
-  // Update BNB amount when token amount changes
   useEffect(() => {
     updateBnbAmount(tokenAmount);
-  }, [tokenAmount, signer]);
+  }, [tokenAmount, signer, updateBnbAmount]);
 
   const handleOpenLootbox = async () => {
     if (!signer || !isConnected) {
@@ -85,19 +111,36 @@ export default function StorePage() {
       return;
     }
 
-    if (Number(tokenBalance) < 300) {
+    if (Number(tokenBalance) < currentLootboxCost) {
       toast.error(
-        `Insufficient tokens. You have ${tokenBalance} tokens, need 300.`
+        `Insufficient tokens. You have ${tokenBalance} tokens, need ${currentLootboxCost}.`
       );
       return;
     }
 
+    console.log(
+      `🎲 Frontend calling openLootbox with amount: ${selectedLootboxAmount}`
+    );
+
     try {
-      const result = await openLootbox();
-      if (result?.rewardItem) {
-        setRewardItem(result.rewardItem);
+      const result = await openLootbox(selectedLootboxAmount);
+
+      console.log(`🎉 Frontend received result:`, result);
+      console.log(`📊 Reward items count: ${result?.rewardItems?.length || 0}`);
+
+      if (result?.rewardItems && result.rewardItems.length > 0) {
+        // Show modal with all reward items
+        console.log(`🎁 Setting reward items:`, result.rewardItems);
+        setRewardItem(result.rewardItems);
         setShowRewardModal(true);
       }
+
+      toast.success(
+        `Successfully opened ${selectedLootboxAmount} lootbox${
+          selectedLootboxAmount > 1 ? "es" : ""
+        }!`
+      );
+
       // Refresh balance after opening lootbox
       refetchAll();
     } catch (error) {
@@ -107,7 +150,7 @@ export default function StorePage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-[url('/images/hero_bg.png')] bg-contain bg-no-repeat">
+    <div className="flex flex-col min-h-screen bg-[url('/images/hero_bg.png')] bg-cover bg-no-repeat">
       {/* Header */}
       <div className="flex items-center justify-between relative max-w-7xl mx-auto px-4 sm:px-0 w-full pt-24 pb-8">
         <div className="flex flex-col items-start justify-center max-w-2xl w-full">
@@ -115,7 +158,7 @@ export default function StorePage() {
             Torque Drift Store
           </h1>
           <p className="text-[#B5B2BC] text-[20px] mt-4">
-            Buy $TOD tokens and open lootboxes to collect rare NFT cars for your
+            Buy $TOD and open lootboxes to collect rare NFT cars for your
             garage!
           </p>
         </div>
@@ -131,66 +174,191 @@ export default function StorePage() {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-0 w-full space-y-8 pb-20">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8, delay: 0.3 }}
+          className="w-full mb-12"
+        >
+          <Countdown targetDate={launchDate} />
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-[#1A191B]/80 backdrop-blur-sm rounded-lg p-4 hidden"
+        >
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-1 h-4 bg-[#00D4FF] rounded-full"></div>
+            <h2 className="text-lg font-bold text-[#EEEEF0]">
+              Purchase Statistics
+            </h2>
+          </div>
+
+          {isLoadingStats ? (
+            <div className="flex justify-center items-center py-4">
+              <Loader height={24} width={24} className="text-[#00D4FF]" />
+              <span className="ml-2 text-[#B5B2BC] text-xs">Loading...</span>
+            </div>
+          ) : statsError ? (
+            <div className="text-center py-4">
+              <p className="text-[#F59E0B] text-xs">
+                Unable to load statistics
+              </p>
+            </div>
+          ) : purchaseStats ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              {/* Total Tokens Sold */}
+              <div className="bg-[#121113] rounded-md p-3">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[#B5B2BC] text-xs">Tokens Sold</span>
+                  <div className="w-1.5 h-1.5 bg-[#00D4FF] rounded-full"></div>
+                </div>
+                <div className="text-sm font-bold text-[#EEEEF0] mb-1">
+                  {parseFloat(purchaseStats.totalTokensVendidos).toLocaleString(
+                    "en-US",
+                    {
+                      maximumFractionDigits: 0,
+                    }
+                  )}
+                </div>
+                <div className="text-[#B5B2BC] text-xs mb-1.5">
+                  of 125,000 $TOD
+                </div>
+                <div className="w-full bg-[#49474E]/30 rounded-full h-1.5">
+                  <div
+                    className="bg-[#00D4FF] h-1.5 rounded-full transition-all duration-500"
+                    style={{
+                      width: `${Math.min(
+                        (parseFloat(purchaseStats.totalTokensVendidos) /
+                          125000) *
+                          100,
+                        100
+                      )}%`,
+                    }}
+                  ></div>
+                </div>
+              </div>
+
+              {/* Total BNB Received */}
+              <div className="bg-[#121113] flex flex-col justify-between rounded-md p-3">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[#B5B2BC] text-xs">BNB Received</span>
+                  <div className="w-1.5 h-1.5 bg-[#F59E0B] rounded-full"></div>
+                </div>
+                <div className="text-lg font-bold text-[#EEEEF0]">
+                  {parseFloat(purchaseStats.totalBnbRecebido).toFixed(4)} BNB
+                </div>
+              </div>
+
+              {/* Current Price */}
+              <div className="bg-[#121113] flex flex-col justify-between rounded-md p-3">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[#B5B2BC] text-xs">Price</span>
+                  <div
+                    className={`w-1.5 h-1.5 rounded-full ${
+                      purchaseStats.compraHabilitada
+                        ? "bg-green-500"
+                        : "bg-red-500"
+                    }`}
+                  ></div>
+                </div>
+                <div>
+                  <div className="text-sm font-bold text-[#EEEEF0] mb-1">
+                    {parseFloat(purchaseStats.precoAtual).toFixed(8)}
+                  </div>
+                  <div className="text-[#B5B2BC] text-xs">BNB/$TOD</div>
+                </div>
+              </div>
+            </div>
+          ) : null}
+        </motion.div>
+
         {/* Token Purchase Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-[#1A191B]/80 backdrop-blur-sm rounded-lg p-8 border border-[#49474E]/50"
+          className="bg-[#1A191B]/80 backdrop-blur-sm rounded-lg p-4 hidden"
         >
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-1 h-6 bg-[#00D4FF] rounded-full"></div>
-            <h2 className="text-2xl font-bold text-[#EEEEF0]">Buy Tokens</h2>
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-1 h-4 bg-[#00D4FF] rounded-full"></div>
+            <h2 className="text-lg font-bold text-[#EEEEF0]">Buy Tokens</h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
-              <p className="text-[#B5B2BC] mb-4">
+              <p className="text-[#B5B2BC] text-sm mb-3">
                 Purchase $TOD tokens to open lootboxes and collect rare NFT
-                cars. Each token costs $1 USD and requires BNB payment.
+                cars. Each token costs $0.08 USD and requires BNB payment.
               </p>
 
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <div>
                   <label className="block text-sm font-medium text-[#EEEEF0] mb-2">
                     Number of Tokens
                   </label>
                   <input
                     type="number"
-                    value={tokenAmount}
-                    onChange={(e) =>
-                      setTokenAmount(Math.max(1, parseInt(e.target.value) || 1))
-                    }
+                    value={tokenAmount === 0 ? "" : tokenAmount}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (value === "") {
+                        setTokenAmount(0);
+                      } else {
+                        const numValue = parseInt(value) || 0;
+                        setTokenAmount(Math.max(0, numValue));
+                      }
+                    }}
+                    onBlur={() => {
+                      if (tokenAmount === 0) {
+                        setTokenAmount(1);
+                      }
+                    }}
                     min="1"
                     className="w-full bg-[#121113] border border-[#49474E] rounded-md px-4 py-3 text-[#EEEEF0] focus:border-[#00D4FF] focus:outline-none transition-colors"
                   />
                 </div>
 
-                <div className="bg-[#121113] rounded-md p-4 border border-[#49474E]/50">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-[#B5B2BC]">$TOD Tokens:</span>
-                    <span className="text-[#EEEEF0] font-semibold">
-                      {tokenAmount}
+                <div className="bg-[#121113] rounded-md p-3">
+                  <div className="flex justify-between items-center mb-1.5">
+                    <span className="text-[#B5B2BC] text-sm">$TOD Tokens:</span>
+                    <span className="text-[#EEEEF0] font-semibold text-sm">
+                      {tokenAmount === 0 ? "-" : tokenAmount}
                     </span>
                   </div>
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-[#B5B2BC]">Price per token:</span>
-                    <span className="text-[#EEEEF0]">$0.12 USD</span>
+                  <div className="flex justify-between items-center mb-1.5">
+                    <span className="text-[#B5B2BC] text-sm">
+                      Price per token:
+                    </span>
+                    <span className="text-[#EEEEF0] text-sm">
+                      {tokenAmount === 0 ? "-" : "$0.08 USD"}
+                    </span>
                   </div>
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-[#B5B2BC]">BNB required:</span>
-                    <span className="text-[#F59E0B]">{bnbAmount} BNB</span>
+                  <div className="flex justify-between items-center mb-1.5">
+                    <span className="text-[#B5B2BC] text-sm">
+                      BNB required:
+                    </span>
+                    <span className="text-[#F59E0B] text-sm">
+                      {tokenAmount === 0 ? "-" : bnbAmount + " BNB"}
+                    </span>
                   </div>
-                  <div className="flex justify-between items-center pt-2 border-t border-[#49474E]/50">
-                    <span className="text-[#EEEEF0] font-semibold">Total:</span>
-                    <span className="text-[#00D4FF] font-bold">
-                      ${Number(tokenAmount * 0.12).toFixed(2)} USD
+                  <div className="flex justify-between items-center pt-1.5 border-t border-[#49474E]/50">
+                    <span className="text-[#EEEEF0] font-semibold text-sm">
+                      Total:
+                    </span>
+                    <span className="text-[#00D4FF] font-bold text-sm">
+                      {tokenAmount === 0
+                        ? "-"
+                        : `$${Number(tokenAmount * 0.08).toFixed(2)} USD`}
                     </span>
                   </div>
                 </div>
 
                 <Button
                   onClick={handleBuyTokens}
-                  disabled={isPurchasingTokens || !isConnected}
+                  disabled={
+                    isPurchasingTokens || !isConnected || tokenAmount === 0
+                  }
                   className="w-full"
                 >
                   {isPurchasingTokens ? (
@@ -198,6 +366,8 @@ export default function StorePage() {
                       <Loader height={20} width={20} className="mr-2" />
                       Processing...
                     </>
+                  ) : tokenAmount === 0 ? (
+                    "Enter token amount"
                   ) : (
                     `Purchase ${tokenAmount} $TOD`
                   )}
@@ -205,42 +375,42 @@ export default function StorePage() {
               </div>
             </div>
 
-            <div className="flex flex-col justify-center space-y-4">
-              <div className="bg-[#121113] rounded-md p-4 border border-[#49474E]/50">
-                <h3 className="text-[#EEEEF0] font-semibold mb-3">
+            <div className="flex flex-col justify-center space-y-3">
+              <div className="bg-[#121113] rounded-md p-3">
+                <h3 className="text-[#EEEEF0] font-semibold text-sm mb-2">
                   Payment Information
                 </h3>
-                <ul className="text-sm text-[#B5B2BC] space-y-2">
+                <ul className="text-xs text-[#B5B2BC] space-y-1.5">
                   <li className="flex items-center">
-                    <span className="w-2 h-2 bg-[#00D4FF] rounded-full mr-3"></span>
+                    <span className="w-1.5 h-1.5 bg-[#00D4FF] rounded-full mr-2"></span>
                     BNB payment required
                   </li>
                   <li className="flex items-center">
-                    <span className="w-2 h-2 bg-[#00D4FF] rounded-full mr-3"></span>
+                    <span className="w-1.5 h-1.5 bg-[#00D4FF] rounded-full mr-2"></span>
                     Secure BNB payment
                   </li>
                   <li className="flex items-center">
-                    <span className="w-2 h-2 bg-[#F59E0B] rounded-full mr-3"></span>
+                    <span className="w-1.5 h-1.5 bg-[#F59E0B] rounded-full mr-2"></span>
                     Tokens minted after payment verification
                   </li>
                 </ul>
               </div>
 
-              <div className="bg-[#121113] rounded-md p-4 border border-[#49474E]/50">
-                <h3 className="text-[#EEEEF0] font-semibold mb-3">
+              <div className="bg-[#121113] rounded-md p-3">
+                <h3 className="text-[#EEEEF0] font-semibold text-sm mb-2">
                   Token Details
                 </h3>
-                <ul className="text-sm text-[#B5B2BC] space-y-2">
+                <ul className="text-xs text-[#B5B2BC] space-y-1.5">
                   <li className="flex items-center">
-                    <span className="w-2 h-2 bg-[#00D4FF] rounded-full mr-3"></span>
-                    Price: $0.12 per token (~0.0001 BNB)
+                    <span className="w-1.5 h-1.5 bg-[#00D4FF] rounded-full mr-2"></span>
+                    Price: $0.08 per token (~0.00008 BNB)
                   </li>
                   <li className="flex items-center">
-                    <span className="w-2 h-2 bg-[#00D4FF] rounded-full mr-3"></span>
+                    <span className="w-1.5 h-1.5 bg-[#00D4FF] rounded-full mr-2"></span>
                     Symbol: $TOD
                   </li>
                   <li className="flex items-center">
-                    <span className="w-2 h-2 bg-[#00D4FF] rounded-full mr-3"></span>
+                    <span className="w-1.5 h-1.5 bg-[#00D4FF] rounded-full mr-2"></span>
                     Network: Binance Smart Chain
                   </li>
                 </ul>
@@ -254,179 +424,128 @@ export default function StorePage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-[#1A191B]/80 backdrop-blur-sm rounded-lg p-8 border border-[#49474E]/50"
+          className="bg-[#1A191B]/80 backdrop-blur-sm rounded-lg p-4 hidden"
         >
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-1 h-6 bg-[#FF6B6B] rounded-full"></div>
-            <h2 className="text-2xl font-bold text-[#EEEEF0]">Open Lootbox</h2>
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-1 h-4 bg-[#00D4FF] rounded-full"></div>
+            <h2 className="text-lg font-bold text-[#EEEEF0]">Open Lootbox</h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
-              <p className="text-[#B5B2BC] mb-4">
-                Open a lootbox to get a random NFT car! Each lootbox costs 300
-                $TOD tokens and gives you one of our rare collectible cars.
+              <p className="text-[#B5B2BC] text-sm mb-3">
+                Open lootboxes to get random NFT cars! Choose your pack size and
+                save with bulk discounts.
               </p>
 
-              <div className="bg-[#121113] rounded-md p-4 border border-[#49474E]/50 mb-6">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-[#B5B2BC]">Cost:</span>
-                  <span className="text-[#EEEEF0] font-semibold">300 $TOD</span>
+              {/* Lootbox Selection Options */}
+              <div className="space-y-2 mb-4">
+                {/* 1 Lootbox */}
+                <div
+                  className={`bg-[#121113] rounded-md p-3 cursor-pointer border transition-all ${
+                    selectedLootboxAmount === 1
+                      ? "border-[#00D4FF] bg-[#00D4FF]/10"
+                      : "border-[#49474E]/50 hover:border-[#00D4FF]/50"
+                  }`}
+                  onClick={() => setSelectedLootboxAmount(1)}
+                >
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <span className="text-[#EEEEF0] font-semibold text-sm">
+                        1 Lootbox
+                      </span>
+                      <div className="text-[#B5B2BC] text-xs">300 $TOD</div>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-[#EEEEF0] text-sm">
+                        No discount
+                      </span>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-[#B5B2BC]">Reward:</span>
-                  <span className="text-[#EEEEF0]">Random NFT Car</span>
+
+                {/* 5 Lootboxes */}
+                <div
+                  className={`bg-[#121113] rounded-md p-3 cursor-pointer border transition-all ${
+                    selectedLootboxAmount === 5
+                      ? "border-[#00D4FF] bg-[#00D4FF]/10"
+                      : "border-[#49474E]/50 hover:border-[#00D4FF]/50"
+                  }`}
+                  onClick={() => setSelectedLootboxAmount(5)}
+                >
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <span className="text-[#EEEEF0] font-semibold text-sm">
+                        5 Lootboxes
+                      </span>
+                      <div className="text-[#B5B2BC] text-xs">1,425 $TOD</div>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-green-400 text-sm font-semibold">
+                        5% OFF
+                      </span>
+                      <div className="text-[#B5B2BC] text-xs">Save 75 $TOD</div>
+                    </div>
+                  </div>
                 </div>
-                <div className="pt-2 border-t border-[#49474E]/50">
-                  <span className="text-[#EEEEF0] font-semibold mb-3 block">
-                    Rarity Chances:
-                  </span>
 
-                  <div className="grid grid-cols-2 gap-3">
-                    {/* Common Rarity */}
-                    <div className="border border-[#EEEEF0]/30 rounded-lg p-3">
-                      <div className="flex items-center mb-2">
-                        <div className="w-3 h-3 bg-[#EEEEF0] rounded-full mr-2"></div>
-                        <span className="text-[#EEEEF0] font-semibold text-sm">
-                          Common
-                        </span>
-                      </div>
-                      <div className="space-y-1">
-                        <div className="flex justify-between items-center text-xs">
-                          <span className="text-[#EEEEF0]/70">Vintage</span>
-                          <span className="text-[#EEEEF0] font-medium">
-                            42%
-                          </span>
-                        </div>
-                        <div className="w-full bg-[#49474E]/30 rounded-full h-1.5">
-                          <div
-                            className="bg-[#EEEEF0] h-1.5 rounded-full"
-                            style={{ width: "42%" }}
-                          ></div>
-                        </div>
-                        <div className="flex justify-between items-center text-xs">
-                          <span className="text-[#EEEEF0]/70">Modern</span>
-                          <span className="text-[#EEEEF0] font-medium">
-                            28%
-                          </span>
-                        </div>
-                        <div className="w-full bg-[#49474E]/30 rounded-full h-1.5">
-                          <div
-                            className="bg-[#EEEEF0] h-1.5 rounded-full"
-                            style={{ width: "28%" }}
-                          ></div>
-                        </div>
-                      </div>
+                {/* 10 Lootboxes */}
+                <div
+                  className={`bg-[#121113] rounded-md p-3 cursor-pointer border transition-all ${
+                    selectedLootboxAmount === 10
+                      ? "border-[#00D4FF] bg-[#00D4FF]/10"
+                      : "border-[#49474E]/50 hover:border-[#00D4FF]/50"
+                  }`}
+                  onClick={() => setSelectedLootboxAmount(10)}
+                >
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <span className="text-[#EEEEF0] font-semibold text-sm">
+                        10 Lootboxes
+                      </span>
+                      <div className="text-[#B5B2BC] text-xs">2,700 $TOD</div>
                     </div>
-
-                    {/* Rare Rarity */}
-                    <div className="border border-[#EEEEF0]/30 rounded-lg p-3">
-                      <div className="flex items-center mb-2">
-                        <div className="w-3 h-3 bg-[#EEEEF0] rounded-full mr-2"></div>
-                        <span className="text-[#EEEEF0] font-semibold text-sm">
-                          Rare
-                        </span>
-                      </div>
-                      <div className="space-y-1">
-                        <div className="flex justify-between items-center text-xs">
-                          <span className="text-[#EEEEF0]/70">Vintage</span>
-                          <span className="text-[#EEEEF0] font-medium">
-                            15%
-                          </span>
-                        </div>
-                        <div className="w-full bg-[#49474E]/30 rounded-full h-1.5">
-                          <div
-                            className="bg-[#EEEEF0] h-1.5 rounded-full"
-                            style={{ width: "15%" }}
-                          ></div>
-                        </div>
-                        <div className="flex justify-between items-center text-xs">
-                          <span className="text-[#EEEEF0]/70">Modern</span>
-                          <span className="text-[#EEEEF0] font-medium">
-                            10%
-                          </span>
-                        </div>
-                        <div className="w-full bg-[#49474E]/30 rounded-full h-1.5">
-                          <div
-                            className="bg-[#EEEEF0] h-1.5 rounded-full"
-                            style={{ width: "10%" }}
-                          ></div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Epic Rarity */}
-                    <div className="border border-[#EEEEF0]/30 rounded-lg p-3">
-                      <div className="flex items-center mb-2">
-                        <div className="w-3 h-3 bg-[#EEEEF0] rounded-full mr-2"></div>
-                        <span className="text-[#EEEEF0] font-semibold text-sm">
-                          Epic
-                        </span>
-                      </div>
-                      <div className="space-y-1">
-                        <div className="flex justify-between items-center text-xs">
-                          <span className="text-[#EEEEF0]/70">Vintage</span>
-                          <span className="text-[#EEEEF0] font-medium">
-                            2.7%
-                          </span>
-                        </div>
-                        <div className="w-full bg-[#49474E]/30 rounded-full h-1.5">
-                          <div
-                            className="bg-[#EEEEF0] h-1.5 rounded-full"
-                            style={{ width: "27%" }}
-                          ></div>
-                        </div>
-                        <div className="flex justify-between items-center text-xs">
-                          <span className="text-[#EEEEF0]/70">Modern</span>
-                          <span className="text-[#EEEEF0] font-medium">
-                            1.8%
-                          </span>
-                        </div>
-                        <div className="w-full bg-[#49474E]/30 rounded-full h-1.5">
-                          <div
-                            className="bg-[#EEEEF0] h-1.5 rounded-full"
-                            style={{ width: "18%" }}
-                          ></div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Legendary Rarity */}
-                    <div className="bg-gradient-to-br from-yellow-500/10 to-yellow-500/5 border border-yellow-500/30 rounded-lg p-3">
-                      <div className="flex items-center mb-2">
-                        <div className="w-3 h-3 bg-yellow-500 rounded-full mr-2"></div>
-                        <span className="text-yellow-500 font-semibold text-sm">
-                          Legendary
-                        </span>
-                      </div>
-                      <div className="space-y-1">
-                        <div className="flex justify-between items-center text-xs">
-                          <span className="text-[#EEEEF0]/70">Vintage</span>
-                          <span className="text-yellow-500 font-medium">
-                            0.3%
-                          </span>
-                        </div>
-                        <div className="w-full bg-[#49474E]/30 rounded-full h-1.5">
-                          <div
-                            className="bg-yellow-500 h-1.5 rounded-full"
-                            style={{ width: "30%" }}
-                          ></div>
-                        </div>
-                        <div className="flex justify-between items-center text-xs">
-                          <span className="text-[#EEEEF0]/70">Modern</span>
-                          <span className="text-yellow-500 font-medium">
-                            0.2%
-                          </span>
-                        </div>
-                        <div className="w-full bg-[#49474E]/30 rounded-full h-1.5">
-                          <div
-                            className="bg-yellow-500 h-1.5 rounded-full"
-                            style={{ width: "20%" }}
-                          ></div>
-                        </div>
+                    <div className="text-right">
+                      <span className="text-green-400 text-sm font-semibold">
+                        10% OFF
+                      </span>
+                      <div className="text-[#B5B2BC] text-xs">
+                        Save 300 $TOD
                       </div>
                     </div>
                   </div>
+                </div>
+              </div>
+
+              {/* Selected Pack Summary */}
+              <div className="bg-[#121113] rounded-md p-3 mb-4 border border-[#49474E]/50">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-[#B5B2BC] text-sm">Selected:</span>
+                  <span className="text-[#EEEEF0] font-semibold text-sm">
+                    {selectedLootboxAmount} Lootbox
+                    {selectedLootboxAmount > 1 ? "es" : ""}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-[#B5B2BC] text-sm">Total Cost:</span>
+                  <span className="text-[#EEEEF0] font-semibold text-sm">
+                    {currentLootboxCost.toLocaleString()} $TOD
+                  </span>
+                </div>
+                {discountPercentage > 0 && (
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-[#B5B2BC] text-sm">Savings:</span>
+                    <span className="text-green-400 font-semibold text-sm">
+                      {discountPercentage}% OFF
+                    </span>
+                  </div>
+                )}
+                <div className="flex justify-between items-center">
+                  <span className="text-[#B5B2BC] text-sm">Reward:</span>
+                  <span className="text-[#EEEEF0] text-sm">
+                    {selectedLootboxAmount} Random NFT Car
+                    {selectedLootboxAmount > 1 ? "s" : ""}
+                  </span>
                 </div>
               </div>
 
@@ -438,50 +557,52 @@ export default function StorePage() {
                 {isOpeningLootbox ? (
                   <>
                     <Loader height={20} width={20} className="mr-2" />
-                    Opening Lootbox...
+                    Opening Lootbox{selectedLootboxAmount > 1 ? "es" : ""}...
                   </>
                 ) : (
-                  "Open Lootbox"
+                  `Open ${selectedLootboxAmount} Lootbox${
+                    selectedLootboxAmount > 1 ? "es" : ""
+                  }`
                 )}
               </Button>
             </div>
 
-            <div className="flex flex-col justify-center space-y-4">
-              <div className="bg-[#121113] rounded-md p-4 border border-[#49474E]/50">
-                <h3 className="text-[#EEEEF0] font-semibold mb-3">
+            <div className="flex flex-col justify-center space-y-3">
+              <div className="bg-[#121113] rounded-md p-3">
+                <h3 className="text-[#EEEEF0] font-semibold text-sm mb-2">
                   Lootbox Rewards
                 </h3>
-                <ul className="text-sm text-[#B5B2BC] space-y-2">
+                <ul className="text-xs text-[#B5B2BC] space-y-1.5">
                   <li className="flex items-center">
-                    <span className="w-2 h-2 bg-[#FF6B6B] rounded-full mr-3"></span>
+                    <span className="w-1.5 h-1.5 bg-[#00D4FF] rounded-full mr-2"></span>
                     Random NFT Cars
                   </li>
                   <li className="flex items-center">
-                    <span className="w-2 h-2 bg-[#FF6B6B] rounded-full mr-3"></span>
+                    <span className="w-1.5 h-1.5 bg-[#00D4FF] rounded-full mr-2"></span>
                     Collectible vehicles
                   </li>
                   <li className="flex items-center">
-                    <span className="w-2 h-2 bg-[#FF6B6B] rounded-full mr-3"></span>
+                    <span className="w-1.5 h-1.5 bg-[#00D4FF] rounded-full mr-2"></span>
                     Various rarities available
                   </li>
                 </ul>
               </div>
 
-              <div className="bg-[#121113] rounded-md p-4 border border-[#49474E]/50">
-                <h3 className="text-[#EEEEF0] font-semibold mb-3">
+              <div className="bg-[#121113] rounded-md p-3">
+                <h3 className="text-[#EEEEF0] font-semibold text-sm mb-2">
                   Requirements
                 </h3>
-                <ul className="text-sm text-[#B5B2BC] space-y-2">
+                <ul className="text-xs text-[#B5B2BC] space-y-1.5">
                   <li className="flex items-center">
-                    <span className="w-2 h-2 bg-[#FF6B6B] rounded-full mr-3"></span>
-                    300 $TOD tokens required
+                    <span className="w-1.5 h-1.5 bg-[#00D4FF] rounded-full mr-2"></span>
+                    {currentLootboxCost.toLocaleString()} $TOD required
                   </li>
                   <li className="flex items-center">
-                    <span className="w-2 h-2 bg-[#FF6B6B] rounded-full mr-3"></span>
+                    <span className="w-1.5 h-1.5 bg-[#00D4FF] rounded-full mr-2"></span>
                     Connected wallet
                   </li>
                   <li className="flex items-center">
-                    <span className="w-2 h-2 bg-[#FF6B6B] rounded-full mr-3"></span>
+                    <span className="w-1.5 h-1.5 bg-[#00D4FF] rounded-full mr-2"></span>
                     Sufficient token balance
                   </li>
                 </ul>
@@ -495,18 +616,18 @@ export default function StorePage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="bg-[#1A191B]/80 backdrop-blur-sm rounded-lg p-8 border border-[#49474E]/50"
+          className="bg-[#1A191B]/80 backdrop-blur-sm rounded-lg p-4 border border-[#49474E]/50 hidden"
         >
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-1 h-6 bg-[#00D4FF] rounded-full"></div>
-            <h2 className="text-2xl font-bold text-[#EEEEF0]">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-1 h-4 bg-[#00D4FF] rounded-full"></div>
+            <h2 className="text-lg font-bold text-[#EEEEF0]">
               Contract Information
             </h2>
           </div>
 
-          <div className="space-y-4">
-            <div className="bg-[#121113] rounded-md p-4 border border-[#49474E]/50">
-              <div className="mb-3">
+          <div className="space-y-3">
+            <div className="bg-[#121113] rounded-md p-3 border border-[#49474E]/50">
+              <div className="mb-2">
                 <span className="text-[#B5B2BC] text-sm">Token Contract:</span>
                 <div className="mt-1">
                   <span className="text-[#EEEEF0] font-mono text-xs break-all">
@@ -524,51 +645,51 @@ export default function StorePage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="bg-[#121113] rounded-md p-4 border border-[#49474E]/50">
-                <h3 className="text-[#EEEEF0] font-semibold mb-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="bg-[#121113] rounded-md p-3 border border-[#49474E]/50">
+                <h3 className="text-[#EEEEF0] font-semibold text-sm mb-2">
                   $TOD Token Details
                 </h3>
-                <ul className="text-sm text-[#B5B2BC] space-y-2">
+                <ul className="text-xs text-[#B5B2BC] space-y-1.5">
                   <li className="flex items-center">
-                    <span className="w-2 h-2 bg-[#00D4FF] rounded-full mr-3"></span>
+                    <span className="w-1.5 h-1.5 bg-[#00D4FF] rounded-full mr-2"></span>
                     Name: Torque Drift Token
                   </li>
                   <li className="flex items-center">
-                    <span className="w-2 h-2 bg-[#00D4FF] rounded-full mr-3"></span>
+                    <span className="w-1.5 h-1.5 bg-[#00D4FF] rounded-full mr-2"></span>
                     Ticker: $TOD
                   </li>
                   <li className="flex items-center">
-                    <span className="w-2 h-2 bg-[#00D4FF] rounded-full mr-3"></span>
+                    <span className="w-1.5 h-1.5 bg-[#00D4FF] rounded-full mr-2"></span>
                     Decimals: 9
                   </li>
                   <li className="flex items-center">
-                    <span className="w-2 h-2 bg-[#00D4FF] rounded-full mr-3"></span>
-                    Total Supply: 1,000,000,000
+                    <span className="w-1.5 h-1.5 bg-[#00D4FF] rounded-full mr-2"></span>
+                    Total Supply: 27,000,000
                   </li>
                 </ul>
               </div>
 
-              <div className="bg-[#121113] rounded-md p-4 border border-[#49474E]/50">
-                <h3 className="text-[#EEEEF0] font-semibold mb-3">
+              <div className="bg-[#121113] rounded-md p-3 border border-[#49474E]/50">
+                <h3 className="text-[#EEEEF0] font-semibold text-sm mb-2">
                   Network Information
                 </h3>
-                <ul className="text-sm text-[#B5B2BC] space-y-2">
+                <ul className="text-xs text-[#B5B2BC] space-y-1.5">
                   <li className="flex items-center">
-                    <span className="w-2 h-2 bg-[#00D4FF] rounded-full mr-3"></span>
+                    <span className="w-1.5 h-1.5 bg-[#00D4FF] rounded-full mr-2"></span>
                     Network: Binance Smart Chain
                   </li>
                   <li className="flex items-center">
-                    <span className="w-2 h-2 bg-[#00D4FF] rounded-full mr-3"></span>
+                    <span className="w-1.5 h-1.5 bg-[#00D4FF] rounded-full mr-2"></span>
                     Chain ID: 56
                   </li>
                   <li className="flex items-center">
-                    <span className="w-2 h-2 bg-[#00D4FF] rounded-full mr-3"></span>
+                    <span className="w-1.5 h-1.5 bg-[#00D4FF] rounded-full mr-2"></span>
                     Block Explorer: BscScan
                   </li>
                   <li className="flex items-center">
-                    <span className="w-2 h-2 bg-[#00D4FF] rounded-full mr-3"></span>
-                    Token Price: $0.12 USD
+                    <span className="w-1.5 h-1.5 bg-[#00D4FF] rounded-full mr-2"></span>
+                    Token Price: $0.08 USD
                   </li>
                 </ul>
               </div>
@@ -589,3 +710,4 @@ export default function StorePage() {
     </div>
   );
 }
+

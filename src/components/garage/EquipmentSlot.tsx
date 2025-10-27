@@ -41,7 +41,6 @@ export const EquipmentSlot: React.FC<EquipmentSlotProps> = ({
     id,
     disabled: car !== null,
   });
-
   const isLoading = isEquipping || isUnequipping || isUnderMaintenance;
 
   return (
@@ -81,9 +80,9 @@ export const EquipmentSlot: React.FC<EquipmentSlotProps> = ({
           <div className="relative ">
             <div className="aspect-square flex items-center justify-center overflow-hidden">
               <Image
-                src={`${car.image}`}
+                src={car.image}
                 alt={`${car.rarity} ${car.version} car`}
-                className="w-full h-full object-cover scale-125"
+                className="w-full h-full object-cover"
                 width={100}
                 height={100}
                 draggable={false}
@@ -191,3 +190,4 @@ export const EquipmentSlot: React.FC<EquipmentSlotProps> = ({
     </div>
   );
 };
+
