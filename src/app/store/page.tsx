@@ -150,7 +150,7 @@ export default function StorePage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-[url('/images/hero_bg.png')] bg-contain bg-no-repeat">
+    <div className="flex flex-col min-h-screen bg-[url('/images/hero_bg.png')] bg-cover bg-no-repeat">
       {/* Header */}
       <div className="flex items-center justify-between relative max-w-7xl mx-auto px-4 sm:px-0 w-full pt-24 pb-8">
         <div className="flex flex-col items-start justify-center max-w-2xl w-full">
@@ -171,21 +171,22 @@ export default function StorePage() {
           priority={true}
         />
       </div>
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.8, delay: 0.3 }}
-        className="w-full mb-12"
-      >
-        <Countdown targetDate={launchDate} />
-      </motion.div>
 
       {/* Main Content */}
-      <div className="hidden max-w-7xl mx-auto px-4 sm:px-0 w-full space-y-8 pb-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-0 w-full space-y-8 pb-20">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8, delay: 0.3 }}
+          className="w-full mb-12"
+        >
+          <Countdown targetDate={launchDate} />
+        </motion.div>
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-[#1A191B]/80 backdrop-blur-sm rounded-lg p-4"
+          className="bg-[#1A191B]/80 backdrop-blur-sm rounded-lg p-4 hidden"
         >
           <div className="flex items-center gap-2 mb-3">
             <div className="w-1 h-4 bg-[#00D4FF] rounded-full"></div>
@@ -277,7 +278,7 @@ export default function StorePage() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-[#1A191B]/80 backdrop-blur-sm rounded-lg p-4"
+          className="bg-[#1A191B]/80 backdrop-blur-sm rounded-lg p-4 hidden"
         >
           <div className="flex items-center gap-2 mb-3">
             <div className="w-1 h-4 bg-[#00D4FF] rounded-full"></div>
@@ -423,7 +424,7 @@ export default function StorePage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-[#1A191B]/80 backdrop-blur-sm rounded-lg p-4"
+          className="bg-[#1A191B]/80 backdrop-blur-sm rounded-lg p-4 hidden"
         >
           <div className="flex items-center gap-2 mb-3">
             <div className="w-1 h-4 bg-[#00D4FF] rounded-full"></div>
@@ -615,7 +616,7 @@ export default function StorePage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="bg-[#1A191B]/80 backdrop-blur-sm rounded-lg p-4 border border-[#49474E]/50"
+          className="bg-[#1A191B]/80 backdrop-blur-sm rounded-lg p-4 border border-[#49474E]/50 hidden"
         >
           <div className="flex items-center gap-2 mb-3">
             <div className="w-1 h-4 bg-[#00D4FF] rounded-full"></div>
