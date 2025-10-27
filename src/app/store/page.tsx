@@ -13,6 +13,7 @@ import { Street } from "@/components/Street";
 import toast from "react-hot-toast";
 import { useTokenBalances, usePurchaseStats } from "@/hooks";
 import { RewardModal } from "@/components/garage/RewardModal";
+import { Countdown } from "@/components/Countdown";
 import { TorqueDriftToken__factory } from "@/contracts";
 import { ethers } from "ethers";
 
@@ -33,6 +34,10 @@ export default function StorePage() {
   const [showRewardModal, setShowRewardModal] = useState(false);
   const [rewardItem, setRewardItem] = useState(null);
   const [selectedLootboxAmount, setSelectedLootboxAmount] = useState(1);
+
+  const launchDate = new Date();
+  launchDate.setUTCFullYear(2025, 9, 28);
+  launchDate.setUTCHours(15, 0, 0, 0);
 
   // Calculate lootbox costs with discounts
   const getLootboxCost = (amount: number) => {
@@ -153,7 +158,7 @@ export default function StorePage() {
             Torque Drift Store
           </h1>
           <p className="text-[#B5B2BC] text-[20px] mt-4">
-            Buy $TOD tokens and open lootboxes to collect rare NFT cars for your
+            Buy $TOD and open lootboxes to collect rare NFT cars for your
             garage!
           </p>
         </div>
@@ -166,10 +171,17 @@ export default function StorePage() {
           priority={true}
         />
       </div>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.8, delay: 0.3 }}
+        className="w-full mb-12"
+      >
+        <Countdown targetDate={launchDate} />
+      </motion.div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-0 w-full space-y-8 pb-20">
-        {/* Purchase Statistics Section */}
+      <div className="hidden max-w-7xl mx-auto px-4 sm:px-0 w-full space-y-8 pb-20">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

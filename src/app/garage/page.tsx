@@ -201,7 +201,7 @@ export default function GaragePage() {
                   referrerPubkey: referrerInput.trim() || undefined,
                 });
               }}
-              disabled={isInitializing || checkingReferral}
+              disabled={true/* isInitializing || checkingReferral */}
             >
               {isInitializing
                 ? "Initializing..."
