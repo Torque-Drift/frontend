@@ -358,12 +358,25 @@ export async function POST(request: NextRequest) {
     console.log(`🎲 Starting to generate ${lootboxAmount} rewards...`);
 
     for (let i = 0; i < lootboxAmount; i++) {
-      // Create unique hash for each lootbox by modifying the original hash with the index
-      // This ensures each lootbox gets a different but deterministic hash
-      const originalHashValue = parseInt(burnTxSignature.slice(-8), 16);
-      const modifiedHashValue = (originalHashValue + i * 12345) % (16 ** 8); // Add variation
-      const uniqueHash = (modifiedHashValue).toString(16).padStart(8, '0') + burnTxSignature.slice(8);
-      console.log(`🎯 Generating reward ${i + 1}/${lootboxAmount} with hash: ${uniqueHash} (modified from ${burnTxSignature})`);
+      const baseHash = burnTxSignature.slice(2); // Remove '0x' prefix
+      const hashLength = baseHash.length;
+
+      // Use different segments of the hash for each lootbox to ensure better distribution
+      const segmentSize = Math.max(8, Math.floor(hashLength / lootboxAmount));
+      const startPos = (i * segmentSize) % (hashLength - 8);
+      const segment = baseHash.slice(startPos, startPos + 8);
+
+      // Add entropy based on the index to ensure uniqueness
+      const entropy = (i * 0x9E3779B9) >>> 0; // Use golden ratio hash for better distribution
+      const segmentValue = parseInt(segment, 16);
+      const uniqueValue = (segmentValue + entropy) >>> 0; // Use unsigned right shift for 32-bit
+
+      // Create the unique hash by combining the modified segment with other parts
+      const uniqueSegment = uniqueValue.toString(16).padStart(8, '0').slice(-8);
+      const remainingHash = baseHash.slice(0, startPos) + baseHash.slice(startPos + 8);
+      const uniqueHash = '0x' + uniqueSegment + remainingHash.slice(0, hashLength - 8);
+
+      console.log(`🎯 Generating reward ${i + 1}/${lootboxAmount} with hash: ${uniqueHash} (segment: ${segment}, entropy: ${entropy})`);
       const rewardItem = getProvablyFairItem(uniqueHash);
       console.log(`✅ Generated: ${rewardItem.rarity} ${rewardItem.version} - ${rewardItem.name}`);
 
