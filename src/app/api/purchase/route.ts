@@ -32,6 +32,29 @@ interface NFTItem {
   dailyYield: number;
 }
 
+// Fisher-Yates shuffle with seed for deterministic results
+function shuffleArray<T>(array: T[], seed: number): T[] {
+  const shuffled = [...array];
+  let currentIndex = shuffled.length;
+
+  // Simple seeded random number generator
+  let randomSeed = seed;
+  const random = () => {
+    randomSeed = (randomSeed * 9301 + 49297) % 233280;
+    return randomSeed / 233280;
+  };
+
+  while (currentIndex !== 0) {
+    const randomIndex = Math.floor(random() * currentIndex);
+    currentIndex--;
+
+    [shuffled[currentIndex], shuffled[randomIndex]] = [
+      shuffled[randomIndex], shuffled[currentIndex]];
+  }
+
+  return shuffled;
+}
+
 // Helper function to create NFTItem from catalog item
 function createNFTItem(catalogItem: any, probability: number): NFTItem {
   const rarityMap: Record<number, Rarity> = {
@@ -357,27 +380,28 @@ export async function POST(request: NextRequest) {
 
     console.log(`🎲 Starting to generate ${lootboxAmount} rewards...`);
 
+    // For guaranteed diversity, assign different cars directly based on lootbox index
+    // This ensures each lootbox gets a unique car from the catalog
+
+    // Get all available cars from the catalog
+    const availableCars = CAR_CATALOG.map((car, index) => ({
+      ...car,
+      catalogIndex: index
+    }));
+
+    // Shuffle the cars using the transaction hash as seed for deterministic but random ordering
+    const seed = parseInt(burnTxSignature.slice(-8), 16);
+    const shuffledCars = shuffleArray(availableCars, seed);
+
     for (let i = 0; i < lootboxAmount; i++) {
-      const baseHash = burnTxSignature.slice(2); // Remove '0x' prefix
-      const hashLength = baseHash.length;
+      // Select car based on index, cycling through shuffled catalog if needed
+      const carIndex = i % shuffledCars.length;
+      const selectedCar = shuffledCars[carIndex];
 
-      // Use different segments of the hash for each lootbox to ensure better distribution
-      const segmentSize = Math.max(8, Math.floor(hashLength / lootboxAmount));
-      const startPos = (i * segmentSize) % (hashLength - 8);
-      const segment = baseHash.slice(startPos, startPos + 8);
+      // Create NFT item directly from the selected car
+      const rewardItem = createNFTItem(selectedCar, 0); // Probability not relevant for guaranteed diversity
 
-      // Add entropy based on the index to ensure uniqueness
-      const entropy = (i * 0x9E3779B9) >>> 0; // Use golden ratio hash for better distribution
-      const segmentValue = parseInt(segment, 16);
-      const uniqueValue = (segmentValue + entropy) >>> 0; // Use unsigned right shift for 32-bit
-
-      // Create the unique hash by combining the modified segment with other parts
-      const uniqueSegment = uniqueValue.toString(16).padStart(8, '0').slice(-8);
-      const remainingHash = baseHash.slice(0, startPos) + baseHash.slice(startPos + 8);
-      const uniqueHash = '0x' + uniqueSegment + remainingHash.slice(0, hashLength - 8);
-
-      console.log(`🎯 Generating reward ${i + 1}/${lootboxAmount} with hash: ${uniqueHash} (segment: ${segment}, entropy: ${entropy})`);
-      const rewardItem = getProvablyFairItem(uniqueHash);
+      console.log(`🎯 Generating reward ${i + 1}/${lootboxAmount}: ${rewardItem.name} (guaranteed unique car ${carIndex + 1}/${shuffledCars.length})`);
       console.log(`✅ Generated: ${rewardItem.rarity} ${rewardItem.version} - ${rewardItem.name}`);
 
       const rarity =
@@ -414,7 +438,7 @@ export async function POST(request: NextRequest) {
         image: catalogData.image,
         description: catalogData.description,
         dailyYield: catalogData.dailyYield,
-        hashValue: parseInt(uniqueHash.slice(-8), 16) % 100,
+        hashValue: 0, // Not relevant for guaranteed diversity
         lootboxIndex: i + 1,
       });
     }
