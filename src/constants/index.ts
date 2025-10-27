@@ -10,9 +10,9 @@ export const CAR_CATALOG = [
   {
     rarity: 0,
     version: 0,
-    name: "Chevrolet Bel Air 1955",
+    name: "Nissan 180SX",
     description:
-      "The classic American beauty from the 1950s. This rock 'n' roll era icon combines vintage elegance with reliable performance.",
+      "A legendary Japanese coupe known for its drift capabilities. The 180SX features a lightweight chassis, perfect balance, and iconic styling that made it a favorite in the drifting community.",
     image: "/images/common_0.jpg",
     hashRange: [10, 18],
     dailyYield: 26.52,
@@ -20,9 +20,9 @@ export const CAR_CATALOG = [
   {
     rarity: 0,
     version: 1,
-    name: "UNO With Stairs",
+    name: "Mazda RX-8",
     description:
-      "A modern and creative take on the classic Fiat Uno. This compact urban vehicle features external stairs for easy rooftop access.",
+      "The innovative rotary-engined sports car from Mazda. Featuring the unique RENESIS rotary engine, this RX-8 delivers smooth power delivery and a distinctive exhaust note that enthusiasts love.",
     image: "/images/common_1.jpg",
     hashRange: [15, 25],
     dailyYield: 37.88,
@@ -30,9 +30,9 @@ export const CAR_CATALOG = [
   {
     rarity: 1,
     version: 0,
-    name: "Rare Vintage Car",
+    name: "Toyota Supra MK4",
     description:
-      "A rare gem from the vintage collection. This classic vehicle has been meticulously restored with attention to original details.",
+      "The legendary Japanese supercar that defined the JDM scene. The MK4 Supra features a powerful 2JZ-GTE engine, aggressive styling, and became an icon in both street racing and motorsports.",
     image: "/images/rare_0.jpg", // Using available image
     hashRange: [26, 40],
     dailyYield: 62.51,
@@ -40,9 +40,9 @@ export const CAR_CATALOG = [
   {
     rarity: 1,
     version: 1,
-    name: "Golf GTI 2025",
+    name: "Nissan 350z",
     description:
-      "The ultimate evolution of the sporty hatchback. With cutting-edge technology and aerodynamic design.",
+      "Nissan's affordable supercar that brought exotic performance to the masses. The 350Z features a 3.5L V6 engine, perfect 50/50 weight distribution, and became a modern classic in the Z-car lineage.",
     image: "/images/rare_1.jpg",
     hashRange: [34, 50],
     dailyYield: 79.56,
@@ -50,9 +50,9 @@ export const CAR_CATALOG = [
   {
     rarity: 2,
     version: 0,
-    name: "Epic Vintage Car",
+    name: "BMW E36",
     description:
-      "A masterpiece of vintage engineering. This legendary vehicle combines classic elegance with modern modifications.",
+      "The iconic BMW 3 Series that revolutionized the compact sports sedan market. The E36 M3 features a high-revving inline-6 engine, precise handling, and became a legend in touring car racing.",
     image: "/images/epic_0.jpg", // Using available image
     hashRange: [51, 63],
     dailyYield: 107.97,
@@ -60,9 +60,9 @@ export const CAR_CATALOG = [
   {
     rarity: 2,
     version: 1,
-    name: "Red Car",
+    name: "Mazda RX-7",
     description:
-      "A fiery red speedster that turns heads wherever it goes. Its vibrant color symbolizes passion and speed.",
+      "The legendary rotary-powered sports car that dominated endurance racing. The FD RX-7 features twin-turbocharged 13B rotary engines, AWD system, and won Le Mans in 1991 with its innovative technology.",
     image: "/images/epic_1.jpg",
     hashRange: [60, 75],
     dailyYield: 127.86,
@@ -70,9 +70,9 @@ export const CAR_CATALOG = [
   {
     rarity: 3,
     version: 0,
-    name: "Impala 67",
+    name: "Nissan Silvia S15",
     description:
-      "The ultimate muscle car from the classic era. This 1967 Impala represents the pinnacle of American power.",
+      "The final evolution of Nissan's legendary Silvia lineup. The S15 features aggressive styling, SR20DET engine options, and became the ultimate drift weapon in the early 2000s JDM scene.",
     image: "/images/legendary_0.jpg",
     hashRange: [76, 88],
     dailyYield: 155.32,
@@ -80,9 +80,9 @@ export const CAR_CATALOG = [
   {
     rarity: 3,
     version: 1,
-    name: "Dodge Challenger Black 2023",
+    name: "Nissan Silvia S15",
     description:
-      "Absolute darkness meets maximum speed. This midnight black Challenger combines muscle car heritage with cutting-edge technology.",
+      "The pinnacle of JDM performance and style. This modernized S15 spec combines the iconic Silvia heritage with upgraded turbocharged engines, custom aero, and represents the ultimate expression of Japanese automotive culture.",
     image: "/images/legendary_1.jpg",
     hashRange: [84, 100],
     dailyYield: 174.27,
