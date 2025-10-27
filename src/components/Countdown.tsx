@@ -174,7 +174,7 @@ export const Countdown: React.FC<CountdownProps> = memo(({ targetDate }) => {
           Get ready for the ultimate drifting experience!
         </p>
         <p className="text-[#B5B2BC] text-xs">
-          Launching on October 27, 2025 at 15:00 UTC
+          Launching on October 28, 2025 at 15:00 UTC
         </p>
       </div>
 
