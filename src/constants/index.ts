@@ -80,7 +80,7 @@ export const CAR_CATALOG = [
   {
     rarity: 3,
     version: 1,
-    name: "Nissan Silvia S15",
+    name: "Nissan GT-R (R35)",
     description:
       "The pinnacle of JDM performance and style. This modernized S15 spec combines the iconic Silvia heritage with upgraded turbocharged engines, custom aero, and represents the ultimate expression of Japanese automotive culture.",
     image: "/images/legendary_1.jpg",

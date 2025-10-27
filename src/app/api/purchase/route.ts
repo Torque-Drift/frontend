@@ -380,28 +380,22 @@ export async function POST(request: NextRequest) {
 
     console.log(`🎲 Starting to generate ${lootboxAmount} rewards...`);
 
-    // For guaranteed diversity, assign different cars directly based on lootbox index
-    // This ensures each lootbox gets a unique car from the catalog
-
-    // Get all available cars from the catalog
-    const availableCars = CAR_CATALOG.map((car, index) => ({
-      ...car,
-      catalogIndex: index
-    }));
-
-    // Shuffle the cars using the transaction hash as seed for deterministic but random ordering
-    const seed = parseInt(burnTxSignature.slice(-8), 16);
-    const shuffledCars = shuffleArray(availableCars, seed);
-
     for (let i = 0; i < lootboxAmount; i++) {
-      // Select car based on index, cycling through shuffled catalog if needed
-      const carIndex = i % shuffledCars.length;
-      const selectedCar = shuffledCars[carIndex];
+      // Generate unique hash for each lootbox by modifying the original transaction hash
+      // Add the lootbox index to ensure each lootbox gets a different but deterministic result
+      const baseHash = burnTxSignature.slice(2);
+      const baseValue = parseInt(baseHash.slice(-8), 16);
 
-      // Create NFT item directly from the selected car
-      const rewardItem = createNFTItem(selectedCar, 0); // Probability not relevant for guaranteed diversity
+      // Modify the hash by adding the lootbox index to get different results
+      const modifiedValue = (baseValue + i * 12345) >>> 0; // Use unsigned right shift
+      const modifiedHash = baseHash.slice(0, -8) + modifiedValue.toString(16).padStart(8, '0');
+      const uniqueHash = '0x' + modifiedHash;
 
-      console.log(`🎯 Generating reward ${i + 1}/${lootboxAmount}: ${rewardItem.name} (guaranteed unique car ${carIndex + 1}/${shuffledCars.length})`);
+      console.log(`🎯 Lootbox ${i + 1}/${lootboxAmount} - Modified hash: ${uniqueHash}`);
+
+      // Use provably fair system to get the reward
+      const rewardItem = getProvablyFairItem(uniqueHash);
+
       console.log(`✅ Generated: ${rewardItem.rarity} ${rewardItem.version} - ${rewardItem.name}`);
 
       const rarity =
