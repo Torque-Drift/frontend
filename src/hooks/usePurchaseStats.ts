@@ -12,15 +12,12 @@ interface PurchaseStats {
   precoAtual: string;
 }
 
-async function statsBuys(signer: JsonRpcSigner | null): Promise<PurchaseStats> {
-  if (!signer) {
-    throw new Error("Signer not found");
-  }
-
+async function statsBuys(): Promise<PurchaseStats> {
+  const provider = new ethers.JsonRpcProvider(process.env.NEXT_PUBLIC_RPC_URL);
   try {
     const contract = TorqueDriftToken__factory.connect(
       CONTRACT_ADDRESSES.TorqueDriftToken,
-      signer
+      provider
     );
 
     const [totalTokens, totalBnb, compraEnabled, precoAtual] =
@@ -39,13 +36,11 @@ async function statsBuys(signer: JsonRpcSigner | null): Promise<PurchaseStats> {
 }
 
 export const usePurchaseStats = () => {
-  const { signer } = useEthers();
   return useQuery({
     queryKey: ["purchase-stats"],
-    queryFn: () => statsBuys(signer),
-    enabled: !!signer,
-    refetchInterval: 30000, // Refetch every 30 seconds
-    staleTime: 15000, // Consider data stale after 15 seconds
+    queryFn: () => statsBuys(),
+    refetchInterval: 30000,
+    staleTime: 15000,
   });
 };
 

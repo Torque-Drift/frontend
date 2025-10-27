@@ -14,6 +14,7 @@ import toast from "react-hot-toast";
 import { useTokenBalances, usePurchaseStats } from "@/hooks";
 import { RewardModal } from "@/components/garage/RewardModal";
 import { TorqueDriftToken__factory } from "@/contracts";
+import { ethers } from "ethers";
 
 export default function StorePage() {
   const { signer, isConnected } = useEthers();
@@ -21,7 +22,11 @@ export default function StorePage() {
   const { formattedTodBalance: tokenBalance, refetchAll } = useTokenBalances();
   const { mutateAsync: purchaseTokens, isLoading: isPurchasingTokens } =
     useTokenPurchase();
-  const { data: purchaseStats, isLoading: isLoadingStats, error: statsError } = usePurchaseStats();
+  const {
+    data: purchaseStats,
+    isLoading: isLoadingStats,
+    error: statsError,
+  } = usePurchaseStats();
 
   const [tokenAmount, setTokenAmount] = useState(300);
   const [bnbAmount, setBnbAmount] = useState<string>("0.000000");
@@ -35,12 +40,13 @@ export default function StorePage() {
     const totalBase = baseCost * amount;
 
     if (amount === 5) return Math.floor(totalBase * 0.95); // 5% discount
-    if (amount === 10) return Math.floor(totalBase * 0.90); // 10% discount
+    if (amount === 10) return Math.floor(totalBase * 0.9); // 10% discount
     return totalBase;
   };
 
   const currentLootboxCost = getLootboxCost(selectedLootboxAmount);
-  const discountPercentage = selectedLootboxAmount === 5 ? 5 : selectedLootboxAmount === 10 ? 10 : 0;
+  const discountPercentage =
+    selectedLootboxAmount === 5 ? 5 : selectedLootboxAmount === 10 ? 10 : 0;
 
   const handleBuyTokens = async () => {
     if (!signer || !isConnected) {
@@ -66,17 +72,19 @@ export default function StorePage() {
 
   // Update BNB amount when token amount changes
   const updateBnbAmount = async (tokens: number) => {
-    if (!signer || tokens <= 0) {
+    if (tokens <= 0) {
       setBnbAmount("0.000000");
       return;
     }
 
     try {
+      const provider = new ethers.JsonRpcProvider(
+        process.env.NEXT_PUBLIC_RPC_URL
+      );
       const tokenContract = TorqueDriftToken__factory.connect(
         CONTRACT_ADDRESSES.TorqueDriftToken,
-        signer
+        provider
       );
-      // Convert token amount to contract format (9 decimals)
       const tokenAmountWei = BigInt(tokens) * BigInt(10 ** 9);
       const requiredBnb = await tokenContract.calculateBnbForTokens(
         tokenAmountWei
@@ -88,7 +96,6 @@ export default function StorePage() {
     }
   };
 
-  // Update BNB amount when token amount changes
   useEffect(() => {
     updateBnbAmount(tokenAmount);
   }, [tokenAmount, signer, updateBnbAmount]);
@@ -106,7 +113,9 @@ export default function StorePage() {
       return;
     }
 
-    console.log(`🎲 Frontend calling openLootbox with amount: ${selectedLootboxAmount}`);
+    console.log(
+      `🎲 Frontend calling openLootbox with amount: ${selectedLootboxAmount}`
+    );
 
     try {
       const result = await openLootbox(selectedLootboxAmount);
@@ -121,7 +130,11 @@ export default function StorePage() {
         setShowRewardModal(true);
       }
 
-      toast.success(`Successfully opened ${selectedLootboxAmount} lootbox${selectedLootboxAmount > 1 ? 'es' : ''}!`);
+      toast.success(
+        `Successfully opened ${selectedLootboxAmount} lootbox${
+          selectedLootboxAmount > 1 ? "es" : ""
+        }!`
+      );
 
       // Refresh balance after opening lootbox
       refetchAll();
@@ -164,7 +177,9 @@ export default function StorePage() {
         >
           <div className="flex items-center gap-2 mb-3">
             <div className="w-1 h-4 bg-[#00D4FF] rounded-full"></div>
-            <h2 className="text-lg font-bold text-[#EEEEF0]">Purchase Statistics</h2>
+            <h2 className="text-lg font-bold text-[#EEEEF0]">
+              Purchase Statistics
+            </h2>
           </div>
 
           {isLoadingStats ? (
@@ -174,7 +189,9 @@ export default function StorePage() {
             </div>
           ) : statsError ? (
             <div className="text-center py-4">
-              <p className="text-[#F59E0B] text-xs">Unable to load statistics</p>
+              <p className="text-[#F59E0B] text-xs">
+                Unable to load statistics
+              </p>
             </div>
           ) : purchaseStats ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -185,51 +202,60 @@ export default function StorePage() {
                   <div className="w-1.5 h-1.5 bg-[#00D4FF] rounded-full"></div>
                 </div>
                 <div className="text-sm font-bold text-[#EEEEF0] mb-1">
-                  {parseFloat(purchaseStats.totalTokensVendidos).toLocaleString('en-US', {
-                    maximumFractionDigits: 0
-                  })}
+                  {parseFloat(purchaseStats.totalTokensVendidos).toLocaleString(
+                    "en-US",
+                    {
+                      maximumFractionDigits: 0,
+                    }
+                  )}
                 </div>
-                <div className="text-[#B5B2BC] text-xs mb-1.5">of 1M $TOD</div>
+                <div className="text-[#B5B2BC] text-xs mb-1.5">
+                  of 125,000 $TOD
+                </div>
                 <div className="w-full bg-[#49474E]/30 rounded-full h-1.5">
                   <div
                     className="bg-[#00D4FF] h-1.5 rounded-full transition-all duration-500"
                     style={{
-                      width: `${Math.min((parseFloat(purchaseStats.totalTokensVendidos) / 1000000) * 100, 100)}%`
+                      width: `${Math.min(
+                        (parseFloat(purchaseStats.totalTokensVendidos) /
+                          125000) *
+                          100,
+                        100
+                      )}%`,
                     }}
                   ></div>
                 </div>
               </div>
 
               {/* Total BNB Received */}
-              <div className="bg-[#121113] rounded-md p-3">
+              <div className="bg-[#121113] flex flex-col justify-between rounded-md p-3">
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-[#B5B2BC] text-xs">BNB Received</span>
                   <div className="w-1.5 h-1.5 bg-[#F59E0B] rounded-full"></div>
                 </div>
-                <div className="text-sm font-bold text-[#EEEEF0] mb-1">
-                  {parseFloat(purchaseStats.totalBnbRecebido).toFixed(4)}
-                </div>
-                <div className="text-[#B5B2BC] text-xs mb-1.5">of 10 BNB</div>
-                <div className="w-full bg-[#49474E]/30 rounded-full h-1.5">
-                  <div
-                    className="bg-[#F59E0B] h-1.5 rounded-full transition-all duration-500"
-                    style={{
-                      width: `${Math.min((parseFloat(purchaseStats.totalBnbRecebido) / 10) * 100, 100)}%`
-                    }}
-                  ></div>
+                <div className="text-lg font-bold text-[#EEEEF0]">
+                  {parseFloat(purchaseStats.totalBnbRecebido).toFixed(4)} BNB
                 </div>
               </div>
 
               {/* Current Price */}
-              <div className="bg-[#121113] rounded-md p-3">
+              <div className="bg-[#121113] flex flex-col justify-between rounded-md p-3">
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-[#B5B2BC] text-xs">Price</span>
-                  <div className={`w-1.5 h-1.5 rounded-full ${purchaseStats.compraHabilitada ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                  <div
+                    className={`w-1.5 h-1.5 rounded-full ${
+                      purchaseStats.compraHabilitada
+                        ? "bg-green-500"
+                        : "bg-red-500"
+                    }`}
+                  ></div>
                 </div>
-                <div className="text-sm font-bold text-[#EEEEF0] mb-1">
-                  {parseFloat(purchaseStats.precoAtual).toFixed(8)}
+                <div>
+                  <div className="text-sm font-bold text-[#EEEEF0] mb-1">
+                    {parseFloat(purchaseStats.precoAtual).toFixed(8)}
+                  </div>
+                  <div className="text-[#B5B2BC] text-xs">BNB/$TOD</div>
                 </div>
-                <div className="text-[#B5B2BC] text-xs">BNB/$TOD</div>
               </div>
             </div>
           ) : null}
@@ -288,28 +314,38 @@ export default function StorePage() {
                     </span>
                   </div>
                   <div className="flex justify-between items-center mb-1.5">
-                    <span className="text-[#B5B2BC] text-sm">Price per token:</span>
+                    <span className="text-[#B5B2BC] text-sm">
+                      Price per token:
+                    </span>
                     <span className="text-[#EEEEF0] text-sm">
                       {tokenAmount === 0 ? "-" : "$0.08 USD"}
                     </span>
                   </div>
                   <div className="flex justify-between items-center mb-1.5">
-                    <span className="text-[#B5B2BC] text-sm">BNB required:</span>
+                    <span className="text-[#B5B2BC] text-sm">
+                      BNB required:
+                    </span>
                     <span className="text-[#F59E0B] text-sm">
                       {tokenAmount === 0 ? "-" : bnbAmount + " BNB"}
                     </span>
                   </div>
                   <div className="flex justify-between items-center pt-1.5 border-t border-[#49474E]/50">
-                    <span className="text-[#EEEEF0] font-semibold text-sm">Total:</span>
+                    <span className="text-[#EEEEF0] font-semibold text-sm">
+                      Total:
+                    </span>
                     <span className="text-[#00D4FF] font-bold text-sm">
-                      {tokenAmount === 0 ? "-" : `$${Number(tokenAmount * 0.08).toFixed(2)} USD`}
+                      {tokenAmount === 0
+                        ? "-"
+                        : `$${Number(tokenAmount * 0.08).toFixed(2)} USD`}
                     </span>
                   </div>
                 </div>
 
                 <Button
                   onClick={handleBuyTokens}
-                  disabled={isPurchasingTokens || !isConnected || tokenAmount === 0}
+                  disabled={
+                    isPurchasingTokens || !isConnected || tokenAmount === 0
+                  }
                   className="w-full"
                 >
                   {isPurchasingTokens ? (
@@ -385,7 +421,8 @@ export default function StorePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
               <p className="text-[#B5B2BC] text-sm mb-3">
-                Open lootboxes to get random NFT cars! Choose your pack size and save with bulk discounts.
+                Open lootboxes to get random NFT cars! Choose your pack size and
+                save with bulk discounts.
               </p>
 
               {/* Lootbox Selection Options */}
@@ -394,18 +431,22 @@ export default function StorePage() {
                 <div
                   className={`bg-[#121113] rounded-md p-3 cursor-pointer border transition-all ${
                     selectedLootboxAmount === 1
-                      ? 'border-[#00D4FF] bg-[#00D4FF]/10'
-                      : 'border-[#49474E]/50 hover:border-[#00D4FF]/50'
+                      ? "border-[#00D4FF] bg-[#00D4FF]/10"
+                      : "border-[#49474E]/50 hover:border-[#00D4FF]/50"
                   }`}
                   onClick={() => setSelectedLootboxAmount(1)}
                 >
                   <div className="flex justify-between items-center">
                     <div>
-                      <span className="text-[#EEEEF0] font-semibold text-sm">1 Lootbox</span>
-                      <div className="text-[#B5B2BC] text-xs">300 $TOD tokens</div>
+                      <span className="text-[#EEEEF0] font-semibold text-sm">
+                        1 Lootbox
+                      </span>
+                      <div className="text-[#B5B2BC] text-xs">300 $TOD</div>
                     </div>
                     <div className="text-right">
-                      <span className="text-[#EEEEF0] text-sm">No discount</span>
+                      <span className="text-[#EEEEF0] text-sm">
+                        No discount
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -414,19 +455,23 @@ export default function StorePage() {
                 <div
                   className={`bg-[#121113] rounded-md p-3 cursor-pointer border transition-all ${
                     selectedLootboxAmount === 5
-                      ? 'border-[#00D4FF] bg-[#00D4FF]/10'
-                      : 'border-[#49474E]/50 hover:border-[#00D4FF]/50'
+                      ? "border-[#00D4FF] bg-[#00D4FF]/10"
+                      : "border-[#49474E]/50 hover:border-[#00D4FF]/50"
                   }`}
                   onClick={() => setSelectedLootboxAmount(5)}
                 >
                   <div className="flex justify-between items-center">
                     <div>
-                      <span className="text-[#EEEEF0] font-semibold text-sm">5 Lootboxes</span>
-                      <div className="text-[#B5B2BC] text-xs">1,425 $TOD tokens</div>
+                      <span className="text-[#EEEEF0] font-semibold text-sm">
+                        5 Lootboxes
+                      </span>
+                      <div className="text-[#B5B2BC] text-xs">1,425 $TOD</div>
                     </div>
                     <div className="text-right">
-                      <span className="text-green-400 text-sm font-semibold">5% OFF</span>
-                      <div className="text-[#B5B2BC] text-xs">Save 75 tokens</div>
+                      <span className="text-green-400 text-sm font-semibold">
+                        5% OFF
+                      </span>
+                      <div className="text-[#B5B2BC] text-xs">Save 75 $TOD</div>
                     </div>
                   </div>
                 </div>
@@ -435,19 +480,25 @@ export default function StorePage() {
                 <div
                   className={`bg-[#121113] rounded-md p-3 cursor-pointer border transition-all ${
                     selectedLootboxAmount === 10
-                      ? 'border-[#00D4FF] bg-[#00D4FF]/10'
-                      : 'border-[#49474E]/50 hover:border-[#00D4FF]/50'
+                      ? "border-[#00D4FF] bg-[#00D4FF]/10"
+                      : "border-[#49474E]/50 hover:border-[#00D4FF]/50"
                   }`}
                   onClick={() => setSelectedLootboxAmount(10)}
                 >
                   <div className="flex justify-between items-center">
                     <div>
-                      <span className="text-[#EEEEF0] font-semibold text-sm">10 Lootboxes</span>
-                      <div className="text-[#B5B2BC] text-xs">2,700 $TOD tokens</div>
+                      <span className="text-[#EEEEF0] font-semibold text-sm">
+                        10 Lootboxes
+                      </span>
+                      <div className="text-[#B5B2BC] text-xs">2,700 $TOD</div>
                     </div>
                     <div className="text-right">
-                      <span className="text-green-400 text-sm font-semibold">10% OFF</span>
-                      <div className="text-[#B5B2BC] text-xs">Save 300 tokens</div>
+                      <span className="text-green-400 text-sm font-semibold">
+                        10% OFF
+                      </span>
+                      <div className="text-[#B5B2BC] text-xs">
+                        Save 300 $TOD
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -458,7 +509,8 @@ export default function StorePage() {
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-[#B5B2BC] text-sm">Selected:</span>
                   <span className="text-[#EEEEF0] font-semibold text-sm">
-                    {selectedLootboxAmount} Lootbox{selectedLootboxAmount > 1 ? 'es' : ''}
+                    {selectedLootboxAmount} Lootbox
+                    {selectedLootboxAmount > 1 ? "es" : ""}
                   </span>
                 </div>
                 <div className="flex justify-between items-center mb-2">
@@ -478,7 +530,8 @@ export default function StorePage() {
                 <div className="flex justify-between items-center">
                   <span className="text-[#B5B2BC] text-sm">Reward:</span>
                   <span className="text-[#EEEEF0] text-sm">
-                    {selectedLootboxAmount} Random NFT Car{selectedLootboxAmount > 1 ? 's' : ''}
+                    {selectedLootboxAmount} Random NFT Car
+                    {selectedLootboxAmount > 1 ? "s" : ""}
                   </span>
                 </div>
               </div>
@@ -491,10 +544,12 @@ export default function StorePage() {
                 {isOpeningLootbox ? (
                   <>
                     <Loader height={20} width={20} className="mr-2" />
-                    Opening Lootbox{selectedLootboxAmount > 1 ? 'es' : ''}...
+                    Opening Lootbox{selectedLootboxAmount > 1 ? "es" : ""}...
                   </>
                 ) : (
-                  `Open ${selectedLootboxAmount} Lootbox${selectedLootboxAmount > 1 ? 'es' : ''}`
+                  `Open ${selectedLootboxAmount} Lootbox${
+                    selectedLootboxAmount > 1 ? "es" : ""
+                  }`
                 )}
               </Button>
             </div>
@@ -527,7 +582,7 @@ export default function StorePage() {
                 <ul className="text-xs text-[#B5B2BC] space-y-1.5">
                   <li className="flex items-center">
                     <span className="w-1.5 h-1.5 bg-[#00D4FF] rounded-full mr-2"></span>
-                    {currentLootboxCost.toLocaleString()} $TOD tokens required
+                    {currentLootboxCost.toLocaleString()} $TOD required
                   </li>
                   <li className="flex items-center">
                     <span className="w-1.5 h-1.5 bg-[#00D4FF] rounded-full mr-2"></span>
@@ -597,7 +652,7 @@ export default function StorePage() {
                   </li>
                   <li className="flex items-center">
                     <span className="w-1.5 h-1.5 bg-[#00D4FF] rounded-full mr-2"></span>
-                    Total Supply: 1,000,000,000
+                    Total Supply: 27,000,000
                   </li>
                 </ul>
               </div>
@@ -642,3 +697,4 @@ export default function StorePage() {
     </div>
   );
 }
+
