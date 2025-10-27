@@ -1,7 +1,7 @@
 {
   "name": "Torque Drift",
   "short_name": "TorqueDrift",
-  "description": "Torque Drift - Racing Game on Solana",
+  "description": "Torque Drift - Racing Game on Binance Smart Chain",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#000000",
@@ -35,8 +35,13 @@
   "related_applications": [
     {
       "platform": "play",
-      "url": "https://play.google.com/store/apps/details?id=com.phantom.wallet",
-      "id": "com.phantom.wallet"
+      "url": "https://play.google.com/store/apps/details?id=io.metamask",
+      "id": "io.metamask"
+    },
+    {
+      "platform": "play",
+      "url": "https://play.google.com/store/apps/details?id=com.wallet.crypto.trustapp",
+      "id": "com.wallet.crypto.trustapp"
     }
   ],
   "prefer_related_applications": false,
