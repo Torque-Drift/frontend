@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   DndContext,
@@ -18,7 +18,7 @@ import {
   ClaimSection,
   ClaimLockSection,
 } from "@/components/garage";
-import { useInitializeGame } from "@/hooks/useInitializeGame";
+import { useInitializeGame, useWhitelistCheck } from "@/hooks/useInitializeGame";
 import { useTokenBalances } from "@/hooks/useTokenBalances";
 import { Button } from "@/components/Button";
 import { useEthers } from "@/hooks/useEthers";
@@ -36,24 +36,21 @@ interface MiningStats {
 
 export default function GaragePage() {
   const [referrerInput, setReferrerInput] = useState("");
-
   const { provider } = useEthers();
-
   const { userExists, referrerCode, initializeGame, isInitializing } =
     useInitializeGame();
-
+  const { data: whitelistData } = useWhitelistCheck();
   const { todBalance } = useTokenBalances();
-
-  const {
-    data: referralCheck,
-    isLoading: checkingReferral,
-  } = useQuery({
-    queryKey: ["referralCheck", referrerInput, provider],
+  const { data: referralCheck } = useQuery({
+    queryKey: ["referralCheck", referrerInput, provider, whitelistData?.isWhitelisted],
     queryFn: async () => {
+      const isWhitelisted = whitelistData?.isWhitelisted || false;
+
       if (!provider || !referrerInput.trim()) {
         return {
           hasDiscount: false,
-          requiredPayment: "0.1",
+          hasWhitelistDiscount: isWhitelisted,
+          requiredPayment: isWhitelisted ? "0.07" : "0.1",
         };
       }
 
@@ -63,25 +60,40 @@ export default function GaragePage() {
           provider
         );
 
-        const isValid = await referralContract.isValidReferralCode(referrerInput.trim());
+        const isValid = await referralContract.isValidReferralCode(
+          referrerInput.trim()
+        );
         if (!isValid) {
           return {
             hasDiscount: false,
-            requiredPayment: "0.1",
+            hasWhitelistDiscount: isWhitelisted,
+            requiredPayment: isWhitelisted ? "0.07" : "0.1",
           };
         }
 
-        const hasDiscount = await referralContract.discountReferralCodes(referrerInput.trim());
+        const hasDiscount = await referralContract.discountReferralCodes(
+          referrerInput.trim()
+        );
+
+        // Priorizar desconto de whitelist
+        let finalPayment = "0.1";
+        if (isWhitelisted) {
+          finalPayment = "0.07";
+        } else if (hasDiscount) {
+          finalPayment = "0.09";
+        }
 
         return {
           hasDiscount,
-          requiredPayment: hasDiscount ? "0.09" : "0.1",
+          hasWhitelistDiscount: isWhitelisted,
+          requiredPayment: finalPayment,
         };
       } catch (error) {
         console.error("Error checking referral:", error);
         return {
           hasDiscount: false,
-          requiredPayment: "0.1",
+          hasWhitelistDiscount: isWhitelisted,
+          requiredPayment: isWhitelisted ? "0.07" : "0.1",
         };
       }
     },
@@ -174,13 +186,24 @@ export default function GaragePage() {
             <p className="text-[#B5B2BC] text-lg mb-8 max-w-md mx-auto">
               Pay a one-time entry fee of{" "}
               <span className="text-yellow-500 font-semibold">
-                {referralCheck?.requiredPayment || "0.1"} BNB
-                {referralCheck?.hasDiscount && (
-                  <span className="text-green-400 text-sm ml-2">(discount applied!)</span>
+                {referralCheck?.requiredPayment || (whitelistData?.isWhitelisted ? "0.07" : "0.1")} BNB
+                {(referralCheck?.hasDiscount || referralCheck?.hasWhitelistDiscount) && (
+                  <span className="text-green-400 text-sm ml-2">
+                    (discount applied!)
+                  </span>
                 )}
               </span>{" "}
               to unlock your garage and start your racing journey!
             </p>
+
+            {/* Whitelist Status */}
+            {whitelistData?.isWhitelisted && (
+              <div className="max-w-md mx-auto mb-4 p-3 bg-green-900/20 border border-green-500/30 rounded-md">
+                <p className="text-green-400 text-sm text-center">
+                  🎉 Your wallet is whitelisted! You get 30% discount (0.07 BNB)
+                </p>
+              </div>
+            )}
 
             {/* Referral Input */}
             <div className="max-w-md mx-auto mb-6">
@@ -201,11 +224,13 @@ export default function GaragePage() {
                   referrerPubkey: referrerInput.trim() || undefined,
                 });
               }}
-              disabled={true/* isInitializing || checkingReferral */}
+              disabled={true /* isInitializing || checkingReferral */}
             >
               {isInitializing
                 ? "Initializing..."
-                : `Pay ${referralCheck?.requiredPayment || "0.1"} BNB & Start Racing`}
+                : `Pay ${
+                    referralCheck?.requiredPayment || (whitelistData?.isWhitelisted ? "0.07" : "0.1")
+                  } BNB & Start Racing`}
             </Button>
           </motion.div>
         </div>
@@ -296,3 +321,4 @@ export default function GaragePage() {
     </DndContext>
   );
 }
+
