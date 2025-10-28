@@ -39,6 +39,10 @@ export default function StorePage() {
   launchDate.setUTCFullYear(2025, 9, 28);
   launchDate.setUTCHours(15, 0, 0, 0);
 
+  const now = new Date().getTime();
+  const target = launchDate.getTime();
+  const difference = target - now;
+
   // Calculate lootbox costs with discounts
   const getLootboxCost = (amount: number) => {
     const baseCost = 300;
@@ -178,7 +182,7 @@ export default function StorePage() {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, delay: 0.3 }}
-          className="w-full mb-12"
+          className={`w-full mb-12 ${difference <= 0 ? "hidden" : ""}`}
         >
           <Countdown targetDate={launchDate} />
         </motion.div>
@@ -186,7 +190,9 @@ export default function StorePage() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-[#1A191B]/80 backdrop-blur-sm rounded-lg p-4 hidden"
+          className={`bg-[#1A191B]/80 backdrop-blur-sm rounded-lg p-4 ${
+            difference > 0 ? "hidden" : ""
+          }`}
         >
           <div className="flex items-center gap-2 mb-3">
             <div className="w-1 h-4 bg-[#00D4FF] rounded-full"></div>
@@ -278,7 +284,9 @@ export default function StorePage() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-[#1A191B]/80 backdrop-blur-sm rounded-lg p-4 hidden"
+          className={`bg-[#1A191B]/80 backdrop-blur-sm rounded-lg p-4 ${
+            difference > 0 ? "hidden" : ""
+          }`}
         >
           <div className="flex items-center gap-2 mb-3">
             <div className="w-1 h-4 bg-[#00D4FF] rounded-full"></div>
@@ -424,7 +432,9 @@ export default function StorePage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-[#1A191B]/80 backdrop-blur-sm rounded-lg p-4 hidden"
+          className={`bg-[#1A191B]/80 backdrop-blur-sm rounded-lg p-4 ${
+            difference > 0 ? "hidden" : ""
+          }`}
         >
           <div className="flex items-center gap-2 mb-3">
             <div className="w-1 h-4 bg-[#00D4FF] rounded-full"></div>
@@ -616,7 +626,9 @@ export default function StorePage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="bg-[#1A191B]/80 backdrop-blur-sm rounded-lg p-4 border border-[#49474E]/50 hidden"
+          className={`bg-[#1A191B]/80 backdrop-blur-sm rounded-lg p-4 border border-[#49474E]/50 ${
+            difference > 0 ? "hidden" : ""
+          }`}
         >
           <div className="flex items-center gap-2 mb-3">
             <div className="w-1 h-4 bg-[#00D4FF] rounded-full"></div>

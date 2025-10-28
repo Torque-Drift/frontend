@@ -128,7 +128,6 @@ export const Countdown: React.FC<CountdownProps> = memo(({ targetDate }) => {
     return () => clearInterval(timer);
   }, [targetDate]);
 
-  // If launched, don't render the component at all
   if (isLaunched) {
     return null;
   }
