@@ -561,7 +561,7 @@ export default function StorePage() {
 
               <Button
                 onClick={handleOpenLootbox}
-                disabled={isOpeningLootbox || !isConnected}
+                disabled={true /* isOpeningLootbox || !isConnected */}
                 className="w-full"
               >
                 {isOpeningLootbox ? (
